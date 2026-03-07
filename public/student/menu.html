@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Student Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* TODAY BANNER */
+    .today-banner{background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,184,255,.04));border:1px solid rgba(0,229,160,.18);border-radius:16px;padding:20px 24px;margin-bottom:22px;display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;}
+    .tb-tag{font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+    .tb-date{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;margin-bottom:3px;}
+    .tb-sub{font-size:.72rem;color:var(--muted);}
+    .tb-meals{display:flex;gap:20px;flex:1;flex-wrap:wrap;}
+    .tbm{flex:1;min-width:100px;}
+    .tbm-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+    .tbm-items{font-size:.78rem;line-height:1.65;color:var(--text);}
+    .tbm-empty{color:var(--muted);font-style:italic;}
+
+    /* WEEK TABS */
+    .week-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;}
+    .week-tab{flex:1;padding:11px 6px;text-align:center;cursor:pointer;font-size:.74rem;font-weight:600;color:var(--muted);transition:all .18s;border-right:1px solid var(--border);}
+    .week-tab:last-child{border-right:none;}
+    .week-tab:hover{background:var(--surface2);color:var(--text);}
+    .week-tab.active{background:rgba(0,229,160,.08);color:var(--accent);}
+    .week-tab-num{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;display:block;margin-bottom:2px;}
+    .week-tab.today .week-tab-num{color:var(--accent);}
+
+    /* LEGEND */
+    .legend{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+    .leg-item{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--muted);}
+    .leg-dot{width:7px;height:7px;border-radius:50%;}
+
+    /* MENU GRID */
+    .menu-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+    .meal-col{background:var(--surface);}
+    .meal-col-head{padding:13px 15px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:8px;}
+    .mch-emoji{font-size:1.1rem;}
+    .mch-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;}
+    .mch-time{font-size:.6rem;color:var(--muted);display:block;margin-top:1px;}
+    .meal-col-body{padding:14px 15px;}
+    .menu-item-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);}
+    .menu-item-row:last-child{border-bottom:none;}
+    .mir-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:7px;flex-shrink:0;}
+    .mir-name{font-size:.78rem;line-height:1.45;}
+    .empty-col{padding:20px 0;text-align:center;color:var(--muted);font-size:.75rem;font-style:italic;}
+
+    /* NUTRITION */
+    .nutrition-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+    .nut-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 14px;text-align:center;}
+    .nut-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:4px;}
+    .nut-label{font-size:.68rem;color:var(--muted);}
+
+    .sec-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;margin-bottom:12px;color:var(--muted);}
+    .state-box{padding:32px;text-align:center;color:var(--muted);font-size:.8rem;}
+    .spinner{width:24px;height:24px;border:2px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    @media(max-width:900px){
+      .menu-grid{grid-template-columns:1fr 1fr;}
+      .nutrition-row{grid-template-columns:1fr 1fr;}
+    }
+    @media(max-width:560px){.menu-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <a href="./dashboard.html" class="logo-text">Mess<span>Mate</span></a>
+    <div class="logo-sub">Student Portal</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userAvatar">?</div>
+    <div><div class="user-name" id="userName">Loading…</div><div class="user-id" id="userId">—</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a class="nav-item" href="./dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="./intention.html"><span class="nav-icon">✅</span> Meal Intentions</a>
+    <a class="nav-item" href="#"><span class="nav-icon">📅</span> Attendance</a>
+    <a class="nav-item" href="./value.html"><span class="nav-icon">💰</span> Budget Value</a>
+    <div class="nav-label">Info</div>
+    <a class="nav-item active" href="./menu.html"><span class="nav-icon">📋</span> Menu</a>
+    <a class="nav-item" href="./orders.html"><span class="nav-icon">🛒</span> Orders</a>
+    <a class="nav-item" href="./canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <a class="nav-item" href="./feedback.html"><span class="nav-icon">💬</span> Feedback</a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="logout-btn" href="../login.html" onclick="sessionStorage.removeItem('mm_session')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg> Sign Out
+    </a>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h1>Weekly Menu</h1>
+      <p>See what's being served all week</p>
+    </div>
+    <div class="topbar-right">
+      <span id="weekLabel" style="font-size:.72rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:6px 12px;border-radius:8px;"></span>
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- TODAY BANNER -->
+    <div class="today-banner">
+      <div style="flex-shrink:0;">
+        <div class="tb-tag">Today's Menu</div>
+        <div class="tb-date" id="bannerDate">—</div>
+        <div class="tb-sub" id="bannerSub">Loading…</div>
+      </div>
+      <div class="tb-meals" id="bannerMeals">
+        <div class="state-box" style="padding:10px"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- WEEK DAY TABS -->
+    <div class="week-tabs" id="weekTabs"></div>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--accent)"></div>Vegetarian</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--muted)"></div>Other</div>
+    </div>
+
+    <!-- MENU GRID — 4 meal columns -->
+    <div class="menu-grid" id="menuGrid">
+      <div style="grid-column:1/-1"><div class="state-box"><div class="spinner"></div>Loading menu…</div></div>
+    </div>
+
+    <!-- NUTRITION TARGETS -->
+    <div class="sec-title">Estimated Full-Day Nutrition</div>
+    <div class="nutrition-row">
+      <div class="nut-card"><div class="nut-val" style="color:var(--accent)">2,450</div><div class="nut-label">Calories (kcal)</div></div>
+      <div class="nut-card"><div class="nut-val" style="color:var(--accent2)">82g</div><div class="nut-label">Protein</div></div>
+      <div class="nut-card"><div class="nut-val" style="color:var(--gold)">340g</div><div class="nut-label">Carbohydrates</div></div>
+      <div class="nut-card"><div class="nut-val" style="color:var(--orange)">58g</div><div class="nut-label">Fat</div></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;"></div>
+
+<script src="../js/main.js"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const API = '/api/menu';
+
+// ── SESSION ───────────────────────────────────────────────────
+(function(){
+  var s; try{ s=JSON.parse(sessionStorage.getItem('mm_session')); }catch(e){ s=null; }
+  if(!s){ window.location.href='../login.html'; return; }
+  var name=s.name||'Student';
+  document.getElementById('userAvatar').textContent=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('userName').textContent=name;
+  document.getElementById('userId').textContent=s.id||s.studentId||'';
+})();
+
+// ── CONSTANTS ─────────────────────────────────────────────────
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MEALS = [
+  { key:'breakfast', name:'Breakfast', emoji:'🌅', time:'7:30–9:00 AM' },
+  { key:'lunch',     name:'Lunch',     emoji:'☀️', time:'12:30–2:00 PM' },
+  { key:'dinner',    name:'Dinner',    emoji:'🌙', time:'7:30–9:00 PM' },
+  { key:'snacks',    name:'Snacks',    emoji:'☕', time:'4:30–5:30 PM' },
+];
+
+// ── STATE ─────────────────────────────────────────────────────
+let allItems = [];
+const today = new Date();
+const todayName = (() => { const d=today.getDay(); return d===0?'Sunday':DAYS[d-1]; })();
+let selectedDay = todayName;
+
+// Week label
+const monday = new Date(today); monday.setDate(today.getDate()-(today.getDay()===0?6:today.getDay()-1));
+const sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById('weekLabel').textContent = `${monday.getDate()} ${mo[monday.getMonth()]} – ${sunday.getDate()} ${mo[sunday.getMonth()]}`;
+
+// ── BUILD WEEK TABS ────────────────────────────────────────────
+function buildWeekTabs() {
+  const el = document.getElementById('weekTabs');
+  el.innerHTML = DAYS.map((day,i) => {
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const isToday = day === todayName;
+    const count = allItems.filter(item=>item.day===day).length;
+    return `<div class="week-tab${day===selectedDay?' active':''}${isToday?' today':''}" onclick="selectDay('${day}',this)">
+      <span class="week-tab-num">${d.getDate()}</span>
+      ${day.slice(0,3)}${count?`<br><span style="font-size:.58rem;color:var(--muted)">${count}</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+function selectDay(day, el) {
+  selectedDay = day;
+  document.querySelectorAll('.week-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderMenuGrid();
+}
+
+// ── LOAD MENU — GET /api/menu ─────────────────────────────────
+async function loadMenu() {
+  try {
+    const res = await fetch(API);
+    if(!res.ok) throw new Error('Server '+res.status);
+    allItems = await res.json();
+    buildWeekTabs();
+    renderTodayBanner();
+    renderMenuGrid();
+  } catch(e) {
+    document.getElementById('menuGrid').innerHTML=`<div style="grid-column:1/-1"><div class="state-box" style="color:var(--danger)">Failed to load menu: ${e.message}<br><button onclick="loadMenu()" style="margin-top:10px;padding:6px 14px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:.76rem">Retry</button></div></div>`;
+    document.getElementById('bannerMeals').innerHTML=`<span style="color:var(--danger);font-size:.78rem">Could not load</span>`;
+    document.getElementById('bannerSub').textContent='Backend unavailable';
+  }
+}
+
+// ── TODAY BANNER ──────────────────────────────────────────────
+function renderTodayBanner() {
+  document.getElementById('bannerDate').textContent = today.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+  const todayItems = allItems.filter(i=>i.day===todayName);
+  document.getElementById('bannerSub').textContent = todayItems.length ? `${todayItems.length} items on today's menu` : 'No menu published for today yet';
+  const bannerEl = document.getElementById('bannerMeals');
+  if(!todayItems.length) { bannerEl.innerHTML='<span style="color:var(--muted);font-size:.78rem;font-style:italic">Menu not published yet</span>'; return; }
+  bannerEl.innerHTML = MEALS.map(meal => {
+    const items = todayItems.filter(i=>i.meal===meal.key);
+    return `<div class="tbm"><div class="tbm-label">${meal.emoji} ${meal.name.toUpperCase()}</div><div class="tbm-items">${items.length ? items.map(i=>i.name).join(' · ') : '<span class="tbm-empty">—</span>'}</div></div>`;
+  }).join('');
+}
+
+// ── MENU GRID ─────────────────────────────────────────────────
+function renderMenuGrid() {
+  const dayItems = allItems.filter(i=>i.day===selectedDay);
+  const grid = document.getElementById('menuGrid');
+  if(!dayItems.length && allItems.length) {
+    grid.innerHTML=`<div style="grid-column:1/-1"><div class="state-box">No menu published for ${selectedDay} yet.</div></div>`;
+    return;
+  }
+  grid.innerHTML = MEALS.map(meal => {
+    const items = dayItems.filter(i=>i.meal===meal.key);
+    const rows = items.length
+      ? items.map(i=>`<div class="menu-item-row"><div class="mir-dot"></div><div class="mir-name">${i.name}</div></div>`).join('')
+      : `<div class="empty-col">Not set</div>`;
+    return `<div class="meal-col"><div class="meal-col-head"><span class="mch-emoji">${meal.emoji}</span><div><div class="mch-name">${meal.name}</div><span class="mch-time">${meal.time}</span></div></div><div class="meal-col-body">${rows}</div></div>`;
+  }).join('');
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadMenu);
+</script>
+</body>
+</html>

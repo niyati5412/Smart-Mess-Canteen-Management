@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Create Account</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0d0f;
+      --surface: #111518;
+      --surface2: #181d21;
+      --border: rgba(255,255,255,0.07);
+      --text: #e8edf2;
+      --muted: #7a8a96;
+      --accent: #00e5a0;
+      --accent2: #00b8ff;
+      --accent3: #ff6b35;
+      --danger: #ff4757;
+      --gold: #f4c542;
+      --warning: #ffbd2e;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; overflow-x: hidden; }
+    .sidebar { width: 380px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 40px 36px; position: sticky; top: 0; height: 100vh; overflow: hidden; }
+    .sidebar-grid { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(0,229,160,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,160,0.035) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(ellipse 80% 80% at 20% 30%, black, transparent); }
+    .orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+    .orb-a { width: 400px; height: 400px; background: rgba(0,229,160,0.1); top: -120px; left: -80px; }
+    .orb-b { width: 250px; height: 250px; background: rgba(0,184,255,0.07); bottom: 60px; right: -60px; }
+    .sidebar-nav { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; margin-bottom: 48px; }
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--accent); text-decoration: none; }
+    .logo span { color: var(--text); }
+    .back-link { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 0.82rem; text-decoration: none; transition: color 0.2s; }
+    .back-link:hover { color: var(--text); }
+    .back-link:hover svg { transform: translateX(-3px); }
+    .back-link svg { transition: transform 0.2s; }
+    .steps-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; position: relative; z-index: 1; }
+    .steps-list { list-style: none; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 0; }
+    .step-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; position: relative; cursor: default; }
+    .step-item:not(:last-child)::after { content: ''; position: absolute; left: 17px; top: 52px; bottom: -10px; width: 1px; background: var(--border); transition: background 0.4s; }
+    .step-item.done:not(:last-child)::after { background: var(--accent); }
+    .step-circle { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: var(--muted); font-family: 'Syne', sans-serif; transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); position: relative; z-index: 1; }
+    .step-item.active .step-circle { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,0.08); box-shadow: 0 0 0 4px rgba(0,229,160,0.1); }
+    .step-item.done .step-circle { background: var(--accent); border-color: var(--accent); color: #0a0d0f; }
+    .step-text { padding-top: 5px; }
+    .step-name { font-weight: 600; font-size: 0.88rem; color: var(--muted); transition: color 0.3s; }
+    .step-item.active .step-name { color: var(--text); }
+    .step-item.done .step-name { color: var(--accent); }
+    .step-desc { font-size: 0.74rem; color: var(--muted); margin-top: 2px; opacity: 0.7; }
+    .sidebar-footer { margin-top: auto; position: relative; z-index: 1; }
+    .security-badge { display: flex; align-items: flex-start; gap: 12px; background: rgba(0,229,160,0.05); border: 1px solid rgba(0,229,160,0.12); border-radius: 12px; padding: 16px; }
+    .security-badge-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+    .security-badge h4 { font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; }
+    .security-badge p { font-size: 0.72rem; color: var(--muted); line-height: 1.5; }
+    .main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 60px 64px; overflow-y: auto; min-height: 100vh; }
+    .form-wrap { width: 100%; max-width: 520px; }
+    .step-panel { display: none; animation: fadeSlide 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .step-panel.active { display: block; }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .panel-header { margin-bottom: 36px; }
+    .panel-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .panel-title { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 8px; }
+    .panel-title em { font-style: normal; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .panel-sub { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+    .role-grid { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
+    .role-option { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 22px 24px; cursor: pointer; transition: all 0.25s cubic-bezier(0.22,1,0.36,1); display: flex; align-items: center; gap: 18px; position: relative; overflow: hidden; }
+    .role-option::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; opacity: 0; transition: opacity 0.25s; }
+    .role-option.green::before { background: var(--accent); }
+    .role-option.blue::before  { background: var(--accent2); }
+    .role-option.gold::before  { background: var(--gold); }
+    .role-option:hover, .role-option.selected { transform: translateX(5px); }
+    .role-option.green:hover, .role-option.green.selected { border-color: rgba(0,229,160,0.35); background: rgba(0,229,160,0.03); }
+    .role-option.blue:hover,  .role-option.blue.selected  { border-color: rgba(0,184,255,0.35); background: rgba(0,184,255,0.03); }
+    .role-option.gold:hover,  .role-option.gold.selected  { border-color: rgba(244,197,66,0.35); background: rgba(244,197,66,0.03); }
+    .role-option.selected::before { opacity: 1; }
+    .role-ico { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; transition: transform 0.25s; }
+    .role-option.green .role-ico { background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.2); }
+    .role-option.blue .role-ico  { background: rgba(0,184,255,0.1); border: 1px solid rgba(0,184,255,0.2); }
+    .role-option.gold .role-ico  { background: rgba(244,197,66,0.1); border: 1px solid rgba(244,197,66,0.2); }
+    .role-option:hover .role-ico { transform: scale(1.08); }
+    .role-body { flex: 1; }
+    .role-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+    .role-desc { font-size: 0.8rem; color: var(--muted); }
+    .role-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .role-option.green.selected .role-check { background: var(--accent); border-color: var(--accent); }
+    .role-option.blue.selected  .role-check { background: var(--accent2); border-color: var(--accent2); }
+    .role-option.gold.selected  .role-check { background: var(--gold); border-color: var(--gold); }
+    .checkmark { display: none; }
+    .role-option.selected .checkmark { display: block; }
+    .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { margin-bottom: 18px; }
+    .field label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--muted); margin-bottom: 7px; letter-spacing: 0.2px; }
+    .field label span.req { color: var(--accent); margin-left: 2px; }
+    .input-wrap { position: relative; }
+    .inp-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; transition: color 0.2s; }
+    .input-wrap:focus-within .inp-icon { color: var(--accent); }
+    input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 16px 13px 42px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; transition: all 0.2s; appearance: none; }
+    input:focus, select:focus { border-color: var(--accent); background: rgba(0,229,160,0.025); box-shadow: 0 0 0 3px rgba(0,229,160,0.07); }
+    input.error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(255,71,87,0.07); }
+    input::placeholder, select option { color: var(--muted); opacity: 0.6; }
+    select { cursor: pointer; }
+    .select-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    .eye-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); padding: 4px; transition: color 0.2s; }
+    .eye-btn:hover { color: var(--text); }
+    .pass-strength { margin-top: 8px; display: none; }
+    .strength-bar { height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; margin-bottom: 5px; }
+    .strength-fill { height: 100%; border-radius: 2px; transition: all 0.4s cubic-bezier(0.22,1,0.36,1); width: 0%; }
+    .strength-text { font-size: 0.72rem; color: var(--muted); }
+    .field-hint { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
+    .field-err  { font-size: 0.72rem; color: var(--danger); margin-top: 6px; display: none; }
+    .field-err.show { display: block; }
+    .api-error-box { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.25); border-radius: 10px; padding: 10px 14px; font-size: 0.78rem; color: var(--danger); margin-bottom: 16px; line-height: 1.5; display: none; }
+    .api-error-box.show { display: block; }
+    .toggle-row { display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; cursor: pointer; transition: border-color 0.2s; }
+    .toggle-row:hover { border-color: rgba(0,229,160,0.2); }
+    .toggle-checkbox { display: none; }
+    .toggle-box { width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0; border: 1.5px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-top: 1px; }
+    .toggle-row.checked .toggle-box { background: var(--accent); border-color: var(--accent); }
+    .toggle-row.checked .toggle-box .check-svg { display: block; }
+    .check-svg { display: none; }
+    .toggle-text h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 3px; }
+    .toggle-text p  { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+    .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 20px; }
+    .review-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .review-header h3 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; }
+    .review-edit { font-size: 0.75rem; color: var(--accent); cursor: pointer; text-decoration: none; transition: opacity 0.2s; }
+    .review-edit:hover { opacity: 0.7; }
+    .review-body { padding: 16px 20px; }
+    .review-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.83rem; }
+    .review-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .review-row .rkey { color: var(--muted); }
+    .review-row .rval { font-weight: 500; text-align: right; max-width: 60%; }
+    .review-role-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; }
+    .badge-green { background: rgba(0,229,160,0.1); color: var(--accent); }
+    .badge-blue  { background: rgba(0,184,255,0.1); color: var(--accent2); }
+    .badge-gold  { background: rgba(244,197,66,0.1); color: var(--gold); }
+    .terms-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 0.78rem; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+    .terms-box a { color: var(--accent); text-decoration: none; }
+    .btn-row { display: flex; gap: 12px; align-items: center; }
+    .btn-back { padding: 13px 22px; border-radius: 12px; background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px; }
+    .btn-back:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .btn-next { flex: 1; padding: 14px 28px; border-radius: 12px; background: var(--accent); color: #0a0d0f; font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; position: relative; overflow: hidden; }
+    .btn-next:hover { background: #00ffb3; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,229,160,0.3); }
+    .btn-next:active { transform: translateY(0); }
+    .btn-next:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .btn-next.blue { background: var(--accent2); }
+    .btn-next.blue:hover { background: #33cfff; box-shadow: 0 8px 24px rgba(0,184,255,0.3); }
+    .btn-next.gold { background: var(--gold); }
+    .btn-next.gold:hover { box-shadow: 0 8px 24px rgba(244,197,66,0.3); }
+    .btn-spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(10,13,15,0.3); border-top-color: #0a0d0f; animation: spin 0.7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .login-link { text-align: center; margin-top: 28px; font-size: 0.83rem; color: var(--muted); }
+    .login-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .success-screen { display: none; text-align: center; padding: 20px 0; }
+    .success-screen.active { display: block; animation: fadeSlide 0.6s both; }
+    .success-ring { width: 88px; height: 88px; border-radius: 50%; background: rgba(0,229,160,0.08); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2.4rem; margin: 0 auto 24px; animation: popIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.2s; }
+    @keyframes popIn { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-title { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+    .success-sub { color: var(--muted); font-size: 0.92rem; line-height: 1.7; max-width: 380px; margin: 0 auto 32px; }
+    .success-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+    .success-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 12px; text-align: center; }
+    .success-card .sc-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .success-card .sc-label { font-size: 0.75rem; color: var(--muted); }
+    .success-redirect { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+    .progress-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; max-width: 200px; margin: 10px auto 0; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; animation: fillBar 3s linear forwards 0.5s; }
+    @keyframes fillBar { to { width: 100%; } }
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: relative; padding: 28px 24px; }
+      .orb-a { display: none; }
+      .steps-list { flex-direction: row; gap: 0; overflow-x: auto; padding-bottom: 4px; }
+      .step-item { flex-direction: column; align-items: center; text-align: center; padding: 0 16px 16px; flex: 1; min-width: 80px; }
+      .step-item:not(:last-child)::after { display: none; }
+      .step-text { display: none; }
+      .sidebar-footer { display: none; }
+      .sidebar-nav { margin-bottom: 24px; }
+      .main { padding: 36px 24px; }
+    }
+    @media (max-width: 560px) {
+      .field-row-2 { grid-template-columns: 1fr; }
+      .success-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-grid"></div>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <nav class="sidebar-nav">
+    <a href="/" class="logo">Mess<span>Mate</span></a>
+    <a href="/" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Home
+    </a>
+  </nav>
+  <div class="steps-label">SETUP PROGRESS</div>
+  <ul class="steps-list" id="stepsList">
+    <li class="step-item active" data-step="1">
+      <div class="step-circle" id="sc1">01</div>
+      <div class="step-text"><div class="step-name">Choose Role</div><div class="step-desc">Student, Admin or Guardian</div></div>
+    </li>
+    <li class="step-item" data-step="2">
+      <div class="step-circle" id="sc2">02</div>
+      <div class="step-text"><div class="step-name">Personal Info</div><div class="step-desc">Name, email & contact</div></div>
+    </li>
+    <li class="step-item" data-step="3">
+      <div class="step-circle" id="sc3">03</div>
+      <div class="step-text"><div class="step-name">Account Setup</div><div class="step-desc">Password & preferences</div></div>
+    </li>
+    <li class="step-item" data-step="4">
+      <div class="step-circle" id="sc4">04</div>
+      <div class="step-text"><div class="step-name">Review</div><div class="step-desc">Confirm & create account</div></div>
+    </li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="security-badge">
+      <div class="security-badge-icon">🔐</div>
+      <div>
+        <h4>Secure & Private</h4>
+        <p>Your data is encrypted and never shared with third parties. Role-based access ensures only you see your information.</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="form-wrap">
+
+    <!-- STEP 1: ROLE -->
+    <div class="step-panel active" id="panel1">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 1 of 4</div>
+        <h1 class="panel-title">Who are <em>you</em>?</h1>
+        <p class="panel-sub">Select your role on the platform. This determines your dashboard, permissions, and available features.</p>
+      </div>
+      <div class="role-grid">
+        <div class="role-option green" data-role="student" onclick="selectRole(this)">
+          <div class="role-ico">🎓</div>
+          <div class="role-body"><div class="role-name">Student</div><div class="role-desc">Mark meal intentions, track budget efficiency & view attendance history</div></div>
+          <div class="role-check"><svg class="checkmark" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#0a0d0f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="role-option blue" data-role="admin" onclick="selectRole(this)">
+          <div class="role-ico">⚙️</div>
+          <div class="role-body"><div class="role-name">Administrator</div><div class="role-desc">Manage mess operations, view live demand analytics & generate reports</div></div>
+          <div class="role-check"><svg class="checkmark" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#0a0d0f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="role-option gold" data-role="guardian" onclick="selectRole(this)">
+          <div class="role-ico">👨‍👩‍👦</div>
+          <div class="role-body"><div class="role-name">Guardian / Parent</div><div class="role-desc">Monitor your ward's meal participation and receive monthly reports</div></div>
+          <div class="role-check"><svg class="checkmark" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#0a0d0f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-next" id="nextBtn1" onclick="goNext(1)">
+          <span>Continue</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: PERSONAL INFO -->
+    <div class="step-panel" id="panel2">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 2 of 4</div>
+        <h1 class="panel-title">Your <em>details</em></h1>
+        <p class="panel-sub">Basic information to set up your account. All fields marked with <span style="color:var(--accent)">*</span> are required.</p>
+      </div>
+      <div class="field-row-2">
+        <div class="field">
+          <label>First Name <span class="req">*</span></label>
+          <div class="input-wrap">
+            <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="firstName" placeholder="John">
+          </div>
+          <div class="field-err" id="firstNameErr">First name is required.</div>
+        </div>
+        <div class="field">
+          <label>Last Name <span class="req">*</span></label>
+          <div class="input-wrap">
+            <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="lastName" placeholder="Doe">
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Email Address <span class="req">*</span></label>
+        <div class="input-wrap">
+          <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input type="email" id="email" placeholder="john@campus.edu">
+        </div>
+        <div class="field-err" id="emailErr">Please enter a valid email address.</div>
+      </div>
+      <div class="field">
+        <label>Phone Number</label>
+        <div class="input-wrap">
+          <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.29 6.29l.94-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <input type="tel" id="phone" placeholder="+91 98765 43210">
+        </div>
+        <div class="field-hint">Optional — used for urgent mess notifications</div>
+      </div>
+
+      <!-- Student fields -->
+      <div id="studentFields">
+        <div class="field-row-2">
+          <div class="field">
+            <label>Student ID <span class="req">*</span></label>
+            <div class="input-wrap">
+              <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              <input type="text" id="studentId" placeholder="e.g. 2024CS001">
+            </div>
+          </div>
+          <div class="field">
+            <label>Academic Year <span class="req">*</span></label>
+            <div class="input-wrap">
+              <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <select id="academicYear">
+                <option value="" disabled selected>Select year</option>
+                <option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>Postgraduate</option>
+              </select>
+              <svg class="select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Department / Branch</label>
+          <div class="input-wrap">
+            <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <input type="text" id="department" placeholder="e.g. Computer Science">
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin fields -->
+      <div id="adminFields" style="display:none">
+        <div class="field">
+          <label>Campus / Institution Name <span class="req">*</span></label>
+          <div class="input-wrap">
+            <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            <input type="text" id="campusName" placeholder="e.g. NIT Solan">
+          </div>
+        </div>
+        <div class="field">
+          <label>Admin Role / Designation</label>
+          <div class="input-wrap">
+            <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            <select id="adminRole">
+              <option value="" disabled selected>Select role</option>
+              <option>Mess Manager</option><option>Hostel Warden</option><option>Campus Director</option><option>IT Administrator</option><option>Other</option>
+            </select>
+            <svg class="select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guardian fields -->
+      <div id="guardianFields" style="display:none">
+        <div class="field">
+          <label>Relationship to Student <span class="req">*</span></label>
+          <div class="input-wrap">
+            <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <select id="relationship">
+              <option value="" disabled selected>Select relationship</option>
+              <option>Parent (Father)</option><option>Parent (Mother)</option><option>Legal Guardian</option><option>Sibling</option><option>Other</option>
+            </select>
+            <svg class="select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="field">
+          <label>Ward's Student ID <span class="req">*</span></label>
+          <div class="input-wrap">
+            <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            <input type="text" id="wardId" placeholder="e.g. 0ee75402-1d86-4a9e-...">
+          </div>
+          <div class="field-hint">The system ID of the student you're linked to</div>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn-back" onclick="goBack(2)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn-next" id="nextBtn2" onclick="goNext(2)">
+          <span>Continue</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: ACCOUNT SETUP -->
+    <div class="step-panel" id="panel3">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 3 of 4</div>
+        <h1 class="panel-title">Secure your <em>account</em></h1>
+        <p class="panel-sub">Set a strong password and configure your notification preferences.</p>
+      </div>
+      <div class="field">
+        <label>Password <span class="req">*</span></label>
+        <div class="input-wrap">
+          <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="password" placeholder="Min. 8 characters" oninput="checkStrength(this.value)">
+          <button type="button" class="eye-btn" onclick="togglePass('password', 'eye1')">
+            <svg id="eye1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="pass-strength" id="passStrength">
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-text" id="strengthText">Enter a password</div>
+        </div>
+        <div class="field-err" id="passErr">Password must be at least 8 characters.</div>
+      </div>
+      <div class="field">
+        <label>Confirm Password <span class="req">*</span></label>
+        <div class="input-wrap">
+          <svg class="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="confirmPass" placeholder="Repeat your password">
+          <button type="button" class="eye-btn" onclick="togglePass('confirmPass', 'eye2')">
+            <svg id="eye2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="field-err" id="confirmErr">Passwords do not match.</div>
+      </div>
+      <div style="margin-bottom:24px">
+        <div class="field-hint" style="margin-bottom:14px; font-weight:600; color:var(--text); font-size:0.82rem;">NOTIFICATION PREFERENCES</div>
+        <div class="toggle-row" id="toggle1" onclick="toggleCheck('toggle1')">
+          <div class="toggle-box"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#0a0d0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="toggle-text"><h4>Meal cutoff reminders</h4><p>Receive a notification 2 hours before each meal's intention cutoff</p></div>
+        </div>
+        <div class="toggle-row" id="toggle2" onclick="toggleCheck('toggle2')">
+          <div class="toggle-box"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#0a0d0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="toggle-text"><h4>Monthly summary email</h4><p>Get a monthly report of your meal participation and budget efficiency</p></div>
+        </div>
+        <div class="toggle-row" id="toggle3" onclick="toggleCheck('toggle3')">
+          <div class="toggle-box"><svg class="check-svg" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#0a0d0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="toggle-text"><h4>Menu updates</h4><p>Be notified when the weekly mess menu is published or changed</p></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack(3)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn-next" id="nextBtn3" onclick="goNext(3)">
+          <span>Review Account</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 4: REVIEW -->
+    <div class="step-panel" id="panel4">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Step 4 of 4</div>
+        <h1 class="panel-title">Almost <em>there!</em></h1>
+        <p class="panel-sub">Review your information before creating your account.</p>
+      </div>
+      <div id="reviewCards"></div>
+      <div class="api-error-box" id="apiError"></div>
+      <div class="terms-box">
+        By creating an account, you agree to MessMate's
+        <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        Your meal data is used solely to improve campus operations and will never be sold or shared externally.
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack(4)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn-next" id="nextBtn4" onclick="submitForm()">
+          <span id="submitText">Create Account</span>
+          <div class="btn-spinner" id="submitSpinner"></div>
+          <svg id="submitArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-ring">🎉</div>
+      <h1 class="success-title">Account Created!</h1>
+      <p class="success-sub" id="successMsg">Welcome to MessMate! Your account is ready.</p>
+      <div class="success-cards">
+        <div class="success-card"><div class="sc-icon">🎯</div><div class="sc-label">Mark your first meal intention</div></div>
+        <div class="success-card"><div class="sc-icon">📊</div><div class="sc-label">Explore your dashboard</div></div>
+        <div class="success-card"><div class="sc-icon">🔔</div><div class="sc-label">Set up notifications</div></div>
+      </div>
+      <div class="success-redirect">Redirecting to your dashboard in 3 seconds…</div>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+    </div>
+
+    <div class="login-link" id="loginLinkBottom">
+      Already have an account? <a href="/login.html">Sign in →</a>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  let currentStep = 1;
+  let selectedRole = '';
+
+  const roleMeta = {
+    student:  { label: 'Student',       class: 'green', btnClass: 'green', badge: 'badge-green' },
+    admin:    { label: 'Administrator', class: 'blue',  btnClass: 'blue',  badge: 'badge-blue'  },
+    guardian: { label: 'Guardian',      class: 'gold',  btnClass: 'gold',  badge: 'badge-gold'  },
+  };
+
+  function selectRole(card) {
+    document.querySelectorAll('.role-option').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedRole = card.dataset.role;
+    document.getElementById('nextBtn1').className = `btn-next ${roleMeta[selectedRole].btnClass}`;
+  }
+
+  function goNext(step) {
+    if (!validateStep(step)) return;
+    const items = document.querySelectorAll('.step-item');
+    items[step - 1].classList.remove('active');
+    items[step - 1].classList.add('done');
+    items[step - 1].querySelector('.step-circle').innerHTML =
+      `<svg width="14" height="12" viewBox="0 0 14 12" fill="none"><path d="M1 6l4 4 8-9" stroke="#0a0d0f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    if (step < 4) {
+      items[step].classList.add('active');
+      document.getElementById(`panel${step}`).classList.remove('active');
+      document.getElementById(`panel${step + 1}`).classList.add('active');
+      currentStep = step + 1;
+      if (currentStep === 2) updateRoleFields();
+      if (currentStep === 4) populateReview();
+      if (selectedRole) {
+        const cls = roleMeta[selectedRole].btnClass;
+        ['nextBtn2','nextBtn3','nextBtn4'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.className = `btn-next ${cls}`;
+        });
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goBack(step) {
+    const items = document.querySelectorAll('.step-item');
+    items[step - 1].classList.remove('active', 'done');
+    items[step - 1].querySelector('.step-circle').textContent = `0${step}`;
+    items[step - 2].classList.remove('done');
+    items[step - 2].classList.add('active');
+    items[step - 2].querySelector('.step-circle').textContent = `0${step - 1}`;
+    document.getElementById(`panel${step}`).classList.remove('active');
+    document.getElementById(`panel${step - 1}`).classList.add('active');
+    currentStep = step - 1;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateStep(step) {
+    if (step === 1) {
+      if (!selectedRole) {
+        document.querySelector('.role-grid').style.cssText += ';animation:shake 0.4s ease-in-out';
+        return false;
+      }
+      return true;
+    }
+    if (step === 2) {
+      let valid = true;
+      const fn = document.getElementById('firstName');
+      const em = document.getElementById('email');
+      document.getElementById('firstNameErr').classList.remove('show');
+      document.getElementById('emailErr').classList.remove('show');
+      if (!fn.value.trim()) { document.getElementById('firstNameErr').classList.add('show'); fn.classList.add('error'); valid = false; } else fn.classList.remove('error');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())) { document.getElementById('emailErr').classList.add('show'); em.classList.add('error'); valid = false; } else em.classList.remove('error');
+      return valid;
+    }
+    if (step === 3) {
+      let valid = true;
+      const pw = document.getElementById('password').value;
+      const cp = document.getElementById('confirmPass').value;
+      document.getElementById('passErr').classList.remove('show');
+      document.getElementById('confirmErr').classList.remove('show');
+      if (pw.length < 8) { document.getElementById('passErr').classList.add('show'); document.getElementById('password').classList.add('error'); valid = false; } else document.getElementById('password').classList.remove('error');
+      if (pw !== cp) { document.getElementById('confirmErr').classList.add('show'); document.getElementById('confirmPass').classList.add('error'); valid = false; } else document.getElementById('confirmPass').classList.remove('error');
+      return valid;
+    }
+    return true;
+  }
+
+  function updateRoleFields() {
+    document.getElementById('studentFields').style.display  = selectedRole === 'student'  ? 'block' : 'none';
+    document.getElementById('adminFields').style.display    = selectedRole === 'admin'    ? 'block' : 'none';
+    document.getElementById('guardianFields').style.display = selectedRole === 'guardian' ? 'block' : 'none';
+  }
+
+  function populateReview() {
+    const fn   = document.getElementById('firstName').value;
+    const ln   = document.getElementById('lastName').value;
+    const em   = document.getElementById('email').value;
+    const ph   = document.getElementById('phone').value || '—';
+    const meta = roleMeta[selectedRole];
+    let extraRows = '';
+    if (selectedRole === 'student') {
+      extraRows = `
+        <div class="review-row"><span class="rkey">Student ID</span><span class="rval">${document.getElementById('studentId').value || '—'}</span></div>
+        <div class="review-row"><span class="rkey">Academic Year</span><span class="rval">${document.getElementById('academicYear').value || '—'}</span></div>
+        <div class="review-row"><span class="rkey">Department</span><span class="rval">${document.getElementById('department').value || '—'}</span></div>`;
+    } else if (selectedRole === 'admin') {
+      extraRows = `
+        <div class="review-row"><span class="rkey">Campus</span><span class="rval">${document.getElementById('campusName').value || '—'}</span></div>
+        <div class="review-row"><span class="rkey">Designation</span><span class="rval">${document.getElementById('adminRole').value || '—'}</span></div>`;
+    } else if (selectedRole === 'guardian') {
+      extraRows = `
+        <div class="review-row"><span class="rkey">Relationship</span><span class="rval">${document.getElementById('relationship').value || '—'}</span></div>
+        <div class="review-row"><span class="rkey">Ward's ID</span><span class="rval">${document.getElementById('wardId').value || '—'}</span></div>`;
+    }
+    document.getElementById('reviewCards').innerHTML = `
+      <div class="review-card">
+        <div class="review-header"><h3>Role</h3><a href="#" class="review-edit" onclick="goBack(4);setTimeout(()=>goBack(3),10);setTimeout(()=>goBack(2),20)">Edit</a></div>
+        <div class="review-body"><div class="review-row"><span class="rkey">Selected Role</span><span class="rval"><span class="review-role-badge ${meta.badge}">${meta.label}</span></span></div></div>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><h3>Personal Information</h3><a href="#" class="review-edit" onclick="goBack(4);setTimeout(()=>goBack(3),10)">Edit</a></div>
+        <div class="review-body">
+          <div class="review-row"><span class="rkey">Full Name</span><span class="rval">${fn} ${ln}</span></div>
+          <div class="review-row"><span class="rkey">Email</span><span class="rval">${em}</span></div>
+          <div class="review-row"><span class="rkey">Phone</span><span class="rval">${ph}</span></div>
+          ${extraRows}
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><h3>Account Preferences</h3><a href="#" class="review-edit" onclick="goBack(4)">Edit</a></div>
+        <div class="review-body">
+          <div class="review-row"><span class="rkey">Password</span><span class="rval">••••••••</span></div>
+          <div class="review-row"><span class="rkey">Cutoff reminders</span><span class="rval">${document.getElementById('toggle1').classList.contains('checked') ? '✓ Enabled' : '— Disabled'}</span></div>
+          <div class="review-row"><span class="rkey">Monthly report</span><span class="rval">${document.getElementById('toggle2').classList.contains('checked') ? '✓ Enabled' : '— Disabled'}</span></div>
+          <div class="review-row"><span class="rkey">Menu updates</span><span class="rval">${document.getElementById('toggle3').classList.contains('checked') ? '✓ Enabled' : '— Disabled'}</span></div>
+        </div>
+      </div>`;
+  }
+
+  // ══════════════════════════════════════════════════
+  //  SUBMIT — wardStudentId bhi bheja jata hai ab
+  // ══════════════════════════════════════════════════
+  async function submitForm() {
+    const btn    = document.getElementById('nextBtn4');
+    const errBox = document.getElementById('apiError');
+    errBox.classList.remove('show');
+    errBox.textContent = '';
+    btn.disabled = true;
+    document.getElementById('submitText').style.display    = 'none';
+    document.getElementById('submitArrow').style.display   = 'none';
+    document.getElementById('submitSpinner').style.display = 'block';
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const fullName  = (firstName + ' ' + lastName).trim();
+    const email     = document.getElementById('email').value.trim().toLowerCase();
+    const password  = document.getElementById('password').value;
+
+    // ✅ FIX — guardian ke liye wardStudentId bhejo
+    const wardStudentId = selectedRole === 'guardian'
+      ? document.getElementById('wardId').value.trim()
+      : undefined;
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: fullName,
+          email,
+          password,
+          role: selectedRole,
+          ...(wardStudentId && { wardStudentId }),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        btn.disabled = false;
+        document.getElementById('submitText').style.display    = 'inline';
+        document.getElementById('submitArrow').style.display   = 'inline';
+        document.getElementById('submitSpinner').style.display = 'none';
+        errBox.textContent = '❌ ' + (data.message || 'Registration failed. Please try again.');
+        errBox.classList.add('show');
+        return;
+      }
+
+      sessionStorage.setItem('mm_session', JSON.stringify(data.user));
+      document.getElementById('panel4').classList.remove('active');
+      document.getElementById('successScreen').classList.add('active');
+      document.getElementById('loginLinkBottom').style.display = 'none';
+
+      const msgs = {
+        student:  'Welcome to MessMate! Your student account is ready. Start tracking your meals right away.',
+        admin:    'Your administrator account is live. Head to your dashboard to manage mess operations.',
+        guardian: "Your guardian account is set up. You'll receive meal participation updates for your ward.",
+      };
+      document.getElementById('successMsg').textContent = msgs[selectedRole] || msgs.student;
+
+      document.querySelectorAll('.step-item').forEach(item => {
+        item.classList.remove('active');
+        item.classList.add('done');
+        item.querySelector('.step-circle').innerHTML =
+          `<svg width="14" height="12" viewBox="0 0 14 12" fill="none"><path d="M1 6l4 4 8-9" stroke="#0a0d0f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      });
+
+      const REDIRECTS = { student: 'student/dashboard.html', admin: 'admin/dashboard.html', guardian: 'guardian/dashboard.html' };
+      setTimeout(() => { window.location.href = REDIRECTS[selectedRole] || 'login.html'; }, 3000);
+
+    } catch (err) {
+      btn.disabled = false;
+      document.getElementById('submitText').style.display    = 'inline';
+      document.getElementById('submitArrow').style.display   = 'inline';
+      document.getElementById('submitSpinner').style.display = 'none';
+      errBox.textContent = '❌ Cannot reach server. Make sure backend is running (npm run dev).';
+      errBox.classList.add('show');
+      console.error('Register error:', err);
+    }
+  }
+
+  function togglePass(inputId, iconId) {
+    const inp  = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      inp.type = 'password';
+      icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  }
+
+  function checkStrength(val) {
+    const el   = document.getElementById('passStrength');
+    const fill = document.getElementById('strengthFill');
+    const text = document.getElementById('strengthText');
+    el.style.display = 'block';
+    let score = 0;
+    if (val.length >= 8)  score++;
+    if (val.length >= 12) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { pct: '10%', color: 'var(--danger)',  label: 'Too short' },
+      { pct: '25%', color: 'var(--danger)',  label: 'Weak' },
+      { pct: '50%', color: 'var(--warning)', label: 'Fair' },
+      { pct: '75%', color: 'var(--gold)',    label: 'Good' },
+      { pct: '90%', color: 'var(--accent)',  label: 'Strong' },
+      { pct: '100%',color: 'var(--accent)',  label: 'Very strong 💪' },
+    ];
+    const lvl = levels[Math.min(score, 5)];
+    fill.style.width      = val.length === 0 ? '0%' : lvl.pct;
+    fill.style.background = lvl.color;
+    text.textContent      = val.length === 0 ? '' : lvl.label;
+    text.style.color      = lvl.color;
+  }
+
+  function toggleCheck(id) {
+    document.getElementById(id).classList.toggle('checked');
+  }
+
+  const style = document.createElement('style');
+  style.textContent = `@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}`;
+  document.head.appendChild(style);
+</script>
+</body>
+</html>

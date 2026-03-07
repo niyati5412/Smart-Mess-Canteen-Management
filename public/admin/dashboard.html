@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- ✅ Shared stylesheet -->
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* STATS — dashboard has 5 columns */
+    .stats-row{grid-template-columns:repeat(5,1fr);}
+    /* CUTOFF ROW */
+    .cutoff-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+    .cutoff-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
+    .cc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .cc-emoji{font-size:1.2rem;}
+    .cc-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;margin-bottom:2px;}
+    .cc-cutoff{font-size:0.7rem;color:var(--muted);margin-bottom:12px;}
+    .cc-prog-wrap{height:5px;border-radius:3px;background:var(--surface2);overflow:hidden;margin-bottom:8px;}
+    .cc-prog{height:100%;border-radius:3px;transition:width 1s;}
+    .cc-counts{display:flex;justify-content:space-between;font-size:0.68rem;}
+    .cc-eat{color:var(--accent2);}
+    .cc-skip{color:var(--danger);}
+    .cc-total{color:var(--muted);}
+    .cc-badge{font-size:0.6rem;}
+    /* 2-COL LOWER */
+    .lower-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-top:16px;}
+    /* LIVE FEED */
+    .feed-list{display:flex;flex-direction:column;gap:0;max-height:300px;overflow-y:auto;}
+    .feed-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .feed-item:last-child{border-bottom:none;}
+    .feed-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .feed-body{flex:1;}
+    .feed-text{font-size:0.78rem;}
+    .feed-time{font-size:0.65rem;color:var(--muted);margin-top:1px;}
+    .feed-badge{font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:100px;flex-shrink:0;}
+    /* MINI CHART */
+    .mini-bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;margin-bottom:8px;}
+    .mb-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .mb-fill{width:100%;border-radius:3px 3px 0 0;min-height:3px;}
+    .mb-lbl{font-size:0.58rem;color:var(--muted);}
+    /* QUICK ACTIONS */
+    .qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .qa-btn{padding:12px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;text-align:left;transition:all 0.18s;}
+    .qa-btn:hover{border-color:rgba(0,184,255,0.3);background:rgba(0,184,255,0.04);}
+    .qa-icon{font-size:1.2rem;margin-bottom:6px;display:block;}
+    .qa-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;margin-bottom:2px;}
+    .qa-sub{font-size:0.68rem;color:var(--muted);}
+    /* ALERTS */
+    .alert-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .alert-item:last-child{border-bottom:none;}
+    .alert-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0;}
+    .alert-text{font-size:0.78rem;font-weight:500;margin-bottom:2px;}
+    .alert-sub{font-size:0.67rem;color:var(--muted);}
+    @media(max-width:1100px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:900px){.lower-grid{grid-template-columns:1fr;}.cutoff-row{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><a href="#" class="logo-text">Mess<span>Mate</span></a><div class="logo-sub">Admin Portal</div></div>
+  <div class="sidebar-campus">
+    <div class="campus-icon" id="userAvatar" style="font-size:0.75rem;font-family:'Syne',sans-serif;font-weight:800;color:#0a0d0f">?</div>
+    <div>
+      <div class="campus-name" id="userName">Loading...</div>
+      <div class="campus-role" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="94f5f0f9fdfad4f9f1e7e7f9f5e0f1baf5e4e4">[email&#160;protected]</a></div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item active" href="./dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="./menu.html"><span class="nav-icon">📋</span> Menu Manager</a>
+    <a class="nav-item" href="./orders.html"><span class="nav-icon">📋</span> order Manager</a>
+    <a class="nav-item" href="#"><span class="nav-icon">✅</span> Intentions</a>
+    <a class="nav-item" href="#"><span class="nav-icon">👥</span> Students <span class="nav-badge blue">342</span></a>
+    <div class="nav-label">Finance</div>
+    <a class="nav-item" href="./budget.html"><span class="nav-icon">💰</span> Budget</a>
+    <a class="nav-item" href="./waste.html"><span class="nav-icon">♻️</span> Waste</a>
+    <a class="nav-item" href="./canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <div class="nav-label">Reports</div>
+    <a class="nav-item" href="#"><span class="nav-icon">📤</span> Reports <span class="nav-badge">2</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">🔔</span> Alerts <span class="nav-badge">5</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-bottom"><a class="logout-btn" href="login.html" onclick="sessionStorage.removeItem('mm_session')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</a></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Admin Dashboard</h1><p>NIT Hamirpur · Friday, 28 Feb 2025 · Dinner cutoff in <span style="color:var(--gold)">1h 42m</span></p></div>
+    <div class="topbar-right">
+      <a href="./menu.html" class="tb-btn">📋 Edit Menu</a>
+      <a href="#" class="tb-btn primary" onclick="showToast('Report generated','var(--accent2)')">⬇ Export Report</a>
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="sc-label">Total Students</div>
+        <div class="sc-val" style="color:var(--accent)">342</div>
+        <div class="sc-sub"><span class="badge bb">+8 this month</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-label">Today's Participation</div>
+        <div class="sc-val" style="color:var(--accent2)">78%</div>
+        <div class="sc-sub">267 / 342 eating breakfast</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-label">Avg Efficiency</div>
+        <div class="sc-val" style="color:var(--gold)">87%</div>
+        <div class="sc-sub"><span class="badge bgo">↑ 3% vs last month</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-label">Waste Index Today</div>
+        <div class="sc-val" style="color:var(--accent2)">4.2%</div>
+        <div class="sc-sub"><span class="badge bg">↓ Low waste</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-label">Pending Intentions</div>
+        <div class="sc-val" style="color:var(--danger)">38</div>
+        <div class="sc-sub">unmarked for dinner <span class="badge br">Action needed</span></div>
+      </div>
+    </div>
+
+    <!-- MEAL CUTOFF TRACKER -->
+    <div style="font-family:'Syne',sans-serif;font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:0.3px;">Today's Meal Intentions — Live</div>
+    <div class="cutoff-row">
+      <div class="cutoff-card">
+        <div class="cc-top"><span class="cc-emoji">🌅</span><span class="pill pill-muted">Closed</span></div>
+        <div class="cc-name">Breakfast</div>
+        <div class="cc-cutoff">Cutoff passed · 7:00 AM</div>
+        <div class="cc-prog-wrap"><div class="cc-prog" style="width:78%;background:var(--accent2)"></div></div>
+        <div class="cc-counts"><span class="cc-eat">267 eating</span><span class="cc-skip">58 skip</span><span class="cc-total">17 no response</span></div>
+      </div>
+      <div class="cutoff-card">
+        <div class="cc-top"><span class="cc-emoji">☀️</span><span class="pill pill-muted">Closed</span></div>
+        <div class="cc-name">Lunch</div>
+        <div class="cc-cutoff">Cutoff passed · 11:00 AM</div>
+        <div class="cc-prog-wrap"><div class="cc-prog" style="width:71%;background:var(--accent2)"></div></div>
+        <div class="cc-counts"><span class="cc-eat">243 eating</span><span class="cc-skip">74 skip</span><span class="cc-total">25 no response</span></div>
+      </div>
+      <div class="cutoff-card" style="border-color:rgba(0,184,255,0.25);">
+        <div class="cc-top"><span class="cc-emoji">🌙</span><span class="pill pill-blue" style="animation:blink 1.5s infinite">● Live</span></div>
+        <div class="cc-name">Dinner</div>
+        <div class="cc-cutoff">⏰ Cutoff at 3:00 PM · 1h 42m left</div>
+        <div class="cc-prog-wrap"><div class="cc-prog" style="width:63%;background:var(--accent)"></div></div>
+        <div class="cc-counts"><span class="cc-eat">214 eating</span><span class="cc-skip">50 skip</span><span class="cc-total" style="color:var(--gold)">78 pending</span></div>
+      </div>
+      <div class="cutoff-card">
+        <div class="cc-top"><span class="cc-emoji">☕</span><span class="pill pill-blue">Open</span></div>
+        <div class="cc-name">Snacks</div>
+        <div class="cc-cutoff">Cutoff at 3:30 PM</div>
+        <div class="cc-prog-wrap"><div class="cc-prog" style="width:55%;background:var(--purple)"></div></div>
+        <div class="cc-counts"><span class="cc-eat">188 opted in</span><span class="cc-skip">62 skip</span><span class="cc-total" style="color:var(--gold)">92 pending</span></div>
+      </div>
+    </div>
+
+    <div class="lower-grid">
+
+      <!-- LEFT: LIVE FEED + CHART -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <div class="panel">
+          <div class="panel-head"><h3>Week Participation Trend</h3><span class="panel-action" style="color:var(--muted);font-size:0.7rem">Feb 24–28</span></div>
+          <div class="panel-body">
+            <div class="mini-bar-chart">
+              <div class="mb-col"><div class="mb-fill" style="height:82%;background:linear-gradient(180deg,var(--accent2),rgba(0,229,160,0.3))"></div><span class="mb-lbl">Mon</span></div>
+              <div class="mb-col"><div class="mb-fill" style="height:75%;background:linear-gradient(180deg,var(--accent2),rgba(0,229,160,0.3))"></div><span class="mb-lbl">Tue</span></div>
+              <div class="mb-col"><div class="mb-fill" style="height:88%;background:linear-gradient(180deg,var(--accent2),rgba(0,229,160,0.3))"></div><span class="mb-lbl">Wed</span></div>
+              <div class="mb-col"><div class="mb-fill" style="height:91%;background:linear-gradient(180deg,var(--accent2),rgba(0,229,160,0.3))"></div><span class="mb-lbl">Thu</span></div>
+              <div class="mb-col"><div class="mb-fill" style="height:78%;background:linear-gradient(180deg,var(--accent),rgba(0,184,255,0.3))"></div><span class="mb-lbl">Fri</span></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;">
+              <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+                <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--accent2)">83%</div>
+                <div style="font-size:0.65rem;color:var(--muted)">Avg this week</div>
+              </div>
+              <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+                <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--gold)">3.2%</div>
+                <div style="font-size:0.65rem;color:var(--muted)">Avg waste</div>
+              </div>
+              <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+                <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--accent)">₹8,420</div>
+                <div style="font-size:0.65rem;color:var(--muted)">Daily avg cost</div>
+              </div>
+              <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+                <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--accent2)">5</div>
+                <div style="font-size:0.65rem;color:var(--muted)">New feedbacks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Live Intention Feed</h3><span style="font-size:0.65rem;color:var(--accent2);display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:blink 1.5s infinite;display:inline-block"></span>Auto-updating</span></div>
+          <div class="panel-body" style="padding:0 18px;">
+            <div class="feed-list" id="feedList">
+              <div class="feed-item"><div class="feed-dot" style="background:var(--accent2)"></div><div class="feed-body"><div class="feed-text">Kavita Nair marked Dinner — <strong>Eating</strong></div><div class="feed-time">2 min ago · 2024EC081</div></div><span class="feed-badge" style="background:rgba(0,229,160,0.1);color:var(--accent2)">Eat</span></div>
+              <div class="feed-item"><div class="feed-dot" style="background:var(--danger)"></div><div class="feed-body"><div class="feed-text">Rohit Verma marked Dinner — <strong>Skipping</strong></div><div class="feed-time">5 min ago · 2023ME042</div></div><span class="feed-badge pill-red">Skip</span></div>
+              <div class="feed-item"><div class="feed-dot" style="background:var(--accent2)"></div><div class="feed-body"><div class="feed-text">Sneha Agarwal marked Dinner — <strong>Eating</strong></div><div class="feed-time">8 min ago · 2024CS107</div></div><span class="feed-badge" style="background:rgba(0,229,160,0.1);color:var(--accent2)">Eat</span></div>
+              <div class="feed-item"><div class="feed-dot" style="background:var(--accent2)"></div><div class="feed-body"><div class="feed-text">Aman Khan marked Snacks — <strong>Opted In</strong></div><div class="feed-time">11 min ago · 2024PH033</div></div><span class="feed-badge" style="background:rgba(0,184,255,0.1);color:var(--accent)">Opt</span></div>
+              <div class="feed-item"><div class="feed-dot" style="background:var(--danger)"></div><div class="feed-body"><div class="feed-text">Divya Rao marked Dinner — <strong>Skipping</strong></div><div class="feed-time">14 min ago · 2024CS055</div></div><span class="feed-badge pill-red">Skip</span></div>
+              <div class="feed-item"><div class="feed-dot" style="background:var(--accent2)"></div><div class="feed-body"><div class="feed-text">Arjun Sharma marked Dinner — <strong>Eating</strong></div><div class="feed-time">22 min ago · 2024CS042</div></div><span class="feed-badge" style="background:rgba(0,229,160,0.1);color:var(--accent2)">Eat</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- QUICK ACTIONS -->
+        <div class="panel">
+          <div class="panel-head"><h3>Quick Actions</h3></div>
+          <div class="panel-body">
+            <div class="qa-grid">
+              <div class="qa-btn" onclick="showToast('Opening menu editor','var(--accent)')"><span class="qa-icon">📋</span><div class="qa-name">Edit Menu</div><div class="qa-sub">Update today's meals</div></div>
+              <div class="qa-btn" onclick="showToast('Sending reminder to 78 students','var(--gold)')"><span class="qa-icon">🔔</span><div class="qa-name">Send Reminder</div><div class="qa-sub">78 pending intentions</div></div>
+              <div class="qa-btn" onclick="showToast('Generating report...','var(--accent2)')"><span class="qa-icon">📊</span><div class="qa-name">Generate Report</div><div class="qa-sub">Monthly PDF</div></div>
+              <div class="qa-btn" onclick="showToast('Waste log opened','var(--orange)')"><span class="qa-icon">♻️</span><div class="qa-name">Log Waste</div><div class="qa-sub">Record today's waste</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALERTS -->
+        <div class="panel">
+          <div class="panel-head"><h3>Active Alerts</h3><a href="#" class="panel-action">All 5 →</a></div>
+          <div class="panel-body" style="padding-top:6px;padding-bottom:6px;">
+            <div class="alert-item"><div class="alert-icon" style="background:rgba(255,71,87,0.1)">🚨</div><div><div class="alert-text">78 students haven't marked dinner</div><div class="alert-sub">Cutoff in 1h 42m — send nudge?</div></div></div>
+            <div class="alert-item"><div class="alert-icon" style="background:rgba(244,197,66,0.1)">⚠️</div><div><div class="alert-text">Waste above 5% on Tuesday</div><div class="alert-sub">Lunch — 12.4 kg unserved food</div></div></div>
+            <div class="alert-item"><div class="alert-icon" style="background:rgba(0,184,255,0.1)">📋</div><div><div class="alert-text">February report ready to send</div><div class="alert-sub">342 guardian emails pending</div></div></div>
+            <div class="alert-item"><div class="alert-icon" style="background:rgba(0,229,160,0.1)">🎉</div><div><div class="alert-text">Efficiency hit 91% this week</div><div class="alert-sub">Best week of the semester!</div></div></div>
+          </div>
+        </div>
+
+        <!-- TOP SKIPPERS -->
+        <div class="panel">
+          <div class="panel-head"><h3>Most Skips — This Month</h3></div>
+          <div class="panel-body" style="padding:0">
+            <table style="width:100%;border-collapse:collapse;">
+              <thead><tr><th style="font-size:0.65rem;color:var(--muted);padding:8px 14px;border-bottom:1px solid var(--border);text-align:left;font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Student</th><th style="font-size:0.65rem;color:var(--muted);padding:8px 14px;border-bottom:1px solid var(--border);text-align:right;font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Skips</th><th style="font-size:0.65rem;color:var(--muted);padding:8px 14px;border-bottom:1px solid var(--border);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Eff.</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;font-size:0.78rem">Ravi Gupta <span style="color:var(--muted);font-size:0.65rem">· 2024EE021</span></td><td style="padding:9px 14px;font-size:0.78rem;text-align:right;color:var(--danger);font-weight:700">28</td><td style="padding:9px 14px"><span class="pill pill-red">31%</span></td></tr>
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;font-size:0.78rem">Ananya Singh <span style="color:var(--muted);font-size:0.65rem">· 2024CS019</span></td><td style="padding:9px 14px;font-size:0.78rem;text-align:right;color:var(--danger);font-weight:700">24</td><td style="padding:9px 14px"><span class="pill pill-red">47%</span></td></tr>
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;font-size:0.78rem">Dev Patel <span style="color:var(--muted);font-size:0.65rem">· 2023ME011</span></td><td style="padding:9px 14px;font-size:0.78rem;text-align:right;color:var(--gold);font-weight:700">19</td><td style="padding:9px 14px"><span class="pill pill-gold">58%</span></td></tr>
+                <tr><td style="padding:9px 14px;font-size:0.78rem">Meera Iyer <span style="color:var(--muted);font-size:0.65rem">· 2024CS088</span></td><td style="padding:9px 14px;font-size:0.78rem;text-align:right;color:var(--gold);font-weight:700">16</td><td style="padding:9px 14px"><span class="pill pill-gold">64%</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;"></div>
+
+<!-- ✅ Shared JS -->
+<script src="../js/main.js"></script>
+<script>
+// ── SESSION CHECK ─────────────────────────────────────────────
+const _session = (function(){
+  try { return JSON.parse(sessionStorage.getItem('mm_session')); } catch(e){ return null; }
+})();
+if (!_session) {
+  window.location.href = '../login.html';
+} else if (_session.role !== 'admin') {
+  const _map = { student:'../student/dashboard.html', guardian:'../guardian/dashboard.html' };
+  window.location.href = _map[_session.role] || '../login.html';
+} else {
+  // Populate sidebar user info
+  const _name = _session.name || 'Admin';
+  const _initials = _name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const _av = document.getElementById('userAvatar');
+  const _nm = document.getElementById('userName');
+  const _em = document.getElementById('userEmail');
+  if (_av) _av.textContent = _initials;
+  if (_nm) _nm.textContent = _name;
+  if (_em) _em.textContent = _session.email || '';
+}
+</script>
+</body>
+</html>

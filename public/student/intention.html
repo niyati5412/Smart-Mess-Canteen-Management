@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Student  Meal Intentions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .cutoff-banner{background:rgba(244,197,66,.06);border:1px solid rgba(244,197,66,.2);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+    .cb-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:blink 1.4s ease-in-out infinite;flex-shrink:0;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+    .cb-text{flex:1;font-size:.82rem;}.cb-text strong{color:var(--gold);}
+    .cb-timer{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--gold);}
+    .week-nav{display:flex;align-items:center;gap:0;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+    .wn-arr{padding:12px 16px;color:var(--muted);cursor:pointer;font-size:1rem;transition:all .15s;border:none;background:none;}
+    .wn-arr:hover{color:var(--accent);background:var(--surface2);}
+    .wn-days{display:flex;flex:1;}
+    .wn-day{flex:1;padding:10px 4px;text-align:center;cursor:pointer;transition:all .18s;border-left:1px solid var(--border);}
+    .wn-day:hover{background:var(--surface2);}
+    .wn-day.active{background:rgba(0,229,160,.08);}
+    .wn-day-name{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+    .wn-day-num{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;}
+    .wn-day.active .wn-day-num,.wn-day.today .wn-day-num{color:var(--accent);}
+    .wn-day-dot{width:5px;height:5px;border-radius:50%;margin:4px auto 0;}
+    .dot-all{background:var(--accent);}.dot-partial{background:var(--gold);}.dot-skip{background:var(--danger);}.dot-empty{background:var(--surface3);}
+    .wn-label{padding:12px 16px;font-size:.78rem;color:var(--muted);border-left:1px solid var(--border);}
+    .day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+    .intention-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 18px;transition:all .2s;position:relative;overflow:hidden;}
+    .intention-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;pointer-events:none;z-index:0;}
+    .intention-card.state-eat::before{background:rgba(0,229,160,.04);}
+    .intention-card.state-skip::before{background:rgba(255,71,87,.04);}
+    .ic-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .ic-emoji{font-size:1.6rem;}
+    .ic-time{font-size:.65rem;color:var(--muted);text-align:right;}
+    .ic-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;margin-bottom:4px;}
+    .ic-items{font-size:.72rem;color:var(--muted);line-height:1.5;margin-bottom:6px;}
+    .ic-cutoff{font-size:.7rem;margin-bottom:18px;}
+    .ic-cutoff.open{color:var(--gold);}.ic-cutoff.closed{color:var(--muted);opacity:.7;}.ic-cutoff.upcoming{color:var(--accent2);}
+    .ic-actions{display:flex;flex-direction:column;gap:8px;}
+    .ic-btn{width:100%;padding:11px;border-radius:12px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+    .eat-btn{background:rgba(0,229,160,.08);border:1.5px solid rgba(0,229,160,.2);color:var(--accent);}
+    .eat-btn:hover,.eat-btn.selected{background:var(--accent);color:#0a0d0f;border-color:var(--accent);}
+    .skip-btn{background:rgba(255,71,87,.06);border:1.5px solid rgba(255,71,87,.18);color:var(--danger);}
+    .skip-btn:hover,.skip-btn.selected{background:var(--danger);color:#fff;border-color:var(--danger);}
+    .ic-locked{text-align:center;padding:14px 0;font-size:.78rem;color:var(--muted);}
+    .ic-locked .lock{font-size:1.2rem;margin-bottom:4px;}
+    .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+    .panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .panel-head h3{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;}
+    .panel-body{padding:16px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{font-size:.65rem;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;}
+    tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:var(--surface2);}
+    tbody td{padding:10px;font-size:.78rem;}
+    .pill{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:100px;}
+    .pill-green{background:rgba(0,229,160,.1);color:var(--accent);}
+    .pill-red{background:rgba(255,71,87,.1);color:var(--danger);}
+    .pill-muted{background:var(--surface2);color:var(--muted);}
+    .mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+    .mini-stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 14px;}
+    .ms-label{font-size:.68rem;color:var(--muted);margin-bottom:6px;}
+    .ms-val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-.5px;line-height:1;}
+    .save-bar{position:sticky;bottom:0;background:rgba(10,13,15,.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+    .save-info{font-size:.8rem;color:var(--muted);}.save-info strong{color:var(--text);}
+    .btn-save-all{padding:11px 28px;border-radius:10px;background:var(--accent);color:#0a0d0f;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;}
+    .btn-save-all:hover{background:#00ffb3;transform:translateY(-1px);}
+    .btn-save-all:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed;transform:none;}
+    .toast-wrap{position:fixed;bottom:80px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+    @media(max-width:1000px){.day-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:900px){.summary-grid{grid-template-columns:1fr;}.mini-stats{grid-template-columns:1fr 1fr;}.save-bar{padding:14px 16px;}}
+    @media(max-width:560px){.day-grid{grid-template-columns:1fr 1fr;}.wn-day-name{display:none;}}
+  </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <a href="/student/dashboard.html" class="logo-text">Mess<span>Mate</span></a>
+    <div class="logo-sub">Student Portal</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userAvatar">?</div>
+    <div>
+      <div class="user-name" id="userName">Loading…</div>
+      <div class="user-id"   id="userId"></div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a class="nav-item" href="/student/dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a class="nav-item active" href="/student/intention.html"><span class="nav-icon">✅</span> Meal Intentions</a>
+    <a class="nav-item" href="#"><span class="nav-icon">📅</span> Attendance</a>
+    <a class="nav-item" href="/student/value.html"><span class="nav-icon">💰</span> Budget Value</a>
+    <div class="nav-label">Info</div>
+    <a class="nav-item" href="/student/menu.html"><span class="nav-icon">📋</span> Menu <span class="nav-badge blue">New</span></a>
+    <a class="nav-item" href="/student/orders.html"><span class="nav-icon">🛒</span> Orders</a>
+    <a class="nav-item" href="/student/canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <a class="nav-item" href="/student/feedback.html"><span class="nav-icon">💬</span> Feedback</a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="logout-btn" href="/login.html" onclick="sessionStorage.removeItem('mm_session')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </a>
+  </div>
+</aside>
+
+<div class="main" id="mainScroll">
+  <div class="topbar">
+    <div>
+      <h1>Meal Intentions</h1>
+      <p>Mark your plans before cutoff — help the kitchen prepare right</p>
+    </div>
+    <div class="topbar-right">
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="cutoff-banner">
+      <div class="cb-dot"></div>
+      <div class="cb-text"><strong>Dinner cutoff</strong> closes at 3:00 PM today — mark your intention now</div>
+      <div class="cb-timer" id="cutoffTimer">…</div>
+    </div>
+
+    <div class="mini-stats" id="miniStats">
+      <div class="mini-stat"><div class="ms-label">This week — Marked</div><div class="ms-val" style="color:var(--accent)" id="ms1">…</div></div>
+      <div class="mini-stat"><div class="ms-label">Eating</div><div class="ms-val" style="color:var(--accent)" id="ms2">…</div></div>
+      <div class="mini-stat"><div class="ms-label">Skipping</div><div class="ms-val" style="color:var(--danger)" id="ms3">…</div></div>
+      <div class="mini-stat"><div class="ms-label">Unmarked</div><div class="ms-val" style="color:var(--gold)" id="ms4">…</div></div>
+    </div>
+
+    <div class="week-nav">
+      <button class="wn-arr" onclick="changeWeek(-1)">‹</button>
+      <div class="wn-days" id="weekDays"></div>
+      <div class="wn-label" id="weekLabel">This Week</div>
+      <button class="wn-arr" onclick="changeWeek(1)">›</button>
+    </div>
+
+    <div class="day-grid" id="dayGrid"></div>
+
+    <div class="summary-grid">
+      <div class="panel">
+        <div class="panel-head"><h3 id="histTitle">This Week — Log</h3></div>
+        <div class="panel-body" style="padding:0">
+          <table>
+            <thead><tr><th>Day</th><th>Bkfst</th><th>Lunch</th><th>Dinner</th><th>Snacks</th></tr></thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Upcoming — Next 3 Days</h3></div>
+        <div class="panel-body" style="padding:0">
+          <table>
+            <thead><tr><th>Day</th><th>Bkfst</th><th>Lunch</th><th>Dinner</th><th>Snacks</th></tr></thead>
+            <tbody id="upcomingBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <div class="save-info"><strong id="pendingCount">…</strong></div>
+    <button class="btn-save-all" id="saveAllBtn" onclick="saveAll()">
+      Save All Intentions
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;"></div>
+
+<script src="../js/main.js"></script>
+<script>
+
+/* ───────── SESSION CHECK ───────── */
+let session = null;
+
+(function(){
+  try { session = JSON.parse(sessionStorage.getItem('mm_session')); } catch(e){}
+  if (!session) { window.location.href = '../login.html'; return; }
+  if (session.role !== 'student') {
+    window.location.href = session.role === 'admin' ? '../admin/dashboard.html' : '../guardian/dashboard.html';
+    return;
+  }
+  const name = session.name || 'Student';
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent   = name;
+  document.getElementById('userId').textContent     = session.id;
+})();
+
+/* ───────── GLOBALS ───────── */
+const TODAY = new Date().toISOString().split('T')[0];
+const MEALS = [
+  {id:'breakfast', name:'Breakfast'},
+  {id:'lunch', name:'Lunch'},
+  {id:'dinner', name:'Dinner'},
+  {id:'snacks', name:'Snacks'}
+];
+const intentions = {};
+
+/* ───────── LOAD TODAY FROM BACKEND ───────── */
+async function loadIntentions() {
+  const res = await fetch(`/api/intentions/student/${session.id}`);
+  const data = await res.json();
+  MEALS.forEach(m => intentions[m.id] = null);
+  data.filter(i => i.date === TODAY).forEach(i => {
+    intentions[i.meal] = i.status === 'eating' ? 'eat' : 'skip';
+  });
+}
+
+/* ───────── RENDER CARDS ───────── */
+function renderDayGrid(){
+  const grid = document.getElementById('dayGrid');
+  grid.innerHTML = '';
+  MEALS.forEach(m=>{
+    const intent = intentions[m.id] || null;
+    const card = document.createElement('div');
+    card.className = `intention-card${intent ? ' state-'+intent : ''}`;
+    card.innerHTML = `
+      <div class="ic-name">${m.name}</div>
+      <div class="ic-actions">
+        <button class="ic-btn eat-btn ${intent==='eat'?'selected':''}" onclick="mark('${m.id}','eat')">✓ I'm Eating</button>
+        <button class="ic-btn skip-btn ${intent==='skip'?'selected':''}" onclick="mark('${m.id}','skip')">✕ Skipping</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ───────── MARK SELECTION ───────── */
+function mark(mealId, action){
+  intentions[mealId] = intentions[mealId] === action ? null : action;
+  renderDayGrid();
+}
+
+/* ───────── SAVE TO BACKEND ───────── */
+async function saveAll(){
+  for(const mealId in intentions){
+    const action = intentions[mealId];
+    if(!action) continue;
+    await fetch('/api/intentions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId: session.id, studentName: session.name, meal: mealId, date: TODAY, status: action === 'eat' ? 'eating' : 'skipping' })
+    });
+  }
+  await loadIntentions();
+  await renderHistory();
+  renderDayGrid();
+  alert("Intentions saved successfully");
+}
+
+/* ───────── WEEK LOG ───────── */
+async function renderHistory(){
+  const res = await fetch(`/api/intentions/student/${session.id}`);
+  const data = await res.json();
+  const body = document.getElementById('histBody');
+  body.innerHTML = '';
+  const today = new Date();
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - today.getDay());
+  for(let i=0;i<7;i++){
+    const day = new Date(weekStart);
+    day.setDate(weekStart.getDate() + i);
+    const dateStr = day.toISOString().split('T')[0];
+    const dayIntentions = data.filter(i => i.date === dateStr);
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${day.toDateString().slice(0,10)}</td>
+      ${renderCell(dayIntentions,'breakfast')}
+      ${renderCell(dayIntentions,'lunch')}
+      ${renderCell(dayIntentions,'dinner')}
+      ${renderCell(dayIntentions,'snacks')}`;
+    body.appendChild(row);
+  }
+}
+
+/* ───────── CELL HELPER ───────── */
+function renderCell(intentions, meal){
+  const found = intentions.find(i => i.meal === meal);
+  if(!found) return `<td><span class="pill pill-muted">—</span></td>`;
+  if(found.status === 'eating') return `<td><span class="pill pill-green">Eat</span></td>`;
+  return `<td><span class="pill pill-red">Skip</span></td>`;
+}
+
+/* ───────── INIT ───────── */
+(async function(){
+  await loadIntentions();
+  renderDayGrid();
+  await renderHistory();
+})();
+</script>
+</body>
+</html>

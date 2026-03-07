@@ -1,0 +1,37 @@
+[
+  {
+    "id": "256df3b9-3644-477e-8d12-c8330b730e7e",
+    "name": "aalo parantha",
+    "meal": "breakfast",
+    "day": "Saturday",
+    "createdAt": "2026-03-07T11:40:15.552Z"
+  },
+  {
+    "id": "e5232889-18b3-4606-83ff-741b6d19611f",
+    "name": "rajmah chawal",
+    "meal": "lunch",
+    "day": "Saturday",
+    "createdAt": "2026-03-07T11:40:18.698Z"
+  },
+  {
+    "id": "4e209a1a-21b1-4d5b-845c-4c28d3f48b93",
+    "name": "noodles",
+    "meal": "dinner",
+    "day": "Saturday",
+    "createdAt": "2026-03-07T11:40:23.039Z"
+  },
+  {
+    "id": "d3725a67-9871-4d3a-a1c7-078e51bf560f",
+    "name": "samosa and tea",
+    "meal": "snacks",
+    "day": "Saturday",
+    "createdAt": "2026-03-07T11:40:26.494Z"
+  },
+  {
+    "id": "7e1c4587-f9c5-47b4-9f3b-e5ef428e1812",
+    "name": "Rice Dal Paneer",
+    "meal": "lunch",
+    "day": "Monday",
+    "createdAt": "2026-03-07T12:03:03.486Z"
+  }
+]

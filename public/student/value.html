@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Student Budget Value</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
+    .panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .panel-head h3{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700;}
+    .panel-body{padding:20px;}
+    .select-row{display:flex;gap:8px;margin-bottom:0;flex-wrap:wrap;}
+    .sel-chip{padding:6px 14px;border-radius:100px;font-size:0.78rem;font-weight:600;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all 0.18s;}
+    .sel-chip:hover{border-color:rgba(0,229,160,0.3);color:var(--text);}
+    .sel-chip.active{background:rgba(0,229,160,0.1);border-color:rgba(0,229,160,0.35);color:var(--accent);}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 18px;}
+    .stat-label{font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:500;}
+    .stat-val{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:6px;}
+    .stat-sub{font-size:0.7rem;color:var(--muted);}
+    .badge{display:inline-flex;align-items:center;gap:3px;font-size:0.68rem;font-weight:700;padding:2px 7px;border-radius:100px;}
+    .badge-green{background:rgba(0,229,160,0.1);color:var(--accent);}
+    .badge-red{background:rgba(255,71,87,0.1);color:var(--danger);}
+    .badge-gold{background:rgba(244,197,66,0.1);color:var(--gold);}
+    .eff-wrap{display:flex;align-items:center;gap:28px;margin-bottom:24px;}
+    .eff-ring{width:120px;height:120px;flex-shrink:0;}
+    .eff-info{flex:1;}
+    .eff-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:4px;}
+    .eff-sub{font-size:0.82rem;color:var(--muted);line-height:1.6;}
+    .bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px;margin:16px 0 8px;}
+    .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .bar-fill{width:100%;border-radius:4px 4px 0 0;transition:height 0.6s cubic-bezier(0.22,1,0.36,1);min-height:4px;}
+    .bar-fill.primary{background:linear-gradient(180deg,var(--accent),rgba(0,229,160,0.3));}
+    .bar-lbl{font-size:0.6rem;color:var(--muted);}
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{font-size:0.7rem;font-weight:600;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;}
+    tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:var(--surface2);}
+    tbody td{padding:12px 14px;font-size:0.82rem;}
+    .td-muted{color:var(--muted);}
+    .pill{font-size:0.65rem;font-weight:700;padding:3px 8px;border-radius:100px;}
+    .pill-green{background:rgba(0,229,160,0.1);color:var(--accent);}
+    .pill-red{background:rgba(255,71,87,0.1);color:var(--danger);}
+    .pill-gold{background:rgba(244,197,66,0.1);color:var(--gold);}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+    .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .prog-label{font-size:0.78rem;color:var(--muted);width:80px;flex-shrink:0;}
+    .prog-track{flex:1;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden;}
+    .prog-fill{height:100%;border-radius:3px;background:var(--accent);}
+    .prog-val{font-size:0.72rem;font-weight:600;width:36px;text-align:right;}
+    @media(max-width:900px){
+      .stats-grid{grid-template-columns:1fr 1fr;}
+      .two-col{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><a href="./dashboard.html" class="logo-text">Mess<span>Mate</span></a><div class="logo-sub">Student Portal</div></div>
+  <div class="sidebar-user">
+    <div class="user-avatar" data-user-initials>--</div>
+    <div>
+      <div class="user-name" data-user-name>Loading…</div>
+      <div class="user-id" data-user-id>—</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a class="nav-item" href="./dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="#"><span class="nav-icon">🍽️</span> Meal Intentions <span class="nav-badge">2</span></a>
+    <a class="nav-item" href="./intention.html"><span class="nav-icon">✅</span> Intention</a>
+    <a class="nav-item" href="#"><span class="nav-icon">📅</span> Attendance</a>
+    <a class="nav-item active" href="#"><span class="nav-icon">💰</span> Budget Value</a>
+    <div class="nav-label">Info</div>
+    <a class="nav-item" href="./menu.html"><span class="nav-icon">📋</span> Menu <span class="nav-badge blue">New</span></a>
+    <a class="nav-item" href="./orders.html"><span class="nav-icon">🛒</span> Orders</a>
+    <a class="nav-item" href="./canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <a class="nav-item" href="./feedback.html"><span class="nav-icon">💬</span> Feedback</a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-bottom"><a class="logout-btn" href="/login.html" onclick="sessionStorage.clear()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</a></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div><h1>Budget & Value</h1><p>See how efficiently you're using your mess fee</p></div>
+    <div class="topbar-right">
+      <div class="select-row">
+        <div class="sel-chip active" onclick="selPeriod(this,'feb')">Feb 2025</div>
+        <div class="sel-chip" onclick="selPeriod(this,'jan')">Jan 2025</div>
+        <div class="sel-chip" onclick="selPeriod(this,'semester')">Semester</div>
+      </div>
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Mess Fee Paid</div><div class="stat-val" style="color:var(--text)">₹6,000</div><div class="stat-sub">Feb 2025 semester fee</div></div>
+      <div class="stat-card"><div class="stat-label">Value Consumed</div><div class="stat-val" style="color:var(--accent)">₹5,340</div><div class="stat-sub"><span class="badge badge-green">↑ 89% efficiency</span></div></div>
+      <div class="stat-card"><div class="stat-label">Wasted (Skipped)</div><div class="stat-val" style="color:var(--danger)">₹660</div><div class="stat-sub">22 meals skipped · <span class="badge badge-red">11%</span></div></div>
+      <div class="stat-card"><div class="stat-label">Avg. Cost Per Meal</div><div class="stat-val" style="color:var(--gold)">₹67</div><div class="stat-sub">Based on 90 total meals</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><h3>Efficiency Overview</h3></div>
+        <div class="panel-body">
+          <div class="eff-wrap">
+            <svg class="eff-ring" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#1e2428" stroke-width="4"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#00e5a0" stroke-width="4" stroke-dasharray="78 22" stroke-dashoffset="25" stroke-linecap="round"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#ff4757" stroke-width="4" stroke-dasharray="22 78" stroke-dashoffset="-53" stroke-linecap="round"/>
+              <text x="18" y="19" text-anchor="middle" font-size="6.5" fill="#e8edf2" font-family="Syne" font-weight="800">89%</text>
+              <text x="18" y="24" text-anchor="middle" font-size="3.5" fill="#7a8a96">Efficiency</text>
+            </svg>
+            <div class="eff-info">
+              <div class="eff-title" style="color:var(--accent)">Good Standing</div>
+              <div class="eff-sub">You're using 89% of your mess fee value. Target is 90%+. Skipping 1–2 fewer meals per week would get you there.</div>
+            </div>
+          </div>
+          <div class="prog-row"><span class="prog-label">Breakfast</span><div class="prog-track"><div class="prog-fill" style="width:94%;background:var(--accent)"></div></div><span class="prog-val" style="color:var(--accent)">94%</span></div>
+          <div class="prog-row"><span class="prog-label">Lunch</span><div class="prog-track"><div class="prog-fill" style="width:78%;background:var(--gold)"></div></div><span class="prog-val" style="color:var(--gold)">78%</span></div>
+          <div class="prog-row"><span class="prog-label">Dinner</span><div class="prog-track"><div class="prog-fill" style="width:91%;background:var(--accent)"></div></div><span class="prog-val" style="color:var(--accent)">91%</span></div>
+          <div class="prog-row"><span class="prog-label">Snacks</span><div class="prog-track"><div class="prog-fill" style="width:62%;background:var(--orange)"></div></div><span class="prog-val" style="color:var(--orange)">62%</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Week-by-Week Value</h3></div>
+        <div class="panel-body">
+          <div class="bar-chart">
+            <div class="bar-col"><div class="bar-fill primary" style="height:88%"></div><span class="bar-lbl">W1</span></div>
+            <div class="bar-col"><div class="bar-fill primary" style="height:72%"></div><span class="bar-lbl">W2</span></div>
+            <div class="bar-col"><div class="bar-fill primary" style="height:95%"></div><span class="bar-lbl">W3</span></div>
+            <div class="bar-col"><div class="bar-fill primary" style="height:81%"></div><span class="bar-lbl">W4</span></div>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:8px;">
+            <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border);">
+              <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Best Week</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--accent)">Week 3</div>
+              <div style="font-size:0.72rem;color:var(--muted)">₹1,440 of ₹1,500</div>
+            </div>
+            <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border);">
+              <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Worst Week</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--danger)">Week 2</div>
+              <div style="font-size:0.72rem;color:var(--muted)">₹1,080 of ₹1,500</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Daily Meal Log — February</h3>
+        <span style="font-size:0.72rem;color:var(--accent);cursor:pointer;">Export CSV →</span>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snacks</th><th>Day Value</th><th>Efficiency</th></tr></thead>
+            <tbody id="logTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;"></div>
+
+<script src="../js/main.js"></script>
+<script>
+(function(){
+  var s=sessionStorage.getItem('mm_session');
+  if(!s){window.location.replace('/login.html');return;}
+  var u;try{u=JSON.parse(s);}catch(e){window.location.replace('/login.html');return;}
+  if(!u.initials&&u.name){
+    var p=u.name.trim().split(' ').filter(Boolean);
+    u.initials=p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():u.name.substring(0,2).toUpperCase();
+  }
+  u.uid=u.uid||u.studentId||u.id||u.email||'—';
+  function apply(){
+    document.querySelectorAll('[data-user-name]').forEach(function(el){el.textContent=u.name||'—';});
+    document.querySelectorAll('[data-user-id]').forEach(function(el){el.textContent=u.uid||'—';});
+    document.querySelectorAll('[data-user-initials]').forEach(function(el){el.textContent=u.initials||'??';});
+  }
+  apply();
+  document.addEventListener('DOMContentLoaded',apply);
+  window.mmGetUser=function(){return u;};
+})();
+
+function selPeriod(el){document.querySelectorAll('.sel-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
+
+const days=[
+  ['Feb 1','Ate','Ate','Ate','Ate',268,100],['Feb 3','Ate','Skip','Ate','Skip',134,50],
+  ['Feb 5','Ate','Ate','Skip','Ate',201,75],['Feb 7','Ate','Ate','Ate','Ate',268,100],
+  ['Feb 10','Skip','Skip','Ate','Skip',67,25],['Feb 12','Ate','Ate','Ate','Skip',201,75],
+  ['Feb 14','Ate','Ate','Ate','Ate',268,100],['Feb 17','Ate','Skip','Ate','Ate',201,75],
+  ['Feb 19','Ate','Ate','Ate','Ate',268,100],['Feb 21','Skip','Ate','Ate','Skip',134,50],
+  ['Feb 24','Ate','Ate','Skip','Ate',201,75],['Feb 26','Ate','Ate','Ate','Ate',268,100],
+  ['Feb 27','Ate','Skip','Ate','Skip',134,50],['Feb 28','Ate','Skip','—','—','—','—'],
+];
+const tbody=document.getElementById('logTable');
+days.forEach(r=>{
+  const eff=r[6];
+  const effClass=eff===100?'pill-green':eff>=75?'pill-gold':'pill-red';
+  const cell=(v)=>`<span class="pill ${v==='Ate'?'pill-green':v==='—'?'':'pill-red'}">${v}</span>`;
+  tbody.innerHTML+=`<tr>
+    <td style="font-weight:500">${r[0]}</td>
+    <td>${cell(r[1])}</td><td>${cell(r[2])}</td><td>${cell(r[3])}</td><td>${cell(r[4])}</td>
+    <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent)">₹${r[5]}</td>
+    <td>${eff!=='—'?`<span class="pill ${effClass}">${eff}%</span>`:'<span class="td-muted">—</span>'}</td>
+  </tr>`;
+});
+</script>
+</body>
+</html>

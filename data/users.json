@@ -1,0 +1,36 @@
+[
+  {
+    "id": "1f33138d-5bd8-4789-b03d-de327e6adba2",
+    "name": "Niyati Gupta",
+    "email": "niyatigupta5412@gmail.com",
+    "password": "niyati123",
+    "role": "student",
+    "createdAt": "2026-03-07T11:37:03.850Z"
+  },
+  {
+    "id": "3af761af-e65b-46a1-b797-ee2f637ef934",
+    "name": "John Doe",
+    "email": "john5412@gmail.com",
+    "password": "johndoe123",
+    "role": "admin",
+    "createdAt": "2026-03-07T11:39:39.508Z"
+  },
+  {
+    "id": "dbfd9cfd-2d92-45c6-b7d2-39a6e127d00e",
+    "name": "Niyati sharma",
+    "email": "sharma5412@gmail.com",
+    "password": "niyatisharma123",
+    "role": "guardian",
+    "wardStudentId": "1f33138d-5bd8-4789-b03d-de327e6adba2",
+    "wardName": "Niyati Gupta",
+    "createdAt": "2026-03-07T11:44:12.890Z"
+  },
+  {
+    "id": "9d2b3761-ce53-4c72-afdf-ec4381d42f16",
+    "name": "Ishani Gupta",
+    "email": "ishanigupta5412@gmail.com",
+    "password": "123456",
+    "role": "student",
+    "createdAt": "2026-03-07T11:57:35.643Z"
+  }
+]

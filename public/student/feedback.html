@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Student Feedback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .content{padding:28px 32px;flex:1;max-width:1100px}
+    .sec-label{font-size:.68rem;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:block}
+    .sec-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:16px}
+    .menu-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+    .menu-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 16px;transition:border-color .2s}
+    .menu-card:hover{border-color:rgba(255,255,255,.12)}
+    .mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .mc-emoji{font-size:1.4rem}
+    .mc-ate-badge{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:100px}
+    .ate{background:rgba(0,229,160,.1);color:var(--accent)}
+    .skip{background:rgba(255,71,87,.1);color:var(--danger)}
+    .pending{background:rgba(255,255,255,.05);color:var(--muted)}
+    .mc-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;margin-bottom:3px}
+    .mc-items{font-size:.72rem;color:var(--muted);margin-bottom:14px;line-height:1.5}
+    .stars{display:flex;gap:4px;margin-bottom:12px}
+    .star{font-size:1.2rem;cursor:pointer;filter:grayscale(1) opacity(.4);transition:all .15s;transform:scale(1)}
+    .star:hover,.star.active{filter:none;transform:scale(1.15)}
+    .star-rating-label{font-size:.68rem;color:var(--muted);margin-bottom:10px;height:14px}
+    .mc-comment{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:8px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.78rem;resize:none;outline:none;transition:border-color .2s;min-height:56px}
+    .mc-comment:focus{border-color:rgba(0,229,160,.3)}
+    .mc-comment::placeholder{color:var(--muted);opacity:.6}
+    .btn-submit-meal{width:100%;margin-top:10px;padding:9px;border-radius:9px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.2);color:var(--accent);font-size:.75rem;font-weight:700;cursor:pointer;transition:all .18s}
+    .btn-submit-meal:hover{background:var(--accent);color:#0a0d0f;border-color:var(--accent)}
+    .btn-submit-meal.done{background:var(--surface2);color:var(--muted);border-color:var(--border);cursor:default}
+    .btn-submit-meal.done:hover{background:var(--surface2);color:var(--muted);border-color:var(--border)}
+    .general-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .panel-head h3{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700}
+    .panel-body{padding:20px}
+    .chip-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+    .chip{padding:6px 14px;border-radius:100px;font-size:.75rem;font-weight:600;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .18s}
+    .chip:hover{border-color:rgba(0,229,160,.3);color:var(--text)}
+    .chip.selected{background:rgba(0,229,160,.1);border-color:rgba(0,229,160,.35);color:var(--accent)}
+    textarea.feedback-area{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;resize:vertical;outline:none;transition:border-color .2s;min-height:100px}
+    textarea.feedback-area:focus{border-color:rgba(0,229,160,.3)}
+    textarea.feedback-area::placeholder{color:var(--muted);opacity:.6}
+    .field{margin-bottom:14px}
+    .field label{font-size:.75rem;color:var(--muted);display:block;margin-bottom:6px;font-weight:500}
+    .priority-row{display:flex;gap:8px}
+    .priority-opt{flex:1;padding:8px 6px;border-radius:9px;font-size:.73rem;font-weight:700;text-align:center;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .18s}
+    .priority-opt:hover{border-color:rgba(255,255,255,.15);color:var(--text)}
+    .priority-opt.sel-low{background:rgba(0,229,160,.1);border-color:rgba(0,229,160,.3);color:var(--accent)}
+    .priority-opt.sel-medium{background:rgba(244,197,66,.1);border-color:rgba(244,197,66,.3);color:var(--gold)}
+    .priority-opt.sel-high{background:rgba(255,71,87,.1);border-color:rgba(255,71,87,.3);color:var(--danger)}
+    .btn-primary{padding:11px 24px;border-radius:10px;background:var(--accent);color:#0a0d0f;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;border:none;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary:hover{background:#00ffb3;transform:translateY(-1px)}
+    .btn-spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(10,13,15,.3);border-top-color:#0a0d0f;animation:spin .7s linear infinite;display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .past-list{display:flex;flex-direction:column;gap:0}
+    .past-item{padding:16px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px}
+    .past-item:last-child{border-bottom:none}
+    .past-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;margin-top:2px}
+    .past-body{flex:1}
+    .past-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+    .past-category{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:100px}
+    .past-date{font-size:.7rem;color:var(--muted)}
+    .past-text{font-size:.82rem;color:var(--muted);line-height:1.6}
+    .past-stars{font-size:.75rem;margin-bottom:3px}
+    .rating-summary{display:flex;align-items:center;gap:24px;margin-bottom:20px}
+    .overall-score{text-align:center;flex-shrink:0}
+    .score-big{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;line-height:1;color:var(--gold)}
+    .score-stars{font-size:1rem;margin:4px 0}
+    .score-count{font-size:.7rem;color:var(--muted)}
+    .rating-bars{flex:1;display:flex;flex-direction:column;gap:6px}
+    .rb-row{display:flex;align-items:center;gap:8px}
+    .rb-label{font-size:.7rem;color:var(--muted);width:10px}
+    .rb-track{flex:1;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}
+    .rb-fill{height:100%;border-radius:3px;background:var(--gold)}
+    .rb-count{font-size:.7rem;color:var(--muted);width:20px;text-align:right}
+    @media(max-width:900px){.menu-cards{grid-template-columns:1fr 1fr}.general-grid{grid-template-columns:1fr}}
+    @media(max-width:520px){.menu-cards{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <a href="/student/dashboard.html" class="logo-text">Mess<span>Mate</span></a>
+    <div class="logo-sub">Student Portal</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userAvatar">?</div>
+    <div>
+      <div class="user-name" id="userName">Loading…</div>
+      <div class="user-id"   id="userId"></div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a class="nav-item" href="/student/dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="/student/intention.html"><span class="nav-icon">✅</span> Meal Intentions</a>
+    <a class="nav-item" href="#"><span class="nav-icon">📅</span> Attendance</a>
+    <a class="nav-item" href="/student/value.html"><span class="nav-icon">💰</span> Budget Value</a>
+    <div class="nav-label">Info</div>
+    <a class="nav-item" href="/student/menu.html"><span class="nav-icon">📋</span> Menu</a>
+    <a class="nav-item" href="/student/orders.html"><span class="nav-icon">🛒</span> Orders</a>
+    <a class="nav-item" href="/student/canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <a class="nav-item active" href="/student/feedback.html"><span class="nav-icon">💬</span> Feedback</a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="logout-btn" href="/login.html" onclick="sessionStorage.removeItem('mm_session')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </a>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h1>Meal Feedback</h1>
+      <p>Rate today's meals and share suggestions with the mess team</p>
+    </div>
+    <div class="topbar-right">
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <span class="sec-label" id="todayLabel">Today's Meals</span>
+    <div class="sec-title" style="margin-bottom:16px">Rate what you ate</div>
+
+    <div class="menu-cards">
+      <!-- Breakfast -->
+      <div class="menu-card">
+        <div class="mc-top"><span class="mc-emoji">🌅</span><span class="mc-ate-badge ate">Ate ✓</span></div>
+        <div class="mc-name">Breakfast</div>
+        <div class="mc-items">Poha · Chai · Banana · Boiled Eggs</div>
+        <div class="stars" id="stars-breakfast" data-meal="breakfast">
+          <span class="star" data-val="1">⭐</span><span class="star" data-val="2">⭐</span>
+          <span class="star" data-val="3">⭐</span><span class="star" data-val="4">⭐</span>
+          <span class="star" data-val="5">⭐</span>
+        </div>
+        <div class="star-rating-label" id="label-breakfast">Tap to rate</div>
+        <textarea class="mc-comment" placeholder="Anything to add? (optional)" rows="2"></textarea>
+        <button class="btn-submit-meal" id="btn-breakfast" onclick="submitMealFeedback('breakfast',this)">Submit Rating</button>
+      </div>
+
+      <!-- Lunch — skipped -->
+      <div class="menu-card" style="opacity:.55">
+        <div class="mc-top"><span class="mc-emoji">☀️</span><span class="mc-ate-badge skip">Skipped ✕</span></div>
+        <div class="mc-name">Lunch</div>
+        <div class="mc-items">Dal Tadka · Jeera Rice · Roti · Sabzi · Curd</div>
+        <div style="font-size:.75rem;color:var(--muted);padding:20px 0;text-align:center">
+          You skipped this meal —<br>no rating needed
+        </div>
+      </div>
+
+      <!-- Dinner — pending -->
+      <div class="menu-card">
+        <div class="mc-top"><span class="mc-emoji">🌙</span><span class="mc-ate-badge pending">Pending</span></div>
+        <div class="mc-name">Dinner</div>
+        <div class="mc-items">Rajma · Steamed Rice · Papad · Salad · Lassi</div>
+        <div style="font-size:.75rem;color:var(--muted);padding:20px 0;text-align:center;line-height:1.6">
+          Meal hasn't happened yet.<br>Come back after 7:30 PM to rate.
+        </div>
+      </div>
+
+      <!-- Snacks -->
+      <div class="menu-card">
+        <div class="mc-top"><span class="mc-emoji">☕</span><span class="mc-ate-badge ate">Opted In ✓</span></div>
+        <div class="mc-name">Evening Snacks</div>
+        <div class="mc-items">Samosa · Chai · Biscuits</div>
+        <div class="stars" id="stars-snacks" data-meal="snacks">
+          <span class="star" data-val="1">⭐</span><span class="star" data-val="2">⭐</span>
+          <span class="star" data-val="3">⭐</span><span class="star" data-val="4">⭐</span>
+          <span class="star" data-val="5">⭐</span>
+        </div>
+        <div class="star-rating-label" id="label-snacks">Tap to rate</div>
+        <textarea class="mc-comment" placeholder="Anything to add? (optional)" rows="2"></textarea>
+        <button class="btn-submit-meal" id="btn-snacks" onclick="submitMealFeedback('snacks',this)">Submit Rating</button>
+      </div>
+    </div>
+
+    <span class="sec-label">General</span>
+    <div class="sec-title">Share a suggestion or complaint</div>
+
+    <div class="general-grid">
+      <div class="panel">
+        <div class="panel-head"><h3>New Feedback</h3></div>
+        <div class="panel-body">
+          <div class="field">
+            <label>Category</label>
+            <div class="chip-wrap" id="categoryChips">
+              <div class="chip selected" onclick="selectChip(this)">Food Quality</div>
+              <div class="chip" onclick="selectChip(this)">Hygiene</div>
+              <div class="chip" onclick="selectChip(this)">Portion Size</div>
+              <div class="chip" onclick="selectChip(this)">Menu Variety</div>
+              <div class="chip" onclick="selectChip(this)">Serving Speed</div>
+              <div class="chip" onclick="selectChip(this)">Staff Behaviour</div>
+              <div class="chip" onclick="selectChip(this)">Timings</div>
+              <div class="chip" onclick="selectChip(this)">Other</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Priority</label>
+            <div class="priority-row" id="priorityRow">
+              <div class="priority-opt sel-low"    onclick="selectPriority(this,'low')">🟢 Low</div>
+              <div class="priority-opt"            onclick="selectPriority(this,'medium')">🟡 Medium</div>
+              <div class="priority-opt"            onclick="selectPriority(this,'high')">🔴 High</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Your Feedback <span style="color:var(--accent)">*</span></label>
+            <textarea class="feedback-area" id="generalFeedback" placeholder="Describe your experience, suggestion, or complaint…" rows="4"></textarea>
+          </div>
+          <div class="field">
+            <label>Meal Reference (optional)</label>
+            <div class="chip-wrap" id="mealRefChips">
+              <div class="chip" onclick="selectChip(this,'mealRefChips')">Breakfast</div>
+              <div class="chip" onclick="selectChip(this,'mealRefChips')">Lunch</div>
+              <div class="chip" onclick="selectChip(this,'mealRefChips')">Dinner</div>
+              <div class="chip" onclick="selectChip(this,'mealRefChips')">Snacks</div>
+              <div class="chip" onclick="selectChip(this,'mealRefChips')">General</div>
+            </div>
+          </div>
+          <button class="btn-primary" id="submitGeneral" onclick="submitGeneral()">
+            <span id="submitGeneralText">Submit Feedback</span>
+            <div class="btn-spinner" id="submitSpinner"></div>
+            <svg id="submitArrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="panel">
+          <div class="panel-head"><h3>Your Mess Ratings — This Month</h3></div>
+          <div class="panel-body">
+            <div class="rating-summary">
+              <div class="overall-score">
+                <div class="score-big">3.8</div>
+                <div class="score-stars">⭐⭐⭐⭐</div>
+                <div class="score-count">14 ratings</div>
+              </div>
+              <div class="rating-bars">
+                <div class="rb-row"><span class="rb-label">5</span><div class="rb-track"><div class="rb-fill" style="width:35%"></div></div><span class="rb-count">5</span></div>
+                <div class="rb-row"><span class="rb-label">4</span><div class="rb-track"><div class="rb-fill" style="width:28%"></div></div><span class="rb-count">4</span></div>
+                <div class="rb-row"><span class="rb-label">3</span><div class="rb-track"><div class="rb-fill" style="width:21%"></div></div><span class="rb-count">3</span></div>
+                <div class="rb-row"><span class="rb-label">2</span><div class="rb-track"><div class="rb-fill" style="width:14%"></div></div><span class="rb-count">2</span></div>
+                <div class="rb-row"><span class="rb-label">1</span><div class="rb-track"><div class="rb-fill" style="width:0%"></div></div><span class="rb-count">0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="flex:1">
+          <div class="panel-head"><h3>Your Past Submissions</h3></div>
+          <div class="panel-body" style="padding-top:8px;padding-bottom:8px">
+            <div class="past-list" id="pastList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199"></div>
+
+<script src="../js/main.js"></script>
+<script>
+
+/* ───────── SESSION CHECK ───────── */
+let session = null;
+
+(function(){
+  try { session = JSON.parse(sessionStorage.getItem('mm_session')); } catch(e){}
+  if (!session) {
+    window.location.href = '../login.html';
+    return;
+  }
+  if (session.role !== 'student') {
+    window.location.href = session.role === 'admin' ? '../admin/dashboard.html' : '../guardian/dashboard.html';
+    return;
+  }
+  const name = session.name || 'Student';
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent   = name;
+  document.getElementById('userId').textContent     = session.id;
+})();
+
+/* ───────── DATE ───────── */
+const TODAY = new Date().toISOString().split('T')[0];
+document.getElementById('todayLabel').textContent = "Today's Meals — " + new Date().toLocaleDateString('en-IN');
+
+/* ───────── STAR RATING ───────── */
+const ratingLabels = ['','Poor','Fair','Good','Great','Excellent!'];
+const mealRatings  = {};
+
+document.querySelectorAll('.stars').forEach(container => {
+  const meal  = container.dataset.meal;
+  const stars = container.querySelectorAll('.star');
+  const label = document.getElementById('label-' + meal);
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      const val = +star.dataset.val;
+      mealRatings[meal] = val;
+      stars.forEach((s,i) => s.classList.toggle('active', i < val));
+      label.textContent = ratingLabels[val];
+    });
+  });
+});
+
+/* ───────── CATEGORY SELECT ───────── */
+function selectChip(el) {
+  const wrapper = el.closest('.chip-wrap');
+  if (!wrapper) return;
+  wrapper.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+/* ───────── PRIORITY SELECT ───────── */
+function selectPriority(el, level) {
+  const row = document.getElementById('priorityRow');
+  row.querySelectorAll('.priority-opt').forEach(opt => { opt.classList.remove('sel-low','sel-medium','sel-high'); });
+  el.classList.add('sel-' + level);
+}
+
+/* ───────── SUBMIT MEAL FEEDBACK ───────── */
+async function submitMealFeedback(meal, btn) {
+  if (btn.classList.contains('done')) return;
+  const rating = mealRatings[meal];
+  if (!rating) { showToast('Select rating first', 'var(--gold)'); return; }
+  const comment = btn.parentElement.querySelector('.mc-comment')?.value || '';
+  try {
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId: session.id, studentName: session.name, meal, rating, category: meal, priority: 'low', comment, date: TODAY })
+    });
+    btn.textContent = '✓ Submitted';
+    btn.classList.add('done');
+    showToast('Feedback saved', 'var(--accent)');
+    await loadPastFeedback();
+  } catch(err){ showToast('Error saving feedback', 'var(--danger)'); }
+}
+
+/* ───────── SUBMIT GENERAL FEEDBACK ───────── */
+async function submitGeneral() {
+  const text = document.getElementById('generalFeedback').value.trim();
+  if (!text) { showToast('Write something first', 'var(--gold)'); return; }
+  const selectedCategory = document.querySelector('#categoryChips .chip.selected')?.innerText || "General";
+  const selectedPriority = document.querySelector('#priorityRow .sel-low, #priorityRow .sel-medium, #priorityRow .sel-high')?.innerText || "Low";
+  const selectedMeal     = document.querySelector('#mealRefChips .chip.selected')?.innerText || "General";
+  try {
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId: session.id, studentName: session.name, meal: selectedMeal.toLowerCase(), rating: null, category: selectedCategory, priority: selectedPriority.toLowerCase(), comment: text, date: TODAY })
+    });
+    document.getElementById('generalFeedback').value = '';
+    showToast('Feedback submitted', 'var(--accent)');
+    await loadPastFeedback();
+  } catch(err){ showToast('Error submitting feedback', 'var(--danger)'); }
+}
+
+/* ───────── LOAD PAST FEEDBACK ───────── */
+async function loadPastFeedback(){
+  const res  = await fetch('/api/feedback');
+  const data = await res.json();
+  const myFeedback = data.filter(f => f.studentId === session.id);
+  const list = document.getElementById('pastList');
+  list.innerHTML = '';
+  if(myFeedback.length === 0){ list.innerHTML = `<div style="padding:20px;color:var(--muted)">No feedback submitted yet</div>`; return; }
+  myFeedback.reverse().forEach(f => {
+    const stars = f.rating ? '⭐'.repeat(f.rating) : '';
+    const item = document.createElement('div');
+    item.className = 'past-item';
+    item.innerHTML = `
+      <div class="past-icon" style="background:rgba(0,229,160,.1)">💬</div>
+      <div class="past-body">
+        <div class="past-top">
+          <span class="past-category" style="background:rgba(0,229,160,.1);color:var(--accent)">${f.category}</span>
+          <span class="past-date">${f.date}</span>
+        </div>
+        ${stars ? `<div class="past-stars">${stars}</div>` : ''}
+        <div class="past-text">${f.comment}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Priority: ${f.priority}</div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+/* ───────── INIT ───────── */
+loadPastFeedback();
+</script>
+</body>
+</html>

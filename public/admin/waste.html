@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Admin Waste Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- ✅ Shared stylesheet -->
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* ── PAGE-SPECIFIC STYLES ── */
+    /* Waste page uses accent2 (green) as active nav colour */
+    .nav-item.active { background: rgba(0,229,160,0.08); color: var(--accent2); }
+    .nav-item.active::before { background: var(--accent2); }
+
+    .badge-green  { background: rgba(0,229,160,0.1);  color: var(--accent2); }
+    .badge-red    { background: rgba(255,71,87,0.1);  color: var(--danger); }
+    .badge-gold   { background: rgba(244,197,66,0.1); color: var(--gold); }
+    .badge-orange { background: rgba(255,107,53,0.1); color: var(--orange); }
+
+    /* ADD FORM */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-field.full { grid-column: 1/-1; }
+    .form-label  { font-size: 0.7rem; color: var(--muted); font-weight: 500; }
+    .form-input, .form-select { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; outline: none; transition: border-color 0.18s; width: 100%; }
+    .form-input:focus, .form-select:focus { border-color: var(--accent2); }
+    .form-input.error, .form-select.error { border-color: var(--danger); }
+    .form-select option { background: var(--surface2); }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+    .form-btn { height: 36px; padding: 0 18px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.18s; }
+    .form-btn:hover { color: var(--text); }
+    .form-btn.submit { background: var(--accent2); border-color: var(--accent2); color: #0a0d0f; font-weight: 700; }
+    .form-btn.submit:hover { opacity: 0.88; }
+    .form-btn.submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .del-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.9rem; padding: 4px 8px; border-radius: 6px; transition: all 0.15s; line-height: 1; }
+    .del-btn:hover { color: var(--danger); background: rgba(255,71,87,0.08); }
+
+    .chip   { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+    .chip-b { background: rgba(0,229,160,0.1);  color: var(--accent2); }
+    .chip-l { background: rgba(0,184,255,0.1);  color: var(--accent); }
+    .chip-d { background: rgba(244,197,66,0.1); color: var(--gold); }
+    .chip-s { background: rgba(255,107,53,0.1); color: var(--orange); }
+
+    .reason-chip { font-size: 0.65rem; padding: 2px 8px; border-radius: 100px; background: var(--surface3); color: var(--muted); }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty-icon  { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
+    .empty-text  { font-size: 0.82rem; }
+
+    .tb-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+    .tb-btn.primary { background: var(--accent2); border-color: var(--accent2); color: #0a0d0f; }
+
+    @media (max-width: 900px) { .form-grid { grid-template-columns: 1fr; } .form-field.full { grid-column: 1; } }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><a href="./dashboard.html" class="logo-text">Mess<span>Mate</span></a><div class="logo-sub">Admin Portal</div></div>
+  <div class="sidebar-campus">
+    <div class="campus-icon" id="sidebarAvatar">?</div>
+    <div><div class="campus-name" id="sidebarName">Loading…</div><div class="campus-role" id="sidebarEmail">admin</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item" href="./dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="./menu.html"><span class="nav-icon">📋</span> Menu Manager</a>
+    <a class="nav-item" href="#"><span class="nav-icon">✅</span> Intentions</a>
+    <a class="nav-item" href="#"><span class="nav-icon">👥</span> Students <span class="nav-badge blue">342</span></a>
+    <div class="nav-label">Finance</div>
+    <a class="nav-item" href="./budget.html"><span class="nav-icon">💰</span> Budget</a>
+    <a class="nav-item active" href="./waste.html"><span class="nav-icon">♻️</span> Waste</a>
+    <a class="nav-item" href="./canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <div class="nav-label">Reports</div>
+    <a class="nav-item" href="#"><span class="nav-icon">📤</span> Reports <span class="nav-badge">2</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">🔔</span> Alerts <span class="nav-badge">5</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="logout-btn" href="../login.html" onclick="sessionStorage.removeItem('mm_session')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out
+    </a>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div><h1>Waste Tracker</h1><p>Log food waste, track patterns, reduce losses</p></div>
+    <div class="topbar-right">
+      <div class="tb-btn" onclick="exportWaste()">⬇ Export CSV</div>
+      <div class="tb-btn primary" onclick="toggleForm()">+ Log Waste</div>
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-card loading" id="card-total"><div class="sc-label">Total Entries</div><div class="sc-val" id="stat-total" style="color:var(--accent2)">—</div><div class="sc-sub" id="stat-total-sub">Loading…</div></div>
+      <div class="stat-card loading" id="card-qty"><div class="sc-label">Total Quantity</div><div class="sc-val" id="stat-qty" style="color:var(--gold)">—</div><div class="sc-sub" id="stat-qty-sub">Loading…</div></div>
+      <div class="stat-card loading" id="card-top-meal"><div class="sc-label">Most Wasted Meal</div><div class="sc-val" id="stat-top-meal" style="color:var(--orange);font-size:1.2rem">—</div><div class="sc-sub" id="stat-top-meal-sub">by quantity</div></div>
+      <div class="stat-card loading" id="card-top-reason"><div class="sc-label">Top Reason</div><div class="sc-val" id="stat-top-reason" style="color:var(--danger);font-size:1rem;letter-spacing:0">—</div><div class="sc-sub" id="stat-top-reason-sub">most frequent</div></div>
+    </div>
+
+    <div class="panel" id="addFormPanel" style="display:none;margin-bottom:16px;">
+      <div class="panel-head"><h3>♻️ Log New Waste Entry</h3><span style="font-size:0.72rem;color:var(--muted);cursor:pointer;" onclick="toggleForm()">✕ Close</span></div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="form-field"><label class="form-label">Meal Type</label><select class="form-select" id="f-mealType"><option value="">Select meal…</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select></div>
+          <div class="form-field"><label class="form-label">Food Item</label><input class="form-input" type="text" id="f-foodItem" placeholder="e.g. Dal, Rice, Sabzi…"></div>
+          <div class="form-field"><label class="form-label">Quantity (kg / plates)</label><input class="form-input" type="number" id="f-quantity" placeholder="e.g. 2.5" min="0" step="0.1"></div>
+          <div class="form-field"><label class="form-label">Reason</label><select class="form-select" id="f-reason"><option value="">Select reason…</option><option>Overcooked</option><option>Low Attendance</option><option>Expired</option><option>Over-prepared</option><option>Quality Issue</option><option>Other</option></select></div>
+        </div>
+        <div class="form-actions">
+          <button class="form-btn" onclick="toggleForm()">Cancel</button>
+          <button class="form-btn submit" id="submitBtn" onclick="submitWaste()">+ Add Entry</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel"><div class="panel-head"><h3>Waste by Meal Type</h3></div><div class="panel-body" id="mealBreakdown"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">No data yet</div></div></div></div>
+      <div class="panel"><div class="panel-head"><h3>Waste by Reason</h3></div><div class="panel-body" id="reasonBreakdown"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No data yet</div></div></div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Waste Log</h3>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <select class="form-select" id="filterMeal" style="height:30px;font-size:0.75rem;padding:4px 10px;width:auto;" onchange="applyFilter()"><option value="">All Meals</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select>
+          <span id="recordCount" style="font-size:0.72rem;color:var(--muted)">— records</span>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Date</th><th>Meal</th><th>Food Item</th><th>Quantity</th><th>Reason</th><th></th></tr></thead>
+          <tbody id="wasteTableBody"><tr><td colspan="6"><div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">Loading waste data…</div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title">🗑 Delete Entry?</div>
+    <div class="confirm-sub">This waste log entry will be permanently removed.</div>
+    <div class="confirm-actions">
+      <button class="confirm-btn" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-btn del" id="confirmDelBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ✅ Shared JS -->
+<script src="../js/main.js"></script>
+<script>
+requireAdminSession();
+
+const API = '/api/waste';
+let allWaste = [], deleteTargetId = null;
+
+function mealChip(meal){const map={Breakfast:'chip-b',Lunch:'chip-l',Dinner:'chip-d',Snacks:'chip-s'};return `<span class="chip ${map[meal]||''}">${meal||'—'}</span>`;}
+function fmtDate(iso){if(!iso)return '—';const d=new Date(iso);return isNaN(d)?iso:d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+
+async function loadWaste(){
+  try{const res=await fetch(API);if(!res.ok)throw new Error('API '+res.status);allWaste=await res.json();}
+  catch(e){console.warn('API unavailable:',e.message);allWaste=[];showToast('Could not connect to backend','var(--danger)');}
+  renderAll();
+}
+
+function renderAll(){renderStats();renderCharts();renderTable();}
+
+function renderStats(){
+  ['card-total','card-qty','card-top-meal','card-top-reason'].forEach(id=>document.getElementById(id).classList.remove('loading'));
+  const total=allWaste.length,totalQty=allWaste.reduce((s,w)=>s+(parseFloat(w.quantity)||0),0);
+  const mealTotals={};allWaste.forEach(w=>{mealTotals[w.mealType]=(mealTotals[w.mealType]||0)+(parseFloat(w.quantity)||0);});
+  const topMeal=Object.entries(mealTotals).sort((a,b)=>b[1]-a[1])[0];
+  const reasonCounts={};allWaste.forEach(w=>{reasonCounts[w.reason]=(reasonCounts[w.reason]||0)+1;});
+  const topReason=Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('stat-total').textContent=total||'0';document.getElementById('stat-total-sub').textContent=total===1?'1 entry logged':`${total} entries logged`;
+  document.getElementById('stat-qty').textContent=totalQty.toFixed(1);document.getElementById('stat-qty-sub').textContent='total kg / plates wasted';
+  document.getElementById('stat-top-meal').textContent=topMeal?topMeal[0]:'N/A';document.getElementById('stat-top-meal-sub').textContent=topMeal?`${topMeal[1].toFixed(1)} kg wasted`:'no data yet';
+  document.getElementById('stat-top-reason').textContent=topReason?topReason[0]:'N/A';document.getElementById('stat-top-reason-sub').textContent=topReason?`${topReason[1]} times`:'no data yet';
+}
+
+function renderCharts(){
+  const mealTotals={};allWaste.forEach(w=>{mealTotals[w.mealType]=(mealTotals[w.mealType]||0)+(parseFloat(w.quantity)||0);});
+  const mealColors={Breakfast:'var(--accent2)',Lunch:'var(--accent)',Dinner:'var(--gold)',Snacks:'var(--orange)'};
+  const maxMeal=Math.max(...Object.values(mealTotals),0.01);
+  const mealEl=document.getElementById('mealBreakdown');
+  if(!Object.keys(mealTotals).length){mealEl.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">No entries yet</div></div>';}
+  else{mealEl.innerHTML=Object.entries(mealTotals).sort((a,b)=>b[1]-a[1]).map(([meal,qty])=>`<div class="prog-row"><span class="prog-label">${meal}</span><div class="prog-track"><div class="prog-fill" style="width:${(qty/maxMeal*100).toFixed(0)}%;background:${mealColors[meal]||'var(--purple)'}"></div></div><span class="prog-val" style="color:${mealColors[meal]||'var(--purple)'}">${qty.toFixed(1)}</span></div>`).join('');}
+  const reasonCounts={};allWaste.forEach(w=>{reasonCounts[w.reason]=(reasonCounts[w.reason]||0)+1;});
+  const maxReason=Math.max(...Object.values(reasonCounts),0.01);
+  const reasonColors=['var(--danger)','var(--orange)','var(--gold)','var(--accent)','var(--accent2)','var(--purple)'];
+  const reasonEl=document.getElementById('reasonBreakdown');
+  if(!Object.keys(reasonCounts).length){reasonEl.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No entries yet</div></div>';}
+  else{reasonEl.innerHTML=Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]).map(([reason,count],i)=>`<div class="prog-row"><span class="prog-label" style="font-size:0.72rem">${reason}</span><div class="prog-track"><div class="prog-fill" style="width:${(count/maxReason*100).toFixed(0)}%;background:${reasonColors[i%reasonColors.length]}"></div></div><span class="prog-val" style="color:${reasonColors[i%reasonColors.length]}">${count}x</span></div>`).join('');}
+}
+
+function renderTable(filter=''){
+  const filtered=filter?allWaste.filter(w=>w.mealType===filter):allWaste;
+  document.getElementById('recordCount').textContent=`${filtered.length} record${filtered.length!==1?'s':''}`;
+  const tbody=document.getElementById('wasteTableBody');
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">✅</div><div class="empty-text">No waste entries${filter?' for '+filter:''}. Great work!</div></div></td></tr>`;return;}
+  tbody.innerHTML=[...filtered].reverse().map(w=>`<tr><td style="color:var(--muted)">${fmtDate(w.date)}</td><td>${mealChip(w.mealType)}</td><td style="font-weight:500">${w.foodItem||'—'}</td><td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--gold)">${w.quantity||'—'}</td><td><span class="reason-chip">${w.reason||'—'}</span></td><td><button class="del-btn" onclick="confirmDelete('${w.id}')">🗑</button></td></tr>`).join('');
+}
+function applyFilter(){renderTable(document.getElementById('filterMeal').value);}
+
+function toggleForm(){const p=document.getElementById('addFormPanel');p.style.display=p.style.display==='none'?'block':'none';if(p.style.display==='block')document.getElementById('f-foodItem').focus();}
+
+async function submitWaste(){
+  const mealType=document.getElementById('f-mealType').value.trim(),foodItem=document.getElementById('f-foodItem').value.trim(),quantity=document.getElementById('f-quantity').value.trim(),reason=document.getElementById('f-reason').value.trim();
+  let valid=true;[['f-mealType',mealType],['f-foodItem',foodItem],['f-quantity',quantity],['f-reason',reason]].forEach(([id,val])=>{const el=document.getElementById(id);if(!val){el.classList.add('error');valid=false;}else el.classList.remove('error');});
+  if(!valid){showToast('Please fill all fields','var(--danger)');return;}
+  const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='Saving…';
+  try{const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mealType,foodItem,quantity:parseFloat(quantity),reason})});if(!res.ok)throw new Error('API '+res.status);allWaste.push(await res.json());renderAll();['f-mealType','f-foodItem','f-quantity','f-reason'].forEach(id=>{const el=document.getElementById(id);el.value='';el.classList.remove('error');});toggleForm();showToast('Waste entry logged ✓','var(--accent2)');}
+  catch(e){showToast('Failed to save: '+e.message,'var(--danger)');}
+  finally{btn.disabled=false;btn.textContent='+ Add Entry';}
+}
+
+function confirmDelete(id){deleteTargetId=id;document.getElementById('confirmOverlay').classList.add('open');}
+
+document.getElementById('confirmDelBtn').onclick=async function(){
+  if(!deleteTargetId)return;this.textContent='Deleting…';this.disabled=true;
+  try{const res=await fetch(`${API}/${deleteTargetId}`,{method:'DELETE'});if(!res.ok)throw new Error('API '+res.status);allWaste=allWaste.filter(w=>w.id!==deleteTargetId);renderAll();showToast('Entry deleted','var(--danger)');}
+  catch(e){showToast('Delete failed: '+e.message,'var(--danger)');}
+  finally{this.textContent='Delete';this.disabled=false;closeConfirm();}
+};
+
+function exportWaste(){
+  if(!allWaste.length){showToast('No data to export','var(--gold)');return;}
+  downloadCSV([['Date','Meal Type','Food Item','Quantity','Reason'],...allWaste.map(w=>[w.date,w.mealType,w.foodItem,w.quantity,w.reason])],`waste_log_${new Date().toISOString().split('T')[0]}.csv`);
+  showToast('CSV downloaded','var(--accent2)');
+}
+
+document.addEventListener('DOMContentLoaded', loadWaste);
+</script>
+</body>
+</html>

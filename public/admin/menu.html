@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Admin Menu Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- ✅ Shared stylesheet -->
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* ── PAGE-SPECIFIC STYLES ── */
+    .day-tabs { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 18px; }
+    .day-tab  { flex: 1; padding: 12px 6px; text-align: center; cursor: pointer; transition: all 0.18s; border-right: 1px solid var(--border); position: relative; }
+    .day-tab:last-child { border-right: none; }
+    .day-tab:hover { background: var(--surface2); }
+    .day-tab.active { background: rgba(0,184,255,0.08); }
+    .day-tab-name  { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .day-tab-label { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem; }
+    .day-tab.active .day-tab-label { color: var(--accent); }
+    .day-tab.today-tab .day-tab-label { color: var(--accent2); }
+    .day-tab-count { font-size: 0.58rem; color: var(--muted); margin-top: 2px; }
+
+    .meal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .meal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.2s; }
+    .meal-card:focus-within { border-color: rgba(0,184,255,0.3); }
+    .mc-head  { padding: 13px 15px; border-bottom: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; gap: 8px; }
+    .mc-emoji { font-size: 1.1rem; }
+    .mc-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem; }
+    .mc-time  { font-size: 0.6rem; color: var(--muted); margin-top: 1px; }
+    .mc-count { margin-left: auto; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 100px; background: rgba(0,184,255,0.1); color: var(--accent); }
+    .mc-body  { padding: 14px; }
+    .item-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; min-height: 50px; }
+    .item-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; transition: all 0.15s; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .item-row:hover { border-color: rgba(255,71,87,0.25); }
+    .item-name { flex: 1; font-size: 0.78rem; }
+    .item-del  { background: none; border: none; color: var(--surface3); cursor: pointer; font-size: 0.78rem; padding: 2px 4px; border-radius: 5px; transition: all 0.15s; line-height: 1; }
+    .item-del:hover { color: var(--danger); background: rgba(255,71,87,0.08); }
+    .add-row  { display: flex; gap: 6px; }
+    .add-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; outline: none; transition: border-color 0.2s; }
+    .add-input:focus { border-color: rgba(0,184,255,0.4); }
+    .add-input::placeholder { color: var(--muted); opacity: 0.5; }
+    .add-btn-sm { padding: 7px 12px; border-radius: 8px; background: rgba(0,184,255,0.08); border: 1px solid rgba(0,184,255,0.2); color: var(--accent); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
+    .add-btn-sm:hover { background: var(--accent); color: #0a0d0f; }
+    .add-btn-sm:disabled { opacity: 0.4; cursor: not-allowed; }
+    .empty-meal { padding: 16px; text-align: center; color: var(--muted); font-size: 0.75rem; }
+
+    .bulk-grid { display: grid; grid-template-columns: 1fr 140px 140px auto; gap: 10px; align-items: end; }
+    .bf-label { font-size: 0.68rem; color: var(--muted); margin-bottom: 4px; }
+    .bf-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 8px 11px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; outline: none; width: 100%; transition: border-color 0.2s; }
+    .bf-input:focus { border-color: rgba(0,184,255,0.4); }
+    .bf-input.error { border-color: var(--danger); }
+    .btn-bulk { height: 36px; padding: 0 18px; border-radius: 9px; background: var(--accent2); border: none; color: #0a0d0f; font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+    .btn-bulk:hover { opacity: 0.88; }
+    .btn-bulk:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .chip   { font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+    .chip-b { background: rgba(0,229,160,0.1);  color: var(--accent2); }
+    .chip-l { background: rgba(0,184,255,0.1);  color: var(--accent); }
+    .chip-d { background: rgba(167,139,250,0.1);color: var(--purple); }
+    .chip-s { background: rgba(255,107,53,0.1); color: var(--orange); }
+
+    @media (max-width: 1100px) { .meal-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px)  { .meal-grid { grid-template-columns: 1fr 1fr; } .bulk-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px)  { .meal-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><a href="./dashboard.html" class="logo-text">Mess<span>Mate</span></a><div class="logo-sub">Admin Portal</div></div>
+  <div class="sidebar-campus">
+    <div class="campus-icon" id="sidebarAvatar">?</div>
+    <div><div class="campus-name" id="sidebarName">Loading…</div><div class="campus-role" id="sidebarEmail">admin</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item" href="./dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+    <a class="nav-item active" href="./menu.html"><span class="nav-icon">📋</span> Menu Manager</a>
+    <a class="nav-item" href="#"><span class="nav-icon">✅</span> Intentions</a>
+    <a class="nav-item" href="#"><span class="nav-icon">👥</span> Students <span class="nav-badge blue">342</span></a>
+    <div class="nav-label">Finance</div>
+    <a class="nav-item" href="./budget.html"><span class="nav-icon">💰</span> Budget</a>
+    <a class="nav-item" href="./waste.html"><span class="nav-icon">♻️</span> Waste</a>
+    <a class="nav-item" href="./canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <div class="nav-label">Reports</div>
+    <a class="nav-item" href="#"><span class="nav-icon">📤</span> Reports <span class="nav-badge">2</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">🔔</span> Alerts <span class="nav-badge">5</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="logout-btn" href="../login.html" onclick="sessionStorage.removeItem('mm_session')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out
+    </a>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div><h1>Menu Manager</h1><p id="topbarSub">Edit weekly meals by day</p></div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="exportMenu()">⬇ Export</button>
+      <button class="tb-btn primary" onclick="showBulkAdd()">＋ Add Item</button>
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="day-tabs" id="dayTabs"></div>
+    <div class="meal-grid" id="mealGrid"><div style="grid-column:1/-1"><div class="state-box"><div class="spinner"></div>Loading menu…</div></div></div>
+
+    <div class="panel" id="bulkPanel" style="display:none;">
+      <div class="panel-head"><h3>＋ Add Menu Item</h3><span style="font-size:.72rem;color:var(--muted);cursor:pointer;" onclick="hideBulkAdd()">✕ Close</span></div>
+      <div class="panel-body">
+        <div class="bulk-grid">
+          <div><div class="bf-label">Item Name *</div><input class="bf-input" id="bfName" placeholder="e.g. Dal Tadka, Poha…"></div>
+          <div><div class="bf-label">Meal *</div><select class="bf-input" id="bfMeal"><option value="breakfast">🌅 Breakfast</option><option value="lunch">☀️ Lunch</option><option value="dinner">🌙 Dinner</option><option value="snacks">☕ Snacks</option></select></div>
+          <div><div class="bf-label">Day *</div><select class="bf-input" id="bfDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
+          <button class="btn-bulk" id="bulkAddBtn" onclick="addMenuItem()">＋ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>📋 All Menu Items</h3>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="text" id="searchInput" placeholder="Search…" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--text);font-size:.74rem;font-family:'DM Sans',sans-serif;outline:none;width:150px;" oninput="renderTable()">
+          <button class="tb-btn" style="height:28px;font-size:.7rem;" onclick="loadMenu()">↻ Refresh</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Item Name</th><th>Meal</th><th>Day</th><th>Added</th><th></th></tr></thead>
+          <tbody id="menuTable"><tr><td colspan="5"><div class="state-box"><div class="spinner"></div>Loading…</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title">🗑 Delete Menu Item?</div>
+    <div class="confirm-sub" id="confirmSub">This item will be removed from the menu.</div>
+    <div class="confirm-actions">
+      <button class="confirm-btn" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-btn del" id="confirmDelBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ✅ Shared JS -->
+<script src="../js/main.js"></script>
+<script>
+requireAdminSession();
+
+const API = '/api/menu';
+const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MEALS = [
+  {key:'breakfast',name:'Breakfast',emoji:'🌅',time:'7:30–9:00 AM'},
+  {key:'lunch',    name:'Lunch',    emoji:'☀️',time:'12:30–2:00 PM'},
+  {key:'dinner',   name:'Dinner',   emoji:'🌙',time:'7:30–9:00 PM'},
+  {key:'snacks',   name:'Snacks',   emoji:'☕',time:'4:30–5:30 PM'},
+];
+const MEAL_CHIPS={breakfast:'chip-b',lunch:'chip-l',dinner:'chip-d',snacks:'chip-s'};
+
+let allItems=[],deleteTargetId=null;
+let activeDay=(()=>{const d=new Date().getDay();return d===0?'Sunday':DAYS[d-1];})();
+
+function buildDayTabs(){
+  const today=(()=>{const d=new Date().getDay();return d===0?'Sunday':DAYS[d-1];})();
+  document.getElementById('dayTabs').innerHTML=DAYS.map(day=>{
+    const count=allItems.filter(i=>i.day===day).length;
+    return `<div class="day-tab${day===activeDay?' active':''}${day===today?' today-tab':''}" onclick="selectDay('${day}',this)"><div class="day-tab-name">${day.slice(0,3)}</div><div class="day-tab-label">${day.slice(0,3)}</div><div class="day-tab-count">${count} items</div></div>`;
+  }).join('');
+}
+function selectDay(day,el){activeDay=day;document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderMealGrid();}
+
+async function loadMenu(){
+  try{
+    const res=await fetch(API);if(!res.ok)throw new Error('Server '+res.status);allItems=await res.json();
+    buildDayTabs();renderMealGrid();renderTable();
+    const total=allItems.length;document.getElementById('topbarSub').textContent=`${total} item${total!==1?'s':''} across 7 days · Edit by day and meal`;
+  }catch(e){allItems=[];document.getElementById('mealGrid').innerHTML=`<div style="grid-column:1/-1"><div class="state-box" style="color:var(--danger)">Failed to load: ${e.message}</div></div>`;showToast('Cannot connect to backend','var(--danger)');}
+}
+
+function renderMealGrid(){
+  document.getElementById('mealGrid').innerHTML=MEALS.map(meal=>{
+    const items=allItems.filter(i=>i.day===activeDay&&i.meal===meal.key);
+    const rows=items.length?items.map(item=>`<div class="item-row"><span class="item-name">${item.name}</span><button class="item-del" onclick="confirmDelete('${item.id}','${item.name.replace(/'/g,"\\'")}')">✕</button></div>`).join(''):`<div class="empty-meal">Nothing added yet</div>`;
+    return `<div class="meal-card"><div class="mc-head"><span class="mc-emoji">${meal.emoji}</span><div><div class="mc-title">${meal.name}</div><div class="mc-time">${meal.time}</div></div><span class="mc-count">${items.length}</span></div><div class="mc-body"><div class="item-list">${rows}</div><div class="add-row"><input class="add-input" id="inp-${meal.key}" placeholder="Add item…" onkeydown="if(event.key==='Enter')quickAdd('${meal.key}')"><button class="add-btn-sm" onclick="quickAdd('${meal.key}')">＋</button></div></div></div>`;
+  }).join('');
+}
+
+async function quickAdd(mealKey){
+  const inp=document.getElementById('inp-'+mealKey);const name=inp.value.trim();if(!name)return;inp.disabled=true;
+  try{const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,meal:mealKey,day:activeDay})});if(!res.ok)throw new Error('Server '+res.status);allItems.push(await res.json());inp.value='';buildDayTabs();renderMealGrid();renderTable();showToast(`"${name}" added to ${mealKey}`,'var(--accent2)');setTimeout(()=>{const el=document.getElementById('inp-'+mealKey);if(el)el.focus();},50);}
+  catch(e){showToast('Add failed: '+e.message,'var(--danger)');}
+  finally{if(inp)inp.disabled=false;}
+}
+
+function showBulkAdd(){document.getElementById('bulkPanel').style.display='block';document.getElementById('bfDay').value=activeDay;document.getElementById('bfName').focus();}
+function hideBulkAdd(){document.getElementById('bulkPanel').style.display='none';}
+
+async function addMenuItem(){
+  const name=document.getElementById('bfName').value.trim(),meal=document.getElementById('bfMeal').value,day=document.getElementById('bfDay').value;
+  const nameEl=document.getElementById('bfName');if(!name){nameEl.classList.add('error');showToast('Item name is required','var(--danger)');return;}nameEl.classList.remove('error');
+  const btn=document.getElementById('bulkAddBtn');btn.disabled=true;btn.textContent='Adding…';
+  try{const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,meal,day})});if(!res.ok)throw new Error('Server '+res.status);allItems.push(await res.json());nameEl.value='';activeDay=day;buildDayTabs();renderMealGrid();renderTable();showToast(`"${name}" added to ${meal}/${day}`,'var(--accent2)');}
+  catch(e){showToast('Add failed: '+e.message,'var(--danger)');}
+  finally{btn.disabled=false;btn.textContent='＋ Add';}
+}
+
+function confirmDelete(id,name){deleteTargetId=id;document.getElementById('confirmSub').textContent=`"${name}" will be removed from the menu.`;document.getElementById('confirmOverlay').classList.add('open');}
+
+document.getElementById('confirmDelBtn').onclick=async function(){
+  if(!deleteTargetId)return;this.disabled=true;this.textContent='Deleting…';
+  try{const res=await fetch(`${API}/${deleteTargetId}`,{method:'DELETE'});if(!res.ok)throw new Error('Server '+res.status);allItems=allItems.filter(i=>i.id!==deleteTargetId);buildDayTabs();renderMealGrid();renderTable();showToast('Item deleted','var(--danger)');}
+  catch(e){showToast('Delete failed: '+e.message,'var(--danger)');}
+  finally{this.disabled=false;this.textContent='Delete';closeConfirm();}
+};
+
+function renderTable(){
+  const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
+  const filtered=search?allItems.filter(i=>i.name.toLowerCase().includes(search)||i.day.toLowerCase().includes(search)||i.meal.toLowerCase().includes(search)):allItems;
+  const tb=document.getElementById('menuTable');
+  if(!filtered.length){tb.innerHTML=`<tr><td colspan="5"><div class="state-box">${allItems.length?'No items match.':'No menu items yet.'}</div></td></tr>`;return;}
+  tb.innerHTML=[...filtered].reverse().map(i=>{const date=i.createdAt?new Date(i.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):'—';return `<tr><td style="font-weight:500">${i.name}</td><td><span class="chip ${MEAL_CHIPS[i.meal]||''}">${i.meal}</span></td><td style="color:var(--muted)">${i.day}</td><td style="color:var(--muted)">${date}</td><td><button class="item-del" onclick="confirmDelete('${i.id}','${i.name.replace(/'/g,"\\'")}')">🗑</button></td></tr>`;}).join('');
+}
+
+function exportMenu(){
+  if(!allItems.length){showToast('No items to export','var(--gold)');return;}
+  downloadCSV([['ID','Name','Meal','Day','Created At'],...allItems.map(i=>[i.id,i.name,i.meal,i.day,i.createdAt||''])],`menu_${new Date().toISOString().slice(0,10)}.csv`);
+  showToast('CSV exported','var(--accent2)');
+}
+
+document.addEventListener('DOMContentLoaded', loadMenu);
+</script>
+</body>
+</html>

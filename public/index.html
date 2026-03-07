@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Smart Mess Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0d0f;
+      --surface: #111518;
+      --surface2: #181d21;
+      --border: rgba(255,255,255,0.07);
+      --text: #e8edf2;
+      --muted: #7a8a96;
+      --accent: #00e5a0;
+      --accent2: #00b8ff;
+      --accent3: #ff6b35;
+      --danger: #ff4757;
+      --gold: #f4c542;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(10,13,15,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.4rem;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted);
+      font-size: 0.9rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      display: flex; gap: 12px;
+    }
+    .btn-nav {
+      padding: 8px 20px; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ghost {
+      border: 1px solid var(--border); color: var(--text);
+      background: transparent;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-solid {
+      background: var(--accent); color: #0a0d0f;
+      border: 1px solid var(--accent);
+    }
+    .btn-solid:hover { background: #00ffb3; }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 120px 48px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-grid-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,160,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,160,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+    }
+    .hero-orbs {
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(120px); opacity: 0.15;
+      animation: drift 8s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: var(--accent2); bottom: -100px; left: 100px; animation-delay: -3s; }
+    .orb-3 { width: 300px; height: 300px; background: var(--accent3); top: 50%; left: 40%; animation-delay: -5s; }
+    @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px, -30px) scale(1.1); } }
+
+    .hero-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      align-items: center; position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,229,160,0.1);
+      border: 1px solid rgba(0,229,160,0.25);
+      color: var(--accent); font-size: 0.8rem; font-weight: 500;
+      padding: 6px 14px; border-radius: 100px;
+      margin-bottom: 24px; letter-spacing: 0.5px;
+    }
+    .hero-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 5vw, 4.2rem);
+      font-weight: 800; line-height: 1.08;
+      letter-spacing: -2px; margin-bottom: 20px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      color: var(--muted); font-size: 1.05rem; line-height: 1.7;
+      margin-bottom: 36px; max-width: 480px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+    .btn-primary {
+      padding: 14px 28px; border-radius: 10px;
+      background: var(--accent); color: #0a0d0f;
+      font-size: 0.95rem; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { background: #00ffb3; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,229,160,0.3); }
+    .btn-secondary {
+      padding: 14px 28px; border-radius: 10px;
+      background: transparent; color: var(--text);
+      font-size: 0.95rem; font-weight: 500;
+      text-decoration: none; border: 1px solid var(--border); cursor: pointer;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .hero-trust {
+      display: flex; align-items: center; gap: 16px;
+      color: var(--muted); font-size: 0.82rem;
+    }
+    .trust-avatars {
+      display: flex;
+    }
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 2px solid var(--bg);
+      margin-right: -10px;
+      background: linear-gradient(135deg, #2a3a4a, #1a2a3a);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* ===== HERO DASHBOARD ===== */
+    .hero-dashboard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px var(--border);
+      animation: floatCard 6s ease-in-out infinite;
+    }
+    @keyframes floatCard { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .dashboard-header {
+      background: var(--surface2);
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dash-dots { display: flex; gap: 6px; }
+    .dash-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dashboard-title {
+      font-size: 0.78rem; color: var(--muted); flex: 1;
+      text-align: center; letter-spacing: 0.3px;
+    }
+    .dashboard-body { padding: 20px; }
+
+    .dash-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-bottom: 20px;
+    }
+    .dash-stat {
+      background: var(--surface2); border-radius: 12px;
+      padding: 14px; border: 1px solid var(--border);
+    }
+    .dash-stat-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; }
+    .dash-stat-value {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 1.4rem;
+    }
+    .dash-stat-change { font-size: 0.68rem; margin-top: 2px; }
+    .up { color: var(--accent); }
+    .down { color: var(--danger); }
+
+    .dash-chart {
+      background: var(--surface2); border-radius: 12px;
+      padding: 16px; margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+    .dash-chart-title { font-size: 0.75rem; color: var(--muted); margin-bottom: 14px; font-weight: 500; }
+    .chart-bars {
+      display: flex; gap: 8px; align-items: flex-end; height: 80px;
+    }
+    .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+    .chart-bar {
+      width: 100%; border-radius: 4px 4px 0 0;
+      background: linear-gradient(180deg, var(--accent), rgba(0,229,160,0.3));
+      transition: all 0.3s;
+    }
+    .chart-bar.waste { background: linear-gradient(180deg, var(--danger), rgba(255,71,87,0.3)); }
+    .chart-day { font-size: 0.6rem; color: var(--muted); }
+
+    .dash-meals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .meal-item {
+      background: var(--surface2); border-radius: 10px;
+      padding: 12px; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .meal-name { font-size: 0.75rem; font-weight: 500; }
+    .meal-sub { font-size: 0.65rem; color: var(--muted); }
+    .meal-pill {
+      font-size: 0.65rem; padding: 3px 8px; border-radius: 100px;
+      font-weight: 600;
+    }
+    .pill-eat { background: rgba(0,229,160,0.15); color: var(--accent); }
+    .pill-skip { background: rgba(255,71,87,0.15); color: var(--danger); }
+
+    /* ===== SECTION STYLES ===== */
+    .section {
+      padding: 100px 48px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 800; letter-spacing: -1.5px;
+      margin-bottom: 16px; line-height: 1.1;
+    }
+    .section-sub {
+      color: var(--muted); font-size: 1rem; line-height: 1.7;
+      max-width: 520px;
+    }
+    .section-header { margin-bottom: 60px; }
+
+    /* ===== PROBLEMS ===== */
+    .problems-wrap { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .problems-wrap .section { max-width: 1200px; margin: 0 auto; }
+    .problems-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+    }
+    .problem-card {
+      background: var(--surface); padding: 36px 28px;
+      position: relative; overflow: hidden;
+      transition: background 0.3s;
+    }
+    .problem-card:hover { background: var(--surface2); }
+    .problem-icon {
+      font-size: 2.4rem; margin-bottom: 16px; display: block;
+    }
+    .problem-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .problem-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ===== FEATURES ===== */
+    .features-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 36px;
+      position: relative; overflow: hidden;
+      transition: all 0.3s;
+    }
+    .feature-card:hover {
+      border-color: rgba(0,229,160,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .feature-card.big { grid-column: span 2; }
+    .feature-card.big-content { display: flex; gap: 48px; align-items: center; }
+    .feature-card .accent-line {
+      width: 40px; height: 3px; border-radius: 2px;
+      background: var(--accent); margin-bottom: 20px;
+    }
+    .feature-card.blue .accent-line { background: var(--accent2); }
+    .feature-card.orange .accent-line { background: var(--accent3); }
+    .feature-card.gold .accent-line { background: var(--gold); }
+    .feature-icon-wrap {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 20px;
+      background: rgba(0,229,160,0.1);
+      border: 1px solid rgba(0,229,160,0.2);
+    }
+    .feature-card.blue .feature-icon-wrap {
+      background: rgba(0,184,255,0.1); border-color: rgba(0,184,255,0.2);
+    }
+    .feature-card.orange .feature-icon-wrap {
+      background: rgba(255,107,53,0.1); border-color: rgba(255,107,53,0.2);
+    }
+    .feature-card.gold .feature-icon-wrap {
+      background: rgba(244,197,66,0.1); border-color: rgba(244,197,66,0.2);
+    }
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem; font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .feature-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+
+    .feature-list { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .feature-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.88rem; color: var(--muted); list-style: none;
+    }
+    .feature-list li::before {
+      content: '✓'; color: var(--accent);
+      font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* Analytics widget inside feature card */
+    .mini-analytics {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px;
+      flex: 1; min-width: 260px;
+    }
+    .mini-analytics-title { font-size: 0.72rem; color: var(--muted); margin-bottom: 16px; letter-spacing: 0.3px; }
+    .donut-wrap {
+      display: flex; align-items: center; gap: 20px;
+    }
+    .donut-svg { width: 80px; height: 80px; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ===== HOW IT WORKS ===== */
+    .steps-wrap { position: relative; }
+    .steps-line {
+      position: absolute; left: 28px; top: 0; bottom: 0; width: 1px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; gap: 40px; align-items: flex-start;
+      padding: 36px 0; border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.1rem;
+      color: var(--accent); flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+    .step-body { flex: 1; padding-top: 10px; }
+    .step-body h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .step-body p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+    .step-tag {
+      font-size: 0.72rem; padding: 4px 10px; border-radius: 100px;
+      background: rgba(0,229,160,0.1); color: var(--accent);
+      font-weight: 600; margin-top: 10px; display: inline-block;
+    }
+
+    /* ===== ROLES ===== */
+    .roles-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .roles-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .role-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 20px; padding: 36px;
+      transition: all 0.3s;
+    }
+    .role-card:hover {
+      border-color: rgba(0,229,160,0.3);
+      transform: translateY(-4px);
+    }
+    .role-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.8px;
+      text-transform: uppercase; padding: 5px 12px; border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .badge-student { background: rgba(0,229,160,0.1); color: var(--accent); }
+    .badge-admin { background: rgba(0,184,255,0.1); color: var(--accent2); }
+    .badge-guardian { background: rgba(244,197,66,0.1); color: var(--gold); }
+    .role-icon { font-size: 2.5rem; margin-bottom: 16px; display: block; }
+    .role-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 12px;
+    }
+    .role-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; margin-bottom: 20px; }
+    .role-features { display: flex; flex-direction: column; gap: 8px; }
+    .role-feature {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.82rem; color: var(--muted);
+    }
+    .role-feature span:first-child { font-size: 0.9rem; }
+
+    /* ===== STATS ===== */
+    .stats-section { padding: 80px 48px; }
+    .stats-container {
+      max-width: 1200px; margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: 24px;
+      padding: 60px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; position: relative; overflow: hidden;
+    }
+    .stats-container::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 50% 80% at 50% 0%, rgba(0,229,160,0.05), transparent);
+    }
+    .stat-item { text-align: center; padding: 10px; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 3rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+
+    /* ===== TIMELINE / CUTOFF ===== */
+    .cutoff-section { padding: 0 48px 100px; }
+    .cutoff-wrap {
+      max-width: 1200px; margin: 0 auto;
+    }
+    .cutoff-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 24px; overflow: hidden;
+    }
+    .cutoff-header {
+      padding: 28px 36px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cutoff-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; }
+    .live-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; font-weight: 600;
+      color: var(--accent); background: rgba(0,229,160,0.1);
+      padding: 5px 12px; border-radius: 100px;
+    }
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .cutoff-body { padding: 28px 36px; }
+    .cutoff-timeline {
+      display: flex; align-items: center; gap: 0;
+      position: relative; margin-bottom: 28px;
+    }
+    .cutoff-marker {
+      flex: 1; position: relative;
+    }
+    .cutoff-bar {
+      height: 6px; border-radius: 3px;
+      background: var(--surface2);
+    }
+    .cutoff-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 65%;
+      position: relative;
+    }
+    .cutoff-fill::after {
+      content: '';
+      position: absolute; right: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 14px; height: 14px; border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 0 3px var(--accent);
+    }
+    .cutoff-labels {
+      display: flex; justify-content: space-between;
+      margin-top: 8px; font-size: 0.72rem; color: var(--muted);
+    }
+    .meal-intention-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .mi-card {
+      background: var(--surface2); border-radius: 12px;
+      padding: 16px; border: 1px solid var(--border);
+    }
+    .mi-meal { font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; }
+    .mi-time { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
+    .mi-bar { height: 4px; border-radius: 2px; background: var(--border); margin-bottom: 8px; }
+    .mi-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+    .mi-count { font-size: 0.7rem; color: var(--muted); }
+    .mi-count strong { color: var(--text); }
+
+    /* ===== CTA ===== */
+    .cta-section { padding: 0 48px 100px; }
+    .cta-wrap {
+      max-width: 1200px; margin: 0 auto;
+      background: linear-gradient(135deg, rgba(0,229,160,0.08), rgba(0,184,255,0.05));
+      border: 1px solid rgba(0,229,160,0.2);
+      border-radius: 28px; padding: 80px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-wrap::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 300px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .cta-wrap h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800; letter-spacing: -1.5px;
+      margin-bottom: 16px;
+    }
+    .cta-wrap p { color: var(--muted); font-size: 1rem; margin-bottom: 36px; }
+    .cta-buttons { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      padding: 40px 48px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.2rem; color: var(--accent);
+    }
+    .footer-logo span { color: var(--muted); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { color: var(--muted); font-size: 0.8rem; }
+
+    /* ===== SCROLL ANIMATIONS ===== */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .hero-dashboard { display: none; }
+      .section { padding: 60px 24px; }
+      .problems-grid { grid-template-columns: 1fr 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card.big { grid-column: span 1; }
+      .feature-card.big-content { flex-direction: column; }
+      .roles-grid { grid-template-columns: 1fr; }
+      .stats-container { grid-template-columns: 1fr 1fr; padding: 40px 24px; }
+      .meal-intention-grid { grid-template-columns: 1fr 1fr; }
+      .cta-wrap { padding: 48px 28px; }
+      .stats-section { padding: 60px 24px; }
+      .cutoff-section { padding: 0 24px 60px; }
+      .cta-section { padding: 0 24px 60px; }
+      footer { padding: 32px 24px; flex-direction: column; gap: 20px; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      .problems-grid { grid-template-columns: 1fr; }
+      .stats-container { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <div class="nav-logo">Mess<span>Mate</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#roles">Who It's For</a>
+    <a href="#stats">Impact</a>
+  </div>
+  <div class="nav-cta">
+    <a href="login.html" class="btn-nav btn-ghost">Login</a>
+    <a href="signup.html" class="btn-nav btn-solid">Get Started</a>
+  </div>
+</nav>
+
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <span class="hero-badge">Data-Driven Campus Food Management</span>
+      <h1>
+        Smarter Mess.<br>
+        <em>Less Waste.</em><br>
+        Full Transparency.
+      </h1>
+      <p class="hero-sub">
+        MessMate empowers campuses with meal intention tracking, budget analytics, 
+        and real-time participation insights — eliminating waste and maximizing fee efficiency.
+      </p>
+      <div class="hero-actions">
+        <a href="signup.html" class="btn-primary">
+          <span>Get Started Free</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#how-it-works" class="btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          <span>Watch Demo</span>
+        </a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-avatars">
+          <div class="avatar">A</div>
+          <div class="avatar">B</div>
+          <div class="avatar">C</div>
+          <div class="avatar">D</div>
+        </div>
+        <span>Trusted by 50+ campus mess administrators</span>
+      </div>
+    </div>
+
+    <!-- Live Dashboard Preview -->
+    <div class="hero-dashboard">
+      <div class="dashboard-header">
+        <div class="dash-dots">
+          <div class="dash-dot" style="background:#ff5f57"></div>
+          <div class="dash-dot" style="background:#ffbd2e"></div>
+          <div class="dash-dot" style="background:#28c840"></div>
+        </div>
+        <span class="dashboard-title">MessMate Admin — Live Dashboard</span>
+      </div>
+      <div class="dashboard-body">
+        <div class="dash-stats">
+          <div class="dash-stat">
+            <div class="dash-stat-label">Today's Meals</div>
+            <div class="dash-stat-value" style="color:var(--accent)">342</div>
+            <div class="dash-stat-change up">↑ 12% vs yesterday</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Waste Index</div>
+            <div class="dash-stat-value" style="color:var(--danger)">4.2%</div>
+            <div class="dash-stat-change up">↓ 2.1% improvement</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Budget Eff.</div>
+            <div class="dash-stat-value" style="color:var(--gold)">91%</div>
+            <div class="dash-stat-change up">↑ 5% this week</div>
+          </div>
+        </div>
+
+        <div class="dash-chart">
+          <div class="dash-chart-title">Weekly Participation vs Waste</div>
+          <div class="chart-bars">
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:70%"></div>
+              <div class="chart-bar waste" style="height:15%"></div>
+              <span class="chart-day">Mon</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:85%"></div>
+              <div class="chart-bar waste" style="height:8%"></div>
+              <span class="chart-day">Tue</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:60%"></div>
+              <div class="chart-bar waste" style="height:22%"></div>
+              <span class="chart-day">Wed</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:90%"></div>
+              <div class="chart-bar waste" style="height:5%"></div>
+              <span class="chart-day">Thu</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:78%"></div>
+              <div class="chart-bar waste" style="height:10%"></div>
+              <span class="chart-day">Fri</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:45%"></div>
+              <div class="chart-bar waste" style="height:30%"></div>
+              <span class="chart-day">Sat</span>
+            </div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="height:55%"></div>
+              <div class="chart-bar waste" style="height:20%"></div>
+              <span class="chart-day">Sun</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-meals">
+          <div class="meal-item">
+            <div>
+              <div class="meal-name">Breakfast</div>
+              <div class="meal-sub">8:00 AM cutoff done</div>
+            </div>
+            <span class="meal-pill pill-eat">287 eating</span>
+          </div>
+          <div class="meal-item">
+            <div>
+              <div class="meal-name">Lunch</div>
+              <div class="meal-sub">Cutoff in 1h 20m</div>
+            </div>
+            <span class="meal-pill pill-eat">312 eating</span>
+          </div>
+          <div class="meal-item">
+            <div>
+              <div class="meal-name">Dinner</div>
+              <div class="meal-sub">Open for intention</div>
+            </div>
+            <span class="meal-pill pill-skip">98 skipping</span>
+          </div>
+          <div class="meal-item">
+            <div>
+              <div class="meal-name">Snacks</div>
+              <div class="meal-sub">Optional add-on</div>
+            </div>
+            <span class="meal-pill pill-eat">145 opted in</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== PROBLEMS ===== -->
+<div class="problems-wrap">
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-label">The Challenge</div>
+      <h2 class="section-title">Campus mess systems are broken</h2>
+      <p class="section-sub">Every campus faces the same inefficiencies — costly, wasteful, and opaque.</p>
+    </div>
+    <div class="problems-grid">
+      <div class="problem-card">
+        <span class="problem-icon">🍽️</span>
+        <h3>Food Wastage</h3>
+        <p>Excess food is prepared daily due to poor demand estimation. It ends up in the bin, not on the plate.</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">💸</span>
+        <h3>Budget Inefficiency</h3>
+        <p>Students pay full fees but regularly skip meals. Their money is lost with zero accountability.</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">📉</span>
+        <h3>Zero Analytics</h3>
+        <p>No visibility into participation trends, peak days, or what percentage of food gets consumed.</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">👁️‍🗨️</span>
+        <h3>No Transparency</h3>
+        <p>Parents and guardians have no insight into whether their child is eating or skipping regularly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== FEATURES ===== -->
+<section class="section reveal" id="features">
+  <div class="section-header">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything your mess needs</h2>
+    <p class="section-sub">Powerful tools for students, administrators, and guardians — all in one platform.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="accent-line"></div>
+      <div class="feature-icon-wrap">🎯</div>
+      <h3>Meal Intention Tracking</h3>
+      <p>Students mark their plan — Will Eat or Skip — before each meal's cutoff time. Simple, fast, and mobile-friendly.</p>
+      <ul class="feature-list">
+        <li>Per-meal, per-day intention controls</li>
+        <li>Automated reminders before cutoff</li>
+        <li>Late override with admin approval</li>
+      </ul>
+    </div>
+
+    <div class="feature-card blue">
+      <div class="accent-line"></div>
+      <div class="feature-icon-wrap">📊</div>
+      <h3>Budget & Value Analytics</h3>
+      <p>Track meals paid vs actually consumed. Generate per-student efficiency scores and monthly cost breakdowns.</p>
+      <ul class="feature-list">
+        <li>Budget efficiency % per student</li>
+        <li>Monthly & semester comparisons</li>
+        <li>Cost-per-meal trend analysis</li>
+      </ul>
+    </div>
+
+    <div class="feature-card big orange">
+      <div class="feature-card.big-content big-content">
+        <div style="flex:1">
+          <div class="accent-line"></div>
+          <div class="feature-icon-wrap">♻️</div>
+          <h3>Waste Monitoring & Reduction</h3>
+          <p>Know exactly how much food is wasted daily. The admin dashboard surfaces waste trends by meal, day, and week — helping mess managers prepare the right quantities.</p>
+          <ul class="feature-list">
+            <li>Daily waste index scoring</li>
+            <li>Predictive demand for next-day prep</li>
+            <li>Weekly waste reports with insights</li>
+            <li>Historical trend comparisons</li>
+          </ul>
+        </div>
+        <div class="mini-analytics">
+          <div class="mini-analytics-title">MEAL CONSUMPTION BREAKDOWN — THIS WEEK</div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e2a2a" stroke-width="4"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#00e5a0" stroke-width="4"
+                stroke-dasharray="72 28" stroke-dashoffset="25" stroke-linecap="round"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#00b8ff" stroke-width="4"
+                stroke-dasharray="18 82" stroke-dashoffset="-47" stroke-linecap="round"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ff4757" stroke-width="4"
+                stroke-dasharray="10 90" stroke-dashoffset="-65" stroke-linecap="round"/>
+              <text x="18" y="21" text-anchor="middle" font-size="7" fill="#e8edf2" font-family="Syne" font-weight="800">91%</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div><span>Consumed (72%)</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div><span>Intentional Skip (18%)</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div><span>Actual Waste (10%)</span></div>
+            </div>
+          </div>
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem">
+              <span style="color:var(--muted)">Mon</span><div style="flex:1;margin:0 10px;background:var(--border);height:4px;border-radius:2px;align-self:center"><div style="width:85%;height:100%;background:var(--accent);border-radius:2px"></div></div><span style="color:var(--accent)">85%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem">
+              <span style="color:var(--muted)">Tue</span><div style="flex:1;margin:0 10px;background:var(--border);height:4px;border-radius:2px;align-self:center"><div style="width:92%;height:100%;background:var(--accent);border-radius:2px"></div></div><span style="color:var(--accent)">92%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem">
+              <span style="color:var(--muted)">Wed</span><div style="flex:1;margin:0 10px;background:var(--border);height:4px;border-radius:2px;align-self:center"><div style="width:67%;height:100%;background:var(--danger);border-radius:2px"></div></div><span style="color:var(--danger)">67%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem">
+              <span style="color:var(--muted)">Thu</span><div style="flex:1;margin:0 10px;background:var(--border);height:4px;border-radius:2px;align-self:center"><div style="width:95%;height:100%;background:var(--accent);border-radius:2px"></div></div><span style="color:var(--accent)">95%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-card gold">
+      <div class="accent-line"></div>
+      <div class="feature-icon-wrap">👨‍👩‍👧</div>
+      <h3>Guardian Reports</h3>
+      <p>Monthly participation summaries sent to parents — showing meal attendance, skip rate, and estimated value consumed.</p>
+      <ul class="feature-list">
+        <li>Email & PDF monthly reports</li>
+        <li>Per-meal attendance history</li>
+        <li>Budget utilization summary</li>
+      </ul>
+    </div>
+
+    <div class="feature-card blue">
+      <div class="accent-line"></div>
+      <div class="feature-icon-wrap">🔐</div>
+      <h3>Role-Based Access</h3>
+      <p>Separate, secure portals for students, administrators, and guardians — each with purpose-built views and controls.</p>
+      <ul class="feature-list">
+        <li>Student, Admin & Guardian roles</li>
+        <li>Secure login with session control</li>
+        <li>Audit trails for all actions</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== HOW IT WORKS ===== -->
+<div style="background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+<section class="section reveal" id="how-it-works">
+  <div class="section-header">
+    <div class="section-label">Process</div>
+    <h2 class="section-title">How MessMate works</h2>
+    <p class="section-sub">A simple, four-step cycle that reduces waste every single day.</p>
+  </div>
+  <div class="steps-wrap">
+    <div class="steps-line"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3>Students Mark Their Intention</h3>
+          <p>Each student logs into MessMate and marks whether they'll eat or skip each upcoming meal — breakfast, lunch, and dinner. They can do this from any device before the cutoff time.</p>
+          <span class="step-tag">⏰ Auto-reminder sent 2 hours before cutoff</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3>System Calculates Demand</h3>
+          <p>Once the cutoff passes, MessMate aggregates all intentions and generates an expected headcount per meal. This becomes the official preparation target for the mess kitchen.</p>
+          <span class="step-tag">📊 Real-time demand dashboard for admin</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3>Kitchen Prepares Optimized Quantities</h3>
+          <p>Armed with accurate headcounts, the mess team prepares precisely the right amount of food. No more guessing. No more excess. Just smart preparation driven by real data.</p>
+          <span class="step-tag">♻️ Average 25% waste reduction reported</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <h3>Meal Consumed & Efficiency Tracked</h3>
+          <p>Attendance is confirmed during the meal, waste is logged, and the data feeds the analytics engine — improving predictions and giving students, admins, and guardians complete visibility.</p>
+          <span class="step-tag">📈 Continuous model improvement over time</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ===== LIVE CUTOFF TRACKER ===== -->
+<div class="cutoff-section reveal">
+  <div class="cutoff-wrap">
+    <div class="cutoff-card">
+      <div class="cutoff-header">
+        <span class="cutoff-title">Today's Meal Cutoff Tracker</span>
+        <span class="live-badge"><span class="live-dot"></span>Live</span>
+      </div>
+      <div class="cutoff-body">
+        <div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Dinner intention window — closes at 3:00 PM</div>
+          <div class="cutoff-bar"><div class="cutoff-fill"></div></div>
+          <div class="cutoff-labels"><span>Window opened · 12:00 PM</span><span>Cutoff · 3:00 PM</span></div>
+        </div>
+        <div style="height:24px"></div>
+        <div class="meal-intention-grid">
+          <div class="mi-card">
+            <div class="mi-meal">🌅 Breakfast</div>
+            <div class="mi-time">8:00 AM cutoff</div>
+            <div class="mi-bar"><div class="mi-fill" style="width:94%"></div></div>
+            <div class="mi-count"><strong>287</strong> / 305 responded</div>
+          </div>
+          <div class="mi-card">
+            <div class="mi-meal">☀️ Lunch</div>
+            <div class="mi-time">11:00 AM cutoff</div>
+            <div class="mi-bar"><div class="mi-fill" style="width:88%"></div></div>
+            <div class="mi-count"><strong>268</strong> / 305 responded</div>
+          </div>
+          <div class="mi-card">
+            <div class="mi-meal">🌙 Dinner</div>
+            <div class="mi-time">3:00 PM cutoff</div>
+            <div class="mi-bar"><div class="mi-fill" style="width:65%; background: linear-gradient(90deg, var(--gold), var(--accent3))"></div></div>
+            <div class="mi-count"><strong>198</strong> / 305 responded</div>
+          </div>
+          <div class="mi-card">
+            <div class="mi-meal">☕ Snacks</div>
+            <div class="mi-time">Optional add-on</div>
+            <div class="mi-bar"><div class="mi-fill" style="width:47%; background: var(--accent2)"></div></div>
+            <div class="mi-count"><strong>143</strong> opted in today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== ROLES ===== -->
+<div class="roles-section">
+<section class="section reveal" id="roles">
+  <div class="section-header">
+    <div class="section-label">Who It's For</div>
+    <h2 class="section-title">Built for everyone in the loop</h2>
+    <p class="section-sub">Purpose-built experiences for each stakeholder — students, administrators, and families.</p>
+  </div>
+  <div class="roles-grid">
+    <div class="role-card">
+      <span class="role-badge badge-student">Student</span>
+      <span class="role-icon">🎓</span>
+      <h3>Student Portal</h3>
+      <p>A clean, mobile-friendly interface for marking meal intentions, tracking personal participation, and viewing budget efficiency.</p>
+      <div class="role-features">
+        <div class="role-feature"><span>✅</span><span>Mark meal intentions daily</span></div>
+        <div class="role-feature"><span>📊</span><span>View personal meal history</span></div>
+        <div class="role-feature"><span>💰</span><span>Budget utilization tracker</span></div>
+        <div class="role-feature"><span>🔔</span><span>Cutoff reminder notifications</span></div>
+        <div class="role-feature"><span>📆</span><span>Monthly attendance calendar</span></div>
+      </div>
+    </div>
+    <div class="role-card">
+      <span class="role-badge badge-admin">Administrator</span>
+      <span class="role-icon">⚙️</span>
+      <h3>Admin Dashboard</h3>
+      <p>A powerful command center with live headcounts, waste tracking, participation trends, and mess-wide analytics.</p>
+      <div class="role-features">
+        <div class="role-feature"><span>📈</span><span>Live demand & headcount view</span></div>
+        <div class="role-feature"><span>♻️</span><span>Daily waste logging & trends</span></div>
+        <div class="role-feature"><span>👥</span><span>Student management & rosters</span></div>
+        <div class="role-feature"><span>📅</span><span>Cutoff window configuration</span></div>
+        <div class="role-feature"><span>📤</span><span>Export reports & data CSVs</span></div>
+      </div>
+    </div>
+    <div class="role-card">
+      <span class="role-badge badge-guardian">Guardian</span>
+      <span class="role-icon">👨‍👩‍👦</span>
+      <h3>Guardian View</h3>
+      <p>A transparent, read-only window into a student's meal participation — giving parents peace of mind and financial clarity.</p>
+      <div class="role-features">
+        <div class="role-feature"><span>📋</span><span>Monthly participation reports</span></div>
+        <div class="role-feature"><span>💳</span><span>Fee vs consumed breakdown</span></div>
+        <div class="role-feature"><span>📉</span><span>Skip rate tracking over time</span></div>
+        <div class="role-feature"><span>📧</span><span>Email & PDF report delivery</span></div>
+        <div class="role-feature"><span>🔗</span><span>Linked to child's account</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ===== STATS ===== -->
+<div class="stats-section reveal" id="stats">
+  <div class="stats-container">
+    <div class="stat-item">
+      <div class="stat-num" data-target="25">0%</div>
+      <div class="stat-label">Average Waste Reduction</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Meal Transparency</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Secure Role Types</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">Real-Time</div>
+      <div class="stat-label">Live Analytics & Tracking</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== CTA ===== -->
+<div class="cta-section reveal">
+  <div class="cta-wrap">
+    <div class="section-label" style="text-align:center;margin-bottom:16px">Ready to transform your campus mess?</div>
+    <h2>Less waste.<br>More value. Starting today.</h2>
+    <p>Set up your campus on MessMate in minutes. No hardware needed — just smarter meal management.</p>
+    <div class="cta-buttons">
+      <a href="signup.html" class="btn-primary" style="font-size:1rem; padding:16px 32px;">
+        Get Started Free
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="login.html" class="btn-secondary" style="font-size:1rem; padding:16px 32px;">Login to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo">Mess<span>Mate</span></div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Support</a>
+    <a href="#">Docs</a>
+  </div>
+  <div class="footer-copy">© 2025 MessMate. All rights reserved.</div>
+</footer>
+
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Nav scroll effect
+  const nav = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 40) nav.style.boxShadow = '0 4px 30px rgba(0,0,0,0.4)';
+    else nav.style.boxShadow = 'none';
+  });
+
+  // Animate donut on scroll
+  const donut = document.querySelector('.donut-svg');
+  if (donut) {
+    const donutObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          donut.querySelectorAll('circle').forEach((c, i) => {
+            c.style.transition = `stroke-dasharray 1.2s cubic-bezier(0.22,1,0.36,1) ${i*0.2}s`;
+          });
+        }
+      });
+    });
+    donutObserver.observe(donut);
+  }
+
+  // Counter animation
+  function animateCount(el, target, suffix='') {
+    let start = 0;
+    const duration = 1800;
+    const step = timestamp => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  const statsObs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.stat-num[data-target]').forEach(el => {
+          animateCount(el, parseInt(el.dataset.target), '%');
+        });
+        statsObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.stats-container').forEach(el => statsObs.observe(el));
+
+  // Hero enters with stagger
+  document.addEventListener('DOMContentLoaded', () => {
+    const hero = document.querySelector('.hero-left');
+    if (hero) {
+      hero.style.opacity = '0';
+      hero.style.transform = 'translateY(24px)';
+      setTimeout(() => {
+        hero.style.transition = 'all 0.9s cubic-bezier(0.22,1,0.36,1)';
+        hero.style.opacity = '1';
+        hero.style.transform = 'translateY(0)';
+      }, 100);
+    }
+  });
+</script>
+</body>
+</html>

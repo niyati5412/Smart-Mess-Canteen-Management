@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Admin Order Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet">
+  <!-- ✅ Shared stylesheet -->
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* ── PAGE-SPECIFIC STYLES ── */
+    /* Orders page is fullwidth (no sidebar) */
+    body { display: flex; flex-direction: column; overflow: auto; }
+    .stats-row { grid-template-columns: repeat(5, 1fr); }
+
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent2); display: inline-block; animation: blink 1.5s infinite; }
+
+    /* FILTER BAR */
+    .filter-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .filter-tab { height: 30px; padding: 0 14px; border-radius: 100px; border: 1px solid var(--border); background: none; color: var(--muted); font-size: 0.73rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .filter-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-tab.active { background: rgba(0,184,255,0.1); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .tab-count { background: var(--surface2); color: var(--muted); font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 100px; }
+    .filter-tab.active .tab-count { background: rgba(0,184,255,0.15); color: var(--accent); }
+    .filter-sep { flex: 1; }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); pointer-events: none; opacity: 0.35; }
+    .search-box { height: 30px; padding: 0 10px 0 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.75rem; font-family: 'DM Sans', sans-serif; outline: none; width: 200px; transition: border 0.15s; }
+    .search-box:focus { border-color: var(--accent); }
+
+    /* ORDER CARDS GRID */
+    .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
+    .order-card  { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; display: flex; flex-direction: column; }
+    .order-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.12); }
+
+    .status-bar      { height: 3px; width: 100%; background: var(--surface3); }
+    .status-bar-fill { height: 100%; transition: width 0.5s; border-radius: 0 2px 2px 0; }
+
+    .card-top  { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .card-oid  { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; }
+    .card-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem; }
+    .card-roll { font-size: 0.67rem; color: var(--muted); margin-top: 2px; }
+    .card-av   { width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.72rem; color: #0a0d0f; }
+
+    .pill    { font-size: 0.61rem; font-weight: 700; padding: 3px 8px; border-radius: 100px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .pd      { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .p-pending   { background: rgba(244,197,66,0.12);  color: var(--gold); }
+    .p-preparing { background: rgba(0,184,255,0.12);   color: var(--accent); }
+    .p-ready     { background: rgba(255,107,53,0.12);  color: var(--orange); }
+    .p-delivered { background: rgba(0,229,160,0.12);   color: var(--accent2); }
+    .p-cancelled { background: rgba(255,71,87,0.12);   color: var(--danger); }
+    .p-paid      { background: rgba(0,229,160,0.1);    color: var(--accent2); }
+    .p-unpaid    { background: rgba(244,197,66,0.1);   color: var(--gold); }
+    .p-meal-b    { background: rgba(244,197,66,0.08);  color: var(--gold); }
+    .p-meal-l    { background: rgba(0,184,255,0.08);   color: var(--accent); }
+    .p-meal-d    { background: rgba(167,139,250,0.08); color: var(--purple); }
+    .p-meal-s    { background: rgba(0,229,160,0.08);   color: var(--accent2); }
+
+    .card-body   { padding: 13px 16px; flex: 1; }
+    .items-list  { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+    .item-row    { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+    .item-name   { font-size: 0.78rem; }
+    .item-right  { display: flex; align-items: center; gap: 8px; }
+    .item-qty    { font-size: 0.68rem; color: var(--muted); background: var(--surface3); padding: 1px 7px; border-radius: 100px; }
+    .item-price  { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--accent2); }
+    .card-meta   { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    .card-total  { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.92rem; }
+    .card-time   { font-size: 0.67rem; color: var(--muted); }
+
+    .card-footer { padding: 11px 14px; border-top: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .act-btn     { height: 28px; padding: 0 11px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 0.71rem; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
+    .act-btn.green  { border-color: rgba(0,229,160,0.3);  color: var(--accent2); background: rgba(0,229,160,0.05); }
+    .act-btn.green:hover { border-color: var(--accent2); background: rgba(0,229,160,0.1); }
+    .act-btn.red    { border-color: rgba(255,71,87,0.3);  color: var(--danger);  background: rgba(255,71,87,0.05); }
+    .act-btn.red:hover   { border-color: var(--danger);   background: rgba(255,71,87,0.1); }
+    .act-btn.blue   { border-color: rgba(0,184,255,0.3);  color: var(--accent);  background: rgba(0,184,255,0.05); }
+    .act-btn.blue:hover  { border-color: var(--accent);   background: rgba(0,184,255,0.1); }
+    .act-btn.orange { border-color: rgba(255,107,53,0.3); color: var(--orange);  background: rgba(255,107,53,0.05); }
+    .act-btn.orange:hover{ border-color: var(--orange);   background: rgba(255,107,53,0.1); }
+
+    .state-box { grid-column: 1/-1; padding: 60px; text-align: center; color: var(--muted); }
+    .state-box .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .state-box p { font-size: 0.85rem; }
+
+    @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px)  { .stats-row { grid-template-columns: 1fr 1fr; } .content { padding: 16px; } .topbar { padding: 12px 16px; } }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="./menu.html" class="tb-btn">← Back</a>
+    <div><h1>Order Manager</h1><p id="topbarSub">NIT Hamirpur · Loading…</p></div>
+  </div>
+  <div class="topbar-right">
+    <span class="live-dot"></span>
+    <span style="font-size:0.72rem;color:var(--accent2);margin-right:4px;">Live</span>
+    <button class="tb-btn" onclick="loadOrders()">↻ Refresh</button>
+    <button class="tb-btn primary" onclick="markAllDelivered()">✅ Mark All Delivered</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="stats-row">
+    <div class="stat-card"><div class="sc-label">Total Orders</div><div class="sc-val" style="color:var(--accent)"  id="sTot">—</div><div id="sTotSub"></div></div>
+    <div class="stat-card"><div class="sc-label">Pending</div>     <div class="sc-val" style="color:var(--gold)"   id="sPend">—</div><div id="sPendSub"></div></div>
+    <div class="stat-card"><div class="sc-label">In Progress</div> <div class="sc-val" style="color:var(--accent)" id="sPrep">—</div><div id="sPrepSub"></div></div>
+    <div class="stat-card"><div class="sc-label">Delivered</div>   <div class="sc-val" style="color:var(--accent2)"id="sDel">—</div><div id="sDelSub"></div></div>
+    <div class="stat-card"><div class="sc-label">Revenue</div>     <div class="sc-val" style="color:var(--purple)" id="sRev">—</div><div id="sRevSub"></div></div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-tab active" onclick="setTab(this,'all')">All <span class="tab-count" id="tc-all">0</span></button>
+    <button class="filter-tab" onclick="setTab(this,'pending')">⏳ Pending <span class="tab-count" id="tc-pending">0</span></button>
+    <button class="filter-tab" onclick="setTab(this,'preparing')">🔵 Preparing <span class="tab-count" id="tc-preparing">0</span></button>
+    <button class="filter-tab" onclick="setTab(this,'ready')">🟠 Ready <span class="tab-count" id="tc-ready">0</span></button>
+    <button class="filter-tab" onclick="setTab(this,'delivered')">✅ Delivered <span class="tab-count" id="tc-delivered">0</span></button>
+    <button class="filter-tab" onclick="setTab(this,'cancelled')">✗ Cancelled <span class="tab-count" id="tc-cancelled">0</span></button>
+    <div class="filter-sep"></div>
+    <div class="search-wrap">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-box" type="text" placeholder="Search name, order ID…" oninput="onSearch(this.value)">
+    </div>
+  </div>
+
+  <div class="orders-grid" id="ordersGrid">
+    <div class="state-box"><div class="spinner"></div><p>Loading orders…</p></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ✅ Shared JS -->
+<script src="../js/main.js"></script>
+<script>
+const _s = requireAdminSession();
+
+document.getElementById('topbarSub').textContent =
+  'NIT Hamirpur · ' + new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short',year:'numeric'});
+
+let orders = [], activeTab = 'all', searchQ = '';
+
+async function loadOrders(){
+  setGridLoading();
+  try{const res=await fetch('/api/orders',{headers:{'Authorization':`Bearer ${_s?.token||''}`}});if(!res.ok)throw new Error(`Server error: ${res.status}`);orders=await res.json();renderAll();}
+  catch(err){setGridError(err.message);}
+}
+
+async function updateStatus(id,status){
+  try{
+    const res=await fetch(`/api/orders/${id}/status`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${_s?.token||''}`},body:JSON.stringify({status})});
+    if(!res.ok)throw new Error(`Failed: ${res.status}`);const updated=await res.json();const idx=orders.findIndex(o=>o.id===id);if(idx!==-1)orders[idx]=updated;
+    const labels={preparing:'🔵 Marked Preparing',ready:'🟠 Marked Ready',delivered:'✅ Delivered!',cancelled:'✗ Order Cancelled'};
+    const colors={preparing:'var(--accent)',ready:'var(--orange)',delivered:'var(--accent2)',cancelled:'var(--danger)'};
+    const name=orders[idx]?.studentName?.split(' ')[0]||'';showToast(`${labels[status]||status}${name?' · '+name:''}`,colors[status]||'var(--accent)');renderAll();
+  }catch(err){showToast('Update failed: '+err.message,'var(--danger)');}
+}
+
+async function markAllDelivered(){
+  const active=orders.filter(o=>o.status!=='delivered'&&o.status!=='cancelled');if(!active.length){showToast('All orders already done','var(--muted)');return;}
+  try{const res=await fetch('/api/orders/mark-all-delivered',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${_s?.token||''}`}});if(!res.ok)throw new Error(`Failed: ${res.status}`);await loadOrders();showToast('✅ All orders marked delivered','var(--accent2)');}
+  catch(err){showToast('Failed: '+err.message,'var(--danger)');}
+}
+
+function renderAll(){updateStats();updateTabCounts();
+  const filtered=orders.filter(o=>{const matchTab=activeTab==='all'||o.status===activeTab;const q=searchQ.toLowerCase();const matchSearch=!q||o.studentName?.toLowerCase().includes(q)||o.orderId?.toLowerCase().includes(q);return matchTab&&matchSearch;});
+  const grid=document.getElementById('ordersGrid');
+  if(!filtered.length){grid.innerHTML='<div class="state-box"><div class="icon">📋</div><p>No orders found.</p></div>';return;}
+  grid.innerHTML=[...filtered].reverse().map(o=>buildCard(o)).join('');
+}
+
+function buildCard(o){
+  const mealCls={Breakfast:'p-meal-b',Lunch:'p-meal-l',Dinner:'p-meal-d',Snacks:'p-meal-s'}[o.meal]||'p-meal-l';
+  const progVal={pending:15,preparing:50,ready:80,delivered:100,cancelled:0}[o.status]||0;
+  const progClr={pending:'var(--gold)',preparing:'var(--accent)',ready:'var(--orange)',delivered:'var(--accent2)',cancelled:'var(--danger)'}[o.status];
+  const statusPill={pending:`<span class="pill p-pending"><span class="pd"></span>Pending</span>`,preparing:`<span class="pill p-preparing"><span class="pd"></span>Preparing</span>`,ready:`<span class="pill p-ready"><span class="pd"></span>Ready</span>`,delivered:`<span class="pill p-delivered"><span class="pd"></span>Delivered</span>`,cancelled:`<span class="pill p-cancelled"><span class="pd"></span>Cancelled</span>`}[o.status]||`<span class="pill">${o.status}</span>`;
+  const payPill=o.paymentStatus==='paid'?`<span class="pill p-paid">✓ Paid</span>`:`<span class="pill p-unpaid">⏳ Unpaid</span>`;
+  const itemsHTML=(o.items||[]).map(i=>`<div class="item-row"><span class="item-name">${i.name}</span><div class="item-right"><span class="item-qty">×${i.quantity}</span><span class="item-price">₹${i.price*i.quantity}</span></div></div>`).join('');
+  const actions={pending:`<button class="act-btn blue" onclick="updateStatus('${o.id}','preparing')">🔵 Preparing</button><button class="act-btn red" onclick="updateStatus('${o.id}','cancelled')">✗ Cancel</button>`,preparing:`<button class="act-btn orange" onclick="updateStatus('${o.id}','ready')">🟠 Mark Ready</button><button class="act-btn red" onclick="updateStatus('${o.id}','cancelled')">✗ Cancel</button>`,ready:`<button class="act-btn green" onclick="updateStatus('${o.id}','delivered')">✅ Delivered</button><button class="act-btn red" onclick="updateStatus('${o.id}','cancelled')">✗ Cancel</button>`,delivered:`<span style="font-size:0.72rem;color:var(--accent2)">✓ Order complete</span>`,cancelled:`<span style="font-size:0.72rem;color:var(--muted)">Order cancelled</span>`}[o.status]||'';
+  return `<div class="order-card"><div class="status-bar"><div class="status-bar-fill" style="width:${progVal}%;background:${progClr}"></div></div><div class="card-top"><div><div class="card-oid">${o.orderId}</div><div class="card-name">${o.studentName}</div><div class="card-roll">${o.roll} · ${o.dept}</div><div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;">${statusPill} ${payPill}<span class="pill ${mealCls}">${o.meal}</span></div></div><div class="card-av" style="background:${avColor(o.studentName)}">${initials(o.studentName)}</div></div><div class="card-body"><div class="items-list">${itemsHTML}</div><div class="card-meta"><div class="card-total" style="color:var(--accent2)">Total: ₹${o.totalAmount}</div><div class="card-time">🕐 ${o.time||'—'}</div></div></div><div class="card-footer">${actions}</div></div>`;
+}
+
+function updateStats(){
+  const tot=orders.length,pend=orders.filter(o=>o.status==='pending').length,prep=orders.filter(o=>o.status==='preparing'||o.status==='ready').length,del=orders.filter(o=>o.status==='delivered').length,rev=orders.filter(o=>o.paymentStatus==='paid').reduce((s,o)=>s+o.totalAmount,0);
+  document.getElementById('sTot').textContent=tot;document.getElementById('sTotSub').innerHTML=`<span class="badge bb">${orders.filter(o=>o.status!=='cancelled').length} active</span>`;
+  document.getElementById('sPend').textContent=pend;document.getElementById('sPendSub').innerHTML=`<span class="badge bgo">Needs action</span>`;
+  document.getElementById('sPrep').textContent=prep;document.getElementById('sPrepSub').innerHTML=`<span class="badge bb">In kitchen</span>`;
+  document.getElementById('sDel').textContent=del;document.getElementById('sDelSub').innerHTML=`<span class="badge bg">Completed</span>`;
+  document.getElementById('sRev').textContent='₹'+rev;document.getElementById('sRevSub').innerHTML=`<span class="badge bg">${orders.filter(o=>o.paymentStatus==='paid').length} paid</span>`;
+}
+function updateTabCounts(){['all','pending','preparing','ready','delivered','cancelled'].forEach(s=>{const el=document.getElementById('tc-'+s);if(el)el.textContent=s==='all'?orders.length:orders.filter(o=>o.status===s).length;});}
+function setTab(el,tab){document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');activeTab=tab;renderAll();}
+function onSearch(v){searchQ=v;renderAll();}
+function setGridLoading(){document.getElementById('ordersGrid').innerHTML='<div class="state-box"><div class="spinner"></div><p>Loading orders…</p></div>';}
+function setGridError(msg){document.getElementById('ordersGrid').innerHTML=`<div class="state-box"><div class="icon">⚠️</div><p style="color:var(--danger)">${msg}</p><button class="tb-btn" style="margin:14px auto 0" onclick="loadOrders()">Retry</button></div>`;}
+
+const AV_COLORS=['#00b8ff','#00e5a0','#a78bfa','#f4c542','#ff6b35'];
+const avColor=n=>AV_COLORS[(n.charCodeAt(0)+n.charCodeAt(1))%AV_COLORS.length];
+const initials=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+loadOrders();
+</script>
+</body>
+</html>

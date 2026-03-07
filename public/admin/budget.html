@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MessMate | Admin Budget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- ✅ Shared stylesheet -->
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* ── PAGE-SPECIFIC STYLES ── */
+    .semester-bar { margin-bottom: 24px; }
+    .sb-row   { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px; }
+    .sb-track { height: 12px; border-radius: 6px; background: var(--surface2); overflow: hidden; position: relative; }
+    .sb-fill  { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.6s cubic-bezier(0.22,1,0.36,1); }
+    .sb-marker{ position: absolute; top: -3px; width: 2px; height: 18px; background: var(--gold); border-radius: 1px; }
+    .sb-legends { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+    .sbl-item { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: var(--muted); }
+    .sbl-dot  { width: 7px; height: 7px; border-radius: 50%; }
+
+    .donut-row    { display: flex; align-items: center; gap: 24px; }
+    .donut-svg    { width: 100px; height: 100px; flex-shrink: 0; }
+    .donut-legend { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .dl-item  { display: flex; align-items: center; justify-content: space-between; }
+    .dl-label { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; color: var(--muted); }
+    .dl-dot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dl-val   { font-size: 0.8rem; font-weight: 600; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 420px; max-width: 90vw; transform: translateY(16px) scale(0.97); transition: transform 0.28s cubic-bezier(0.22,1,0.36,1); }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+    .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem; margin-bottom: 6px; }
+    .modal-sub   { font-size: 0.76rem; color: var(--muted); margin-bottom: 20px; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; display: block; }
+    .modal-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.18s; }
+    .modal-input:focus { border-color: var(--accent); }
+    .modal-input.error { border-color: var(--danger); }
+    .field-hint  { font-size: 0.68rem; color: var(--muted); margin-top: 4px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-btn   { flex: 1; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 0.82rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.18s; }
+    .modal-btn.confirm { background: var(--accent); border-color: var(--accent); color: #0a0d0f; font-weight: 700; }
+    .modal-btn.confirm:hover { opacity: 0.88; }
+    .modal-btn.confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+    .modal-btn:hover:not(.confirm) { color: var(--text); }
+    .recalc-preview { margin-top: 14px; padding: 12px; background: rgba(0,184,255,0.05); border: 1px solid rgba(0,184,255,0.15); border-radius: 10px; font-size: 0.76rem; }
+    .recalc-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .recalc-row:last-child { margin-bottom: 0; }
+
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><a href="./dashboard.html" class="logo-text">Mess<span>Mate</span></a><div class="logo-sub">Admin Portal</div></div>
+  <div class="sidebar-campus">
+    <div class="campus-icon" id="sidebarAvatar">?</div>
+    <div><div class="campus-name" id="sidebarName">Loading…</div><div class="campus-role" id="sidebarEmail">admin</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item" href="./dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="./menu.html"><span class="nav-icon">📋</span> Menu Manager</a>
+    <a class="nav-item" href="#"><span class="nav-icon">✅</span> Intentions</a>
+    <a class="nav-item" href="#"><span class="nav-icon">👥</span> Students <span class="nav-badge blue">342</span></a>
+    <div class="nav-label">Finance</div>
+    <a class="nav-item active" href="#"><span class="nav-icon">💰</span> Budget</a>
+    <a class="nav-item" href="./waste.html"><span class="nav-icon">♻️</span> Waste</a>
+    <a class="nav-item" href="./canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <div class="nav-label">Reports</div>
+    <a class="nav-item" href="#"><span class="nav-icon">📤</span> Reports <span class="nav-badge">2</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">🔔</span> Alerts <span class="nav-badge">5</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="logout-btn" href="../login.html" onclick="sessionStorage.removeItem('mm_session')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out
+    </a>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div><h1>Budget Management</h1><p>Semester fee collection, per-meal costs, and spend analysis</p></div>
+    <div class="topbar-right">
+      <div class="tb-btn" onclick="exportBudget()">⬇ Export</div>
+      <div class="tb-btn primary" onclick="openBudgetModal()">⚙ Set Budget</div>
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-card loading" id="card-fee">
+        <div class="sc-label">Total Fee Collected</div>
+        <div class="sc-val" id="totalFee" style="color:var(--accent2)">—</div>
+        <div class="sc-sub" id="feeBreakdown">— students · ₹—/head</div>
+      </div>
+      <div class="stat-card loading" id="card-exp">
+        <div class="sc-label">Expenditure (Feb)</div>
+        <div class="sc-val" id="expenses" style="color:var(--accent)">—</div>
+        <div class="sc-sub"><span class="badge bgo" id="expPct">—% of fee</span></div>
+      </div>
+      <div class="stat-card loading" id="card-meal">
+        <div class="sc-label">Per-Meal Cost (Avg)</div>
+        <div class="sc-val" id="perMealCost" style="color:var(--gold)">—</div>
+        <div class="sc-sub">Target: <span id="mealTarget">₹—</span> · <span class="badge" id="mealDiff">—</span></div>
+      </div>
+      <div class="stat-card loading" id="card-surplus">
+        <div class="sc-label">Surplus This Month</div>
+        <div class="sc-val" id="surplus" style="color:var(--accent2)">—</div>
+        <div class="sc-sub" id="surplusNote">Rolled to maintenance fund</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Semester Budget Progress</h3><span style="font-size:0.72rem;color:var(--muted)" id="semesterLabel">Jan – Apr 2025</span></div>
+      <div class="panel-body">
+        <div class="semester-bar">
+          <div class="sb-row"><span class="sc-label">Total Budget</span><div><span id="totalBudgetLabel">—</span></div></div>
+          <div class="sb-track" style="margin-bottom:12px">
+            <div class="sb-fill" id="progressBar" style="width:0%"></div>
+            <div class="sb-marker" id="projectedMarker" style="left:70%"></div>
+          </div>
+          <div class="sb-legends">
+            <div class="sbl-item"><div class="sbl-dot" style="background:var(--accent2)"></div><span id="leg-spent">Spent: — (—%)</span></div>
+            <div class="sbl-item"><div class="sbl-dot" style="background:var(--gold)"></div><span id="leg-proj">Projected total: — (—%)</span></div>
+            <div class="sbl-item"><div class="sbl-dot" style="background:var(--surface3)"></div><span id="leg-remain">Remaining: —</span></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px;" id="monthGrid"></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><h3>Expenditure Breakdown — Feb</h3></div>
+        <div class="panel-body">
+          <div class="donut-row">
+            <svg class="donut-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#1e2428" stroke-width="3.5"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#00e5a0" stroke-width="3.5" stroke-dasharray="42 88" stroke-dashoffset="25" stroke-linecap="round"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#00b8ff" stroke-width="3.5" stroke-dasharray="28 102" stroke-dashoffset="-17" stroke-linecap="round"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#f4c542" stroke-width="3.5" stroke-dasharray="16 114" stroke-dashoffset="-45" stroke-linecap="round"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#ff6b35" stroke-width="3.5" stroke-dasharray="10 120" stroke-dashoffset="-61" stroke-linecap="round"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#a78bfa" stroke-width="3.5" stroke-dasharray="4 126" stroke-dashoffset="-71" stroke-linecap="round"/>
+            </svg>
+            <div class="donut-legend" id="breakdownLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Cost Per Meal Type</h3></div>
+        <div class="panel-body">
+          <div id="mealBars"></div>
+          <div style="margin-top:16px;padding:12px;background:rgba(0,184,255,0.05);border:1px solid rgba(0,184,255,0.2);border-radius:10px;font-size:0.78rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--muted)">Daily avg per student</span><span id="dailyAvg" style="font-family:'Syne',sans-serif;font-weight:800;color:var(--accent)">—</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Budget per student per day</span><span id="dailyBudget" style="color:var(--accent2);font-weight:600">—</span></div>
+          </div>
+          <div id="mealStatusNote" style="margin-top:10px;padding:10px;border-radius:10px;font-size:0.75rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Daily Spend Log — February 2025</h3><span class="panel-action" onclick="exportBudget()">Export CSV →</span></div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Date</th><th>Students Served</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snacks</th><th>Total Spend</th><th>Per Head</th><th>vs Budget</th></tr></thead>
+          <tbody id="spendTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SET BUDGET MODAL -->
+<div class="modal-overlay" id="budgetModal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">⚙ Set Budget Parameters</div>
+    <div class="modal-sub">Changes recalculate all totals and surplus figures instantly.</div>
+    <div class="modal-field">
+      <label class="modal-label">Semester Fee Per Student (₹)</label>
+      <input class="modal-input" type="number" id="feeInput" placeholder="e.g. 6000" min="1000" max="50000">
+      <div class="field-hint">Current semester total = fee × student count</div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Total Students Enrolled</label>
+      <input class="modal-input" type="number" id="studentsInput" placeholder="e.g. 342" min="1" max="5000">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Per-Meal Cost Target (₹)</label>
+      <input class="modal-input" type="number" id="targetInput" placeholder="e.g. 65" min="10" max="500">
+    </div>
+    <div class="recalc-preview" id="recalcPreview" style="display:none">
+      <div style="font-size:0.7rem;color:var(--muted);font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;">Live Preview</div>
+      <div class="recalc-row"><span style="color:var(--muted)">Total fee collected</span><span id="prev-total" style="font-weight:700;color:var(--accent2)">—</span></div>
+      <div class="recalc-row"><span style="color:var(--muted)">Daily budget / student</span><span id="prev-daily" style="font-weight:700;color:var(--accent)">—</span></div>
+      <div class="recalc-row"><span style="color:var(--muted)">Surplus (vs Feb spend)</span><span id="prev-surplus" style="font-weight:700">—</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeBudgetModal()">Cancel</button>
+      <button class="modal-btn confirm" id="confirmBtn" onclick="updateBudget()">Apply Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ✅ Shared JS -->
+<script src="../js/main.js"></script>
+<script>
+requireAdminSession();
+
+const MOCK_DATA = {
+  semesterFeePerStudent:6000,totalStudents:342,expensesTotal:1780000,perMealCostAvg:67,perMealCostTarget:65,
+  monthlyBreakdown:{jan:420000,feb:310000,marProj:430000,aprProj:390000},
+  categoryBreakdown:[
+    {label:'Vegetables & Dal',color:'var(--accent2)',amount:132000},{label:'Grains & Rice',color:'var(--accent)',amount:87000},
+    {label:'Dairy & Eggs',color:'var(--gold)',amount:50000},{label:'Spices & Oil',color:'var(--orange)',amount:31000},
+    {label:'LPG & Utilities',color:'var(--purple)',amount:12000}
+  ],
+  mealCosts:[{label:'Breakfast',cost:44,color:'var(--accent2)'},{label:'Lunch',cost:65,color:'var(--accent)'},{label:'Dinner',cost:62,color:'var(--gold)'},{label:'Snacks',cost:20,color:'var(--orange)'}],
+  dailyLog:[
+    ['Feb 1',312,10450,18200,17600,5200,51450,165],['Feb 3',298,9980,17300,16800,4900,48980,164],
+    ['Feb 5',325,10850,19100,18400,5500,53850,166],['Feb 7',342,11400,20200,19400,5800,56800,166],
+    ['Feb 10',280,9350,16400,15800,4700,46250,165],['Feb 12',315,10500,18500,17800,5300,52100,166],
+    ['Feb 14',330,11000,19400,18700,5600,54700,166],['Feb 17',308,10300,18100,17400,5200,51000,166],
+    ['Feb 19',338,11300,19800,19100,5700,55900,165],['Feb 21',290,9700,17000,16400,4800,47900,165],
+    ['Feb 24',320,10700,18800,18100,5400,53000,166],['Feb 26',335,11200,19600,18900,5700,55400,165],
+    ['Feb 27',325,10850,19100,18400,5500,53850,166],['Feb 28','—','—','—','—','—','—','—']
+  ]
+};
+
+async function loadBudget() {
+  let data;
+  try {
+    const res = await fetch('/api/budget', {signal:AbortSignal.timeout(3000)});
+    if (!res.ok) throw new Error('API error ' + res.status);
+    data = await res.json();
+  } catch(e) { data = MOCK_DATA; }
+  renderBudget(data);
+}
+
+function renderBudget(data) {
+  const {semesterFeePerStudent,totalStudents,expensesTotal,perMealCostAvg,perMealCostTarget,monthlyBreakdown,categoryBreakdown,mealCosts,dailyLog} = data;
+  const totalFeeCollected = semesterFeePerStudent * totalStudents;
+  const surplus  = totalFeeCollected - expensesTotal;
+  const expPct   = ((expensesTotal/totalFeeCollected)*100).toFixed(1);
+  const mealDiff = perMealCostAvg - perMealCostTarget;
+  const spent    = (monthlyBreakdown.jan||0)+(monthlyBreakdown.feb||0);
+  const projTotal= spent+(monthlyBreakdown.marProj||0)+(monthlyBreakdown.aprProj||0);
+  const spentPct = ((spent/totalFeeCollected)*100).toFixed(0);
+  const projPct  = ((projTotal/totalFeeCollected)*100).toFixed(0);
+  const dailyAvg = mealCosts.reduce((a,m)=>a+m.cost,0);
+  const dailyBudgetPerStudent = Math.round(semesterFeePerStudent/120);
+
+  document.getElementById('totalFee').textContent      = fmtL(totalFeeCollected);
+  document.getElementById('feeBreakdown').textContent  = `${totalStudents} students · ${fmt(semesterFeePerStudent)} each`;
+  document.getElementById('expenses').textContent      = fmtL(expensesTotal);
+  document.getElementById('expPct').textContent        = expPct+'% of fee';
+  document.getElementById('perMealCost').textContent   = fmt(perMealCostAvg);
+  document.getElementById('mealTarget').textContent    = fmt(perMealCostTarget);
+  const mealDiffEl = document.getElementById('mealDiff');
+  if (mealDiff>0){mealDiffEl.textContent='+₹'+mealDiff+' over';mealDiffEl.className='badge br';}
+  else if (mealDiff<0){mealDiffEl.textContent='₹'+Math.abs(mealDiff)+' under';mealDiffEl.className='badge bg';}
+  else{mealDiffEl.textContent='On target';mealDiffEl.className='badge bg';}
+  document.getElementById('surplus').textContent    = fmtL(surplus);
+  document.getElementById('surplusNote').textContent= surplus>0?'Rolled to maintenance fund':'Deficit — review spending';
+
+  ['card-fee','card-exp','card-meal','card-surplus'].forEach(id=>document.getElementById(id).classList.remove('loading'));
+
+  document.getElementById('totalBudgetLabel').textContent = fmt(totalFeeCollected);
+  document.getElementById('progressBar').style.width      = spentPct+'%';
+  document.getElementById('projectedMarker').style.left   = projPct+'%';
+  document.getElementById('leg-spent').textContent  = `Spent: ${fmtL(spent)} (${spentPct}%)`;
+  document.getElementById('leg-proj').textContent   = `Projected total: ${fmtL(projTotal)} (${projPct}%)`;
+  document.getElementById('leg-remain').textContent = `Remaining: ${fmtL(totalFeeCollected-spent)}`;
+
+  const months=[
+    {label:'Jan spent',val:monthlyBreakdown.jan,style:'background:var(--surface2);border:1px solid var(--border);',color:'var(--accent2)'},
+    {label:'Feb (28 days)',val:monthlyBreakdown.feb,style:'background:rgba(0,184,255,0.05);border:1px solid rgba(0,184,255,0.2);',color:'var(--accent)'},
+    {label:'Mar (projected)',val:monthlyBreakdown.marProj,style:'background:var(--surface2);border:1px solid var(--border);',color:'var(--muted)'},
+    {label:'Apr (projected)',val:monthlyBreakdown.aprProj,style:'background:var(--surface2);border:1px solid var(--border);',color:'var(--muted)'},
+  ];
+  const prefix=['','','~','~'];
+  document.getElementById('monthGrid').innerHTML=months.map((m,i)=>`<div style="padding:12px;border-radius:10px;${m.style}text-align:center"><div style="font-family:'Syne',sans-serif;font-weight:800;color:${m.color};font-size:1.1rem">${prefix[i]}${fmtL(m.val)}</div><div style="font-size:0.65rem;color:var(--muted);margin-top:3px">${m.label}</div></div>`).join('');
+
+  document.getElementById('breakdownLegend').innerHTML=categoryBreakdown.map(c=>`<div class="dl-item"><span class="dl-label"><div class="dl-dot" style="background:${c.color}"></div>${c.label}</span><span class="dl-val">${fmtL(c.amount)}</span></div>`).join('');
+
+  const maxCost=Math.max(...mealCosts.map(m=>m.cost));
+  document.getElementById('mealBars').innerHTML=mealCosts.map(m=>`<div class="prog-row"><span class="prog-label">${m.label}</span><div class="prog-track"><div class="prog-fill" style="width:${(m.cost/maxCost*100).toFixed(0)}%;background:${m.color}"></div></div><span class="prog-val" style="color:${m.color}">${fmt(m.cost)}</span></div>`).join('');
+
+  document.getElementById('dailyAvg').textContent    = fmt(dailyAvg);
+  document.getElementById('dailyBudget').textContent = fmt(dailyBudgetPerStudent);
+
+  const underBy=dailyBudgetPerStudent-dailyAvg;
+  const noteEl=document.getElementById('mealStatusNote');
+  if(underBy>=0){noteEl.style.cssText='background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.2);color:var(--accent2);';noteEl.textContent=`✓ Currently ₹${underBy}/day under budget — good headroom for ingredient price fluctuations`;}
+  else{noteEl.style.cssText='background:rgba(255,71,87,0.05);border:1px solid rgba(255,71,87,0.2);color:var(--danger);';noteEl.textContent=`⚠ ₹${Math.abs(underBy)}/day over daily budget — review meal costs`;}
+
+  const tbody=document.getElementById('spendTable');
+  tbody.innerHTML=dailyLog.map(r=>{
+    const perHead=r[7];const diff=typeof perHead==='number'?perHead-dailyAvg:'—';
+    const diffStr=typeof diff==='number'?(diff>=0?`<span style="color:var(--danger)">+₹${diff}</span>`:`<span style="color:var(--accent2)">−₹${Math.abs(diff)}</span>`):'—';
+    return `<tr><td style="font-weight:500">${r[0]}</td><td>${r[1]}</td><td style="color:var(--muted)">₹${typeof r[2]==='number'?r[2].toLocaleString('en-IN'):r[2]}</td><td style="color:var(--muted)">₹${typeof r[3]==='number'?r[3].toLocaleString('en-IN'):r[3]}</td><td style="color:var(--muted)">₹${typeof r[4]==='number'?r[4].toLocaleString('en-IN'):r[4]}</td><td style="color:var(--muted)">₹${typeof r[5]==='number'?r[5].toLocaleString('en-IN'):r[5]}</td><td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent)">₹${typeof r[6]==='number'?r[6].toLocaleString('en-IN'):r[6]}</td><td>₹${r[7]}</td><td>${diffStr}</td></tr>`;
+  }).join('');
+  window._budgetState={semesterFeePerStudent,totalStudents,perMealCostTarget,expensesTotal};
+}
+
+async function updateBudget() {
+  const fee=parseInt(document.getElementById('feeInput').value);
+  const students=parseInt(document.getElementById('studentsInput').value);
+  const target=parseInt(document.getElementById('targetInput').value);
+  if(!fee||!students||!target){showToast('Please fill in all fields','var(--danger)');['feeInput','studentsInput','targetInput'].forEach(id=>{if(!document.getElementById(id).value)document.getElementById(id).classList.add('error');});return;}
+  const btn=document.getElementById('confirmBtn');btn.disabled=true;btn.textContent='Saving…';
+  try {
+    const res=await fetch('/api/budget',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({semesterFeePerStudent:fee,totalStudents:students,perMealCostTarget:target}),signal:AbortSignal.timeout(3000)});
+    if(!res.ok)throw new Error('API error');
+    renderBudget(await res.json());showToast('Budget updated successfully','var(--accent2)');
+  } catch(e){
+    renderBudget({...MOCK_DATA,semesterFeePerStudent:fee,totalStudents:students,perMealCostTarget:target});
+    showToast('Saved locally (backend offline)','var(--gold)');
+  } finally {btn.disabled=false;btn.textContent='Apply Changes';closeBudgetModal();}
+}
+
+function openBudgetModal(){
+  const s=window._budgetState||{};
+  if(s.semesterFeePerStudent)document.getElementById('feeInput').value=s.semesterFeePerStudent;
+  if(s.totalStudents)document.getElementById('studentsInput').value=s.totalStudents;
+  if(s.perMealCostTarget)document.getElementById('targetInput').value=s.perMealCostTarget;
+  updatePreview();document.getElementById('budgetModal').classList.add('open');
+}
+function closeBudgetModal(){document.getElementById('budgetModal').classList.remove('open');}
+function handleOverlayClick(e){if(e.target===e.currentTarget)closeBudgetModal();}
+
+function updatePreview(){
+  const fee=parseInt(document.getElementById('feeInput').value)||0;
+  const stu=parseInt(document.getElementById('studentsInput').value)||0;
+  const prev=document.getElementById('recalcPreview');
+  if(!fee||!stu){prev.style.display='none';return;}
+  prev.style.display='block';
+  const total=fee*stu,daily=Math.round(fee/120),exp=(window._budgetState||{}).expensesTotal||1780000,sur=total-exp;
+  document.getElementById('prev-total').textContent=fmtL(total);
+  document.getElementById('prev-daily').textContent=fmt(daily)+'/day';
+  const surEl=document.getElementById('prev-surplus');
+  surEl.textContent=fmtL(Math.abs(sur))+(sur>=0?' surplus':' deficit');
+  surEl.style.color=sur>=0?'var(--accent2)':'var(--danger)';
+}
+
+function exportBudget(){
+  showToast('Generating CSV…','var(--accent2)');
+  const rows=[['Date','Students Served','Breakfast','Lunch','Dinner','Snacks','Total Spend','Per Head']];
+  document.querySelectorAll('#spendTable tr').forEach(tr=>{rows.push([...tr.querySelectorAll('td')].map(td=>td.textContent.trim()));});
+  downloadCSV(rows,'budget_feb2025.csv');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadBudget();
+  ['feeInput','studentsInput','targetInput'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',()=>{el.classList.remove('error');updatePreview();});
+  });
+});
+</script>
+</body>
+</html>
