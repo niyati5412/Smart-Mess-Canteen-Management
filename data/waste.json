@@ -14,5 +14,13 @@
     "foodItem": "dal and rice",
     "quantity": 9,
     "reason": "Low Attendance"
+  },
+  {
+    "id": "cb2e5f49-fba2-4426-83aa-3a1013bf79eb",
+    "date": "2026-03-09",
+    "mealType": "Breakfast",
+    "foodItem": "poha",
+    "quantity": 2,
+    "reason": "Quality Issue"
   }
 ]
