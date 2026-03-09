@@ -70,6 +70,9 @@
     .btn-save-all:hover{background:#00ffb3;transform:translateY(-1px);}
     .btn-save-all:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed;transform:none;}
     .toast-wrap{position:fixed;bottom:80px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+    .toast{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 16px;display:flex;align-items:center;gap:10px;font-size:.8rem;min-width:220px;box-shadow:0 8px 28px rgba(0,0,0,.5);transform:translateY(8px);opacity:0;transition:all .3s cubic-bezier(.22,1,.36,1);pointer-events:all;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
     @media(max-width:1000px){.day-grid{grid-template-columns:1fr 1fr;}}
     @media(max-width:900px){.summary-grid{grid-template-columns:1fr;}.mini-stats{grid-template-columns:1fr 1fr;}.save-bar{padding:14px 16px;}}
     @media(max-width:560px){.day-grid{grid-template-columns:1fr 1fr;}.wn-day-name{display:none;}}
@@ -124,17 +127,17 @@
   </div>
 
   <div class="content">
-    <div class="cutoff-banner">
-      <div class="cb-dot"></div>
-      <div class="cb-text"><strong>Dinner cutoff</strong> closes at 3:00 PM today — mark your intention now</div>
+    <div class="cutoff-banner" id="cutoffBanner">
+      <div class="cb-dot" id="cbDot"></div>
+      <div class="cb-text" id="cbText"><strong>Loading…</strong></div>
       <div class="cb-timer" id="cutoffTimer">…</div>
     </div>
 
-    <div class="mini-stats" id="miniStats">
-      <div class="mini-stat"><div class="ms-label">This week — Marked</div><div class="ms-val" style="color:var(--accent)" id="ms1">…</div></div>
-      <div class="mini-stat"><div class="ms-label">Eating</div><div class="ms-val" style="color:var(--accent)" id="ms2">…</div></div>
-      <div class="mini-stat"><div class="ms-label">Skipping</div><div class="ms-val" style="color:var(--danger)" id="ms3">…</div></div>
-      <div class="mini-stat"><div class="ms-label">Unmarked</div><div class="ms-val" style="color:var(--gold)" id="ms4">…</div></div>
+    <div class="mini-stats">
+      <div class="mini-stat"><div class="ms-label">This week — Marked</div><div class="ms-val" style="color:var(--accent)" id="ms1">—</div></div>
+      <div class="mini-stat"><div class="ms-label">Eating</div><div class="ms-val" style="color:var(--accent)" id="ms2">—</div></div>
+      <div class="mini-stat"><div class="ms-label">Skipping</div><div class="ms-val" style="color:var(--danger)" id="ms3">—</div></div>
+      <div class="mini-stat"><div class="ms-label">Unmarked</div><div class="ms-val" style="color:var(--gold)" id="ms4">—</div></div>
     </div>
 
     <div class="week-nav">
@@ -182,10 +185,8 @@
 
 <script src="../js/main.js"></script>
 <script>
-
-/* ───────── SESSION CHECK ───────── */
+/* ───────── SESSION ───────── */
 let session = null;
-
 (function(){
   try { session = JSON.parse(sessionStorage.getItem('mm_session')); } catch(e){}
   if (!session) { window.location.href = '../login.html'; return; }
@@ -194,105 +195,190 @@ let session = null;
     return;
   }
   const name = session.name || 'Student';
-  const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userAvatar').textContent = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   document.getElementById('userName').textContent   = name;
   document.getElementById('userId').textContent     = session.id;
 })();
 
-/* ───────── GLOBALS ───────── */
+/* ───────── MEAL CONFIG ───────── */
 const TODAY = new Date().toISOString().split('T')[0];
 const MEALS = [
-  {id:'breakfast', name:'Breakfast'},
-  {id:'lunch', name:'Lunch'},
-  {id:'dinner', name:'Dinner'},
-  {id:'snacks', name:'Snacks'}
+  { id:'breakfast', name:'Breakfast', emoji:'🌅', time:'7:30–9:00',  cutoffHour:7,  cutoffLabel:'7:00 AM'  },
+  { id:'lunch',     name:'Lunch',     emoji:'☀️', time:'12:30–2:00', cutoffHour:11, cutoffLabel:'11:00 AM' },
+  { id:'dinner',    name:'Dinner',    emoji:'🌙', time:'7:30–9:00',  cutoffHour:15, cutoffLabel:'3:00 PM'  },
+  { id:'snacks',    name:'Snacks',    emoji:'☕', time:'4:30–5:30',  cutoffHour:15, cutoffLabel:'3:30 PM'  },
 ];
 const intentions = {};
+MEALS.forEach(m => intentions[m.id] = null);
 
-/* ───────── LOAD TODAY FROM BACKEND ───────── */
-async function loadIntentions() {
-  const res = await fetch(`/api/intentions/student/${session.id}`);
-  const data = await res.json();
-  MEALS.forEach(m => intentions[m.id] = null);
-  data.filter(i => i.date === TODAY).forEach(i => {
-    intentions[i.meal] = i.status === 'eating' ? 'eat' : 'skip';
-  });
+function isCutoffPassed(meal){ return new Date().getHours() >= meal.cutoffHour; }
+
+/* ───────── LIVE BANNER ───────── */
+function updateBanner(){
+  const now  = new Date();
+  const next = MEALS.find(m => !isCutoffPassed(m));
+  const banner= document.getElementById('cutoffBanner');
+  const dot   = document.getElementById('cbDot');
+  const text  = document.getElementById('cbText');
+  const timer = document.getElementById('cutoffTimer');
+  if (!next){
+    banner.style.background  = 'rgba(255,71,87,.06)';
+    banner.style.borderColor = 'rgba(255,71,87,.2)';
+    dot.style.background     = 'var(--danger)';
+    text.innerHTML           = '<strong>All cutoffs passed</strong> — no more changes today';
+    timer.textContent        = '—';
+    return;
+  }
+  const cutoff = new Date(); cutoff.setHours(next.cutoffHour,0,0,0);
+  const diff = cutoff - now;
+  const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+  text.innerHTML    = `<strong>${next.name} cutoff</strong> closes at ${next.cutoffLabel} — mark your intention now`;
+  timer.textContent = h > 0 ? `${h}h ${m}m` : `${m}m ${s}s`;
+}
+updateBanner();
+setInterval(updateBanner, 1000);
+
+/* ───────── LOAD FROM BACKEND ───────── */
+async function loadIntentions(){
+  try {
+    const res  = await fetch(`/api/intentions/student/${session.id}`);
+    const data = await res.json();
+    MEALS.forEach(m => intentions[m.id] = null);
+    data.filter(i => i.date === TODAY).forEach(i => {
+      intentions[i.meal] = i.status === 'eating' ? 'eat' : 'skip';
+    });
+  } catch(e){ showToast('⚠️ Could not load intentions','var(--danger)'); }
 }
 
 /* ───────── RENDER CARDS ───────── */
 function renderDayGrid(){
   const grid = document.getElementById('dayGrid');
   grid.innerHTML = '';
-  MEALS.forEach(m=>{
-    const intent = intentions[m.id] || null;
-    const card = document.createElement('div');
-    card.className = `intention-card${intent ? ' state-'+intent : ''}`;
-    card.innerHTML = `
-      <div class="ic-name">${m.name}</div>
-      <div class="ic-actions">
+  MEALS.forEach(m => {
+    const intent = intentions[m.id];
+    const locked = isCutoffPassed(m);
+    const card   = document.createElement('div');
+    card.className = `intention-card${intent?' state-'+intent:''}`;
+
+    let actionsHTML = '';
+    if (locked && intent) {
+      actionsHTML = `
+        <button class="ic-btn eat-btn ${intent==='eat'?'selected':''}" disabled>✓ I'm Eating</button>
+        <button class="ic-btn skip-btn ${intent==='skip'?'selected':''}" disabled>✕ Skipping</button>
+        <div style="text-align:center;font-size:.68rem;color:var(--muted);margin-top:6px">🔒 Cutoff passed · ${m.cutoffLabel}</div>`;
+    } else if (locked) {
+      actionsHTML = `<div class="ic-locked"><div class="lock">🔒</div>Cutoff passed at ${m.cutoffLabel}<br><span style="opacity:.6">Not marked</span></div>`;
+    } else {
+      actionsHTML = `
         <button class="ic-btn eat-btn ${intent==='eat'?'selected':''}" onclick="mark('${m.id}','eat')">✓ I'm Eating</button>
-        <button class="ic-btn skip-btn ${intent==='skip'?'selected':''}" onclick="mark('${m.id}','skip')">✕ Skipping</button>
-      </div>`;
+        <button class="ic-btn skip-btn ${intent==='skip'?'selected':''}" onclick="mark('${m.id}','skip')">✕ Skipping</button>`;
+    }
+
+    card.innerHTML = `
+      <div class="ic-top"><span class="ic-emoji">${m.emoji}</span><span class="ic-time">${m.time}</span></div>
+      <div class="ic-name">${m.name}</div>
+      <div class="ic-cutoff ${locked?'closed':'open'}" style="margin-bottom:16px">${locked?'🔒 Cutoff passed · '+m.cutoffLabel:'⏰ Cutoff at '+m.cutoffLabel}</div>
+      <div class="ic-actions">${actionsHTML}</div>`;
     grid.appendChild(card);
   });
+
+  const openMeals = MEALS.filter(m => !isCutoffPassed(m));
+  const marked    = openMeals.filter(m => intentions[m.id] !== null).length;
+  document.getElementById('pendingCount').textContent =
+    openMeals.length === 0 ? 'All cutoffs passed for today' : `${marked} of ${openMeals.length} open meals marked`;
+  document.getElementById('saveAllBtn').disabled = openMeals.length === 0;
+
+  // mini stats
+  const eating   = MEALS.filter(m=>intentions[m.id]==='eat').length;
+  const skipping = MEALS.filter(m=>intentions[m.id]==='skip').length;
+  const tot      = eating+skipping;
+  document.getElementById('ms1').textContent = tot;
+  document.getElementById('ms2').textContent = eating;
+  document.getElementById('ms3').textContent = skipping;
+  document.getElementById('ms4').textContent = MEALS.length - tot;
 }
 
-/* ───────── MARK SELECTION ───────── */
+/* ───────── MARK (blocked after cutoff) ───────── */
 function mark(mealId, action){
-  intentions[mealId] = intentions[mealId] === action ? null : action;
+  const meal = MEALS.find(m=>m.id===mealId);
+  if (isCutoffPassed(meal)){ showToast(`🔒 ${meal.name} cutoff has passed`,'var(--danger)'); return; }
+  intentions[mealId] = intentions[mealId]===action ? null : action;
   renderDayGrid();
 }
 
 /* ───────── SAVE TO BACKEND ───────── */
 async function saveAll(){
-  for(const mealId in intentions){
-    const action = intentions[mealId];
-    if(!action) continue;
-    await fetch('/api/intentions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId: session.id, studentName: session.name, meal: mealId, date: TODAY, status: action === 'eat' ? 'eating' : 'skipping' })
-    });
+  const btn = document.getElementById('saveAllBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  let saved=0, errors=0;
+  for (const m of MEALS){
+    if (isCutoffPassed(m)) continue;
+    const action = intentions[m.id];
+    if (!action) continue;
+    try {
+      const res = await fetch('/api/intentions',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ studentId:session.id, studentName:session.name, meal:m.id, date:TODAY, status:action==='eat'?'eating':'skipping' })
+      });
+      if (!res.ok) throw new Error(res.status);
+      saved++;
+    } catch(e){ errors++; }
   }
+  if (errors===0) showToast(`✅ ${saved} intentions saved`,'var(--accent)');
+  else            showToast(`⚠️ ${saved} saved, ${errors} failed`,'var(--gold)');
   await loadIntentions();
-  await renderHistory();
   renderDayGrid();
-  alert("Intentions saved successfully");
+  await renderHistory();
+  btn.disabled = false;
+  btn.innerHTML = 'Save All Intentions <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
 }
 
-/* ───────── WEEK LOG ───────── */
+/* ───────── HISTORY TABLE (real data) ───────── */
 async function renderHistory(){
-  const res = await fetch(`/api/intentions/student/${session.id}`);
-  const data = await res.json();
-  const body = document.getElementById('histBody');
-  body.innerHTML = '';
-  const today = new Date();
-  const weekStart = new Date(today);
-  weekStart.setDate(today.getDate() - today.getDay());
-  for(let i=0;i<7;i++){
-    const day = new Date(weekStart);
-    day.setDate(weekStart.getDate() + i);
-    const dateStr = day.toISOString().split('T')[0];
-    const dayIntentions = data.filter(i => i.date === dateStr);
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${day.toDateString().slice(0,10)}</td>
-      ${renderCell(dayIntentions,'breakfast')}
-      ${renderCell(dayIntentions,'lunch')}
-      ${renderCell(dayIntentions,'dinner')}
-      ${renderCell(dayIntentions,'snacks')}`;
-    body.appendChild(row);
-  }
+  try {
+    const res  = await fetch(`/api/intentions/student/${session.id}`);
+    const data = await res.json();
+    const body = document.getElementById('histBody');
+    body.innerHTML = '';
+    const today = new Date();
+    const ws    = new Date(today); ws.setDate(today.getDate()-today.getDay());
+    for (let i=0;i<7;i++){
+      const day = new Date(ws); day.setDate(ws.getDate()+i);
+      const ds  = day.toISOString().split('T')[0];
+      const dd  = data.filter(x=>x.date===ds);
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${day.toDateString().slice(0,10)}</td>${renderCell(dd,'breakfast')}${renderCell(dd,'lunch')}${renderCell(dd,'dinner')}${renderCell(dd,'snacks')}`;
+      body.appendChild(row);
+    }
+    const upcoming = document.getElementById('upcomingBody');
+    upcoming.innerHTML = '';
+    for (let i=1;i<=3;i++){
+      const day = new Date(today); day.setDate(today.getDate()+i);
+      const ds  = day.toISOString().split('T')[0];
+      const dd  = data.filter(x=>x.date===ds);
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${day.toDateString().slice(0,10)}</td>${renderCell(dd,'breakfast')}${renderCell(dd,'lunch')}${renderCell(dd,'dinner')}${renderCell(dd,'snacks')}`;
+      upcoming.appendChild(row);
+    }
+  } catch(e){ showToast('⚠️ Could not load history','var(--danger)'); }
 }
 
-/* ───────── CELL HELPER ───────── */
-function renderCell(intentions, meal){
-  const found = intentions.find(i => i.meal === meal);
-  if(!found) return `<td><span class="pill pill-muted">—</span></td>`;
-  if(found.status === 'eating') return `<td><span class="pill pill-green">Eat</span></td>`;
+function renderCell(data, meal){
+  const f = data.find(i=>i.meal===meal);
+  if (!f)                    return `<td><span class="pill pill-muted">—</span></td>`;
+  if (f.status==='eating')   return `<td><span class="pill pill-green">Eat</span></td>`;
   return `<td><span class="pill pill-red">Skip</span></td>`;
 }
+
+/* ───────── TOAST + SIDEBAR ───────── */
+function showToast(msg,color){
+  const w=document.getElementById('toastWrap'),t=document.createElement('div');t.className='toast';
+  t.innerHTML=`<div class="toast-dot" style="background:${color||'var(--accent)'}"></div><span>${msg}</span>`;
+  w.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350);},2800);
+}
+function toggleSidebar(){const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),open=s.classList.toggle('open');o.style.display=open?'block':'none';}
 
 /* ───────── INIT ───────── */
 (async function(){

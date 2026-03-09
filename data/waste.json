@@ -6,5 +6,13 @@
     "foodItem": "DAL",
     "quantity": 5.6,
     "reason": "Overcooked"
+  },
+  {
+    "id": "3702a329-d298-4152-8904-238fbdc4d1e2",
+    "date": "2026-03-09",
+    "mealType": "Lunch",
+    "foodItem": "dal and rice",
+    "quantity": 9,
+    "reason": "Low Attendance"
   }
 ]

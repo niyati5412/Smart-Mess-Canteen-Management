@@ -52,10 +52,7 @@
     .prog-track{flex:1;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden;}
     .prog-fill{height:100%;border-radius:3px;background:var(--accent);}
     .prog-val{font-size:0.72rem;font-weight:600;width:36px;text-align:right;}
-    @media(max-width:900px){
-      .stats-grid{grid-template-columns:1fr 1fr;}
-      .two-col{grid-template-columns:1fr;}
-    }
+    @media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr;}.two-col{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
@@ -64,15 +61,14 @@
   <div class="sidebar-user">
     <div class="user-avatar" data-user-initials>--</div>
     <div>
-      <div class="user-name" data-user-name>Loading…</div>
+      <div class="user-name" data-user-name>Loading...</div>
       <div class="user-id" data-user-id>—</div>
     </div>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-label">Main</div>
     <a class="nav-item" href="./dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-    <a class="nav-item" href="#"><span class="nav-icon">🍽️</span> Meal Intentions <span class="nav-badge">2</span></a>
-    <a class="nav-item" href="./intention.html"><span class="nav-icon">✅</span> Intention</a>
+    <a class="nav-item" href="./intention.html"><span class="nav-icon">✅</span> Meal Intentions</a>
     <a class="nav-item" href="#"><span class="nav-icon">📅</span> Attendance</a>
     <a class="nav-item active" href="#"><span class="nav-icon">💰</span> Budget Value</a>
     <div class="nav-label">Info</div>
@@ -87,84 +83,34 @@
 
 <div class="main">
   <div class="topbar">
-    <div><h1>Budget & Value</h1><p>See how efficiently you're using your mess fee</p></div>
+    <div><h1>Budget &amp; Value</h1><p>See how efficiently you're using your mess fee</p></div>
     <div class="topbar-right">
-      <div class="select-row">
-        <div class="sel-chip active" onclick="selPeriod(this,'feb')">Feb 2025</div>
-        <div class="sel-chip" onclick="selPeriod(this,'jan')">Jan 2025</div>
-        <div class="sel-chip" onclick="selPeriod(this,'semester')">Semester</div>
-      </div>
-      <div class="mobile-menu-btn" onclick="toggleSidebar()">☰</div>
+      <div class="select-row" id="periodChips"></div>
+      <div class="mobile-menu-btn" onclick="toggleSidebar()">&#9776;</div>
     </div>
   </div>
 
   <div class="content">
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-label">Mess Fee Paid</div><div class="stat-val" style="color:var(--text)">₹6,000</div><div class="stat-sub">Feb 2025 semester fee</div></div>
-      <div class="stat-card"><div class="stat-label">Value Consumed</div><div class="stat-val" style="color:var(--accent)">₹5,340</div><div class="stat-sub"><span class="badge badge-green">↑ 89% efficiency</span></div></div>
-      <div class="stat-card"><div class="stat-label">Wasted (Skipped)</div><div class="stat-val" style="color:var(--danger)">₹660</div><div class="stat-sub">22 meals skipped · <span class="badge badge-red">11%</span></div></div>
-      <div class="stat-card"><div class="stat-label">Avg. Cost Per Meal</div><div class="stat-val" style="color:var(--gold)">₹67</div><div class="stat-sub">Based on 90 total meals</div></div>
+      <div class="stat-card"><div class="stat-label">Mess Fee Paid</div><div class="stat-val" style="color:var(--text)" id="statFee">—</div><div class="stat-sub" id="statFeeSub">Loading…</div></div>
+      <div class="stat-card"><div class="stat-label">Value Consumed</div><div class="stat-val" style="color:var(--accent)" id="statConsumed">—</div><div class="stat-sub" id="statConsumedSub"></div></div>
+      <div class="stat-card"><div class="stat-label">Wasted (Skipped)</div><div class="stat-val" style="color:var(--danger)" id="statWasted">—</div><div class="stat-sub" id="statWastedSub"></div></div>
+      <div class="stat-card"><div class="stat-label">Avg. Cost Per Meal</div><div class="stat-val" style="color:var(--gold)" id="statAvg">—</div><div class="stat-sub" id="statAvgSub"></div></div>
     </div>
-
     <div class="two-col">
-      <div class="panel">
-        <div class="panel-head"><h3>Efficiency Overview</h3></div>
-        <div class="panel-body">
-          <div class="eff-wrap">
-            <svg class="eff-ring" viewBox="0 0 36 36">
-              <circle cx="18" cy="18" r="14" fill="none" stroke="#1e2428" stroke-width="4"/>
-              <circle cx="18" cy="18" r="14" fill="none" stroke="#00e5a0" stroke-width="4" stroke-dasharray="78 22" stroke-dashoffset="25" stroke-linecap="round"/>
-              <circle cx="18" cy="18" r="14" fill="none" stroke="#ff4757" stroke-width="4" stroke-dasharray="22 78" stroke-dashoffset="-53" stroke-linecap="round"/>
-              <text x="18" y="19" text-anchor="middle" font-size="6.5" fill="#e8edf2" font-family="Syne" font-weight="800">89%</text>
-              <text x="18" y="24" text-anchor="middle" font-size="3.5" fill="#7a8a96">Efficiency</text>
-            </svg>
-            <div class="eff-info">
-              <div class="eff-title" style="color:var(--accent)">Good Standing</div>
-              <div class="eff-sub">You're using 89% of your mess fee value. Target is 90%+. Skipping 1–2 fewer meals per week would get you there.</div>
-            </div>
-          </div>
-          <div class="prog-row"><span class="prog-label">Breakfast</span><div class="prog-track"><div class="prog-fill" style="width:94%;background:var(--accent)"></div></div><span class="prog-val" style="color:var(--accent)">94%</span></div>
-          <div class="prog-row"><span class="prog-label">Lunch</span><div class="prog-track"><div class="prog-fill" style="width:78%;background:var(--gold)"></div></div><span class="prog-val" style="color:var(--gold)">78%</span></div>
-          <div class="prog-row"><span class="prog-label">Dinner</span><div class="prog-track"><div class="prog-fill" style="width:91%;background:var(--accent)"></div></div><span class="prog-val" style="color:var(--accent)">91%</span></div>
-          <div class="prog-row"><span class="prog-label">Snacks</span><div class="prog-track"><div class="prog-fill" style="width:62%;background:var(--orange)"></div></div><span class="prog-val" style="color:var(--orange)">62%</span></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head"><h3>Week-by-Week Value</h3></div>
-        <div class="panel-body">
-          <div class="bar-chart">
-            <div class="bar-col"><div class="bar-fill primary" style="height:88%"></div><span class="bar-lbl">W1</span></div>
-            <div class="bar-col"><div class="bar-fill primary" style="height:72%"></div><span class="bar-lbl">W2</span></div>
-            <div class="bar-col"><div class="bar-fill primary" style="height:95%"></div><span class="bar-lbl">W3</span></div>
-            <div class="bar-col"><div class="bar-fill primary" style="height:81%"></div><span class="bar-lbl">W4</span></div>
-          </div>
-          <div style="display:flex;gap:16px;margin-top:8px;">
-            <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border);">
-              <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Best Week</div>
-              <div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--accent)">Week 3</div>
-              <div style="font-size:0.72rem;color:var(--muted)">₹1,440 of ₹1,500</div>
-            </div>
-            <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border);">
-              <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Worst Week</div>
-              <div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--danger)">Week 2</div>
-              <div style="font-size:0.72rem;color:var(--muted)">₹1,080 of ₹1,500</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="panel"><div class="panel-head"><h3>Efficiency Overview</h3></div><div class="panel-body" id="effPanel"><div style="text-align:center;color:var(--muted);font-size:.8rem;padding:30px">Loading…</div></div></div>
+      <div class="panel"><div class="panel-head"><h3>Week-by-Week Value</h3></div><div class="panel-body" id="weekPanel"><div style="text-align:center;color:var(--muted);font-size:.8rem;padding:30px">Loading…</div></div></div>
     </div>
-
     <div class="panel">
       <div class="panel-head">
-        <h3>Daily Meal Log — February</h3>
-        <span style="font-size:0.72rem;color:var(--accent);cursor:pointer;">Export CSV →</span>
+        <h3 id="logTitle">Daily Meal Log</h3>
+        <span style="font-size:0.72rem;color:var(--accent);cursor:pointer;" onclick="exportCSV()">Export CSV →</span>
       </div>
       <div class="panel-body" style="padding:0;">
         <div class="table-wrap">
           <table>
             <thead><tr><th>Date</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snacks</th><th>Day Value</th><th>Efficiency</th></tr></thead>
-            <tbody id="logTable"></tbody>
+            <tbody id="logTable"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;font-size:.8rem">Loading…</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -179,44 +125,146 @@
   var s=sessionStorage.getItem('mm_session');
   if(!s){window.location.replace('/login.html');return;}
   var u;try{u=JSON.parse(s);}catch(e){window.location.replace('/login.html');return;}
-  if(!u.initials&&u.name){
-    var p=u.name.trim().split(' ').filter(Boolean);
-    u.initials=p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():u.name.substring(0,2).toUpperCase();
-  }
+  if(!u.initials&&u.name){var p=u.name.trim().split(' ').filter(Boolean);u.initials=p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():u.name.substring(0,2).toUpperCase();}
   u.uid=u.uid||u.studentId||u.id||u.email||'—';
-  function apply(){
-    document.querySelectorAll('[data-user-name]').forEach(function(el){el.textContent=u.name||'—';});
-    document.querySelectorAll('[data-user-id]').forEach(function(el){el.textContent=u.uid||'—';});
-    document.querySelectorAll('[data-user-initials]').forEach(function(el){el.textContent=u.initials||'??';});
-  }
-  apply();
-  document.addEventListener('DOMContentLoaded',apply);
+  function apply(){document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u.name||'—');document.querySelectorAll('[data-user-id]').forEach(el=>el.textContent=u.uid||'—');document.querySelectorAll('[data-user-initials]').forEach(el=>el.textContent=u.initials||'??');}
+  apply();document.addEventListener('DOMContentLoaded',apply);
   window.mmGetUser=function(){return u;};
 })();
 
-function selPeriod(el){document.querySelectorAll('.sel-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
+const TODAY=new Date();
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let allIntentions=[],budget={},activePeriod=null;
 
-const days=[
-  ['Feb 1','Ate','Ate','Ate','Ate',268,100],['Feb 3','Ate','Skip','Ate','Skip',134,50],
-  ['Feb 5','Ate','Ate','Skip','Ate',201,75],['Feb 7','Ate','Ate','Ate','Ate',268,100],
-  ['Feb 10','Skip','Skip','Ate','Skip',67,25],['Feb 12','Ate','Ate','Ate','Skip',201,75],
-  ['Feb 14','Ate','Ate','Ate','Ate',268,100],['Feb 17','Ate','Skip','Ate','Ate',201,75],
-  ['Feb 19','Ate','Ate','Ate','Ate',268,100],['Feb 21','Skip','Ate','Ate','Skip',134,50],
-  ['Feb 24','Ate','Ate','Skip','Ate',201,75],['Feb 26','Ate','Ate','Ate','Ate',268,100],
-  ['Feb 27','Ate','Skip','Ate','Skip',134,50],['Feb 28','Ate','Skip','—','—','—','—'],
-];
-const tbody=document.getElementById('logTable');
-days.forEach(r=>{
-  const eff=r[6];
-  const effClass=eff===100?'pill-green':eff>=75?'pill-gold':'pill-red';
-  const cell=(v)=>`<span class="pill ${v==='Ate'?'pill-green':v==='—'?'':'pill-red'}">${v}</span>`;
-  tbody.innerHTML+=`<tr>
-    <td style="font-weight:500">${r[0]}</td>
-    <td>${cell(r[1])}</td><td>${cell(r[2])}</td><td>${cell(r[3])}</td><td>${cell(r[4])}</td>
-    <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent)">₹${r[5]}</td>
-    <td>${eff!=='—'?`<span class="pill ${effClass}">${eff}%</span>`:'<span class="td-muted">—</span>'}</td>
-  </tr>`;
-});
+function buildChips(){
+  const row=document.getElementById('periodChips');row.innerHTML='';
+  for(let i=0;i<3;i++){
+    const d=new Date(TODAY.getFullYear(),TODAY.getMonth()-i,1);
+    const label=MONTH_NAMES[d.getMonth()].slice(0,3)+' '+d.getFullYear();
+    const chip=document.createElement('div');
+    chip.className='sel-chip'+(i===0?' active':'');
+    chip.textContent=label;chip.dataset.year=d.getFullYear();chip.dataset.month=d.getMonth();
+    chip.onclick=function(){selectChip(this,'month');};row.appendChild(chip);
+  }
+  const sem=document.createElement('div');sem.className='sel-chip';sem.textContent='Semester';sem.dataset.type='semester';
+  sem.onclick=function(){selectChip(this,'semester');};row.appendChild(sem);
+  activePeriod={year:TODAY.getFullYear(),month:TODAY.getMonth()};
+}
+
+function selectChip(el,type){
+  document.querySelectorAll('.sel-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');
+  activePeriod=type==='semester'?'semester':{year:parseInt(el.dataset.year),month:parseInt(el.dataset.month)};
+  renderAll();
+}
+
+function filterByPeriod(){
+  if(activePeriod==='semester') return allIntentions;
+  const{year,month}=activePeriod;
+  const prefix=year+'-'+String(month+1).padStart(2,'0');
+  return allIntentions.filter(i=>i.date.startsWith(prefix));
+}
+
+function renderAll(){
+  const data=filterByPeriod();
+  const messFee=budget.semesterFeePerStudent||6000;
+  const mealCost=budget.mealCostPerMeal||Math.round(messFee/90);
+  const eating=data.filter(i=>i.status==='eating').length;
+  const skipping=data.filter(i=>i.status==='skipping').length;
+  const total=eating+skipping;
+  const effPct=total?Math.round((eating/total)*100):0;
+  const consumed=eating*mealCost,wasted=skipping*mealCost;
+  let periodLabel=activePeriod==='semester'?'Semester':MONTH_NAMES[activePeriod.month]+' '+activePeriod.year;
+  document.getElementById('logTitle').textContent='Daily Meal Log — '+periodLabel;
+  document.getElementById('statFee').textContent='₹'+messFee.toLocaleString('en-IN');
+  document.getElementById('statFeeSub').textContent=periodLabel+' semester fee';
+  document.getElementById('statConsumed').textContent='₹'+consumed.toLocaleString('en-IN');
+  document.getElementById('statConsumedSub').innerHTML='<span class="badge badge-green">↑ '+effPct+'% efficiency</span>';
+  document.getElementById('statWasted').textContent='₹'+wasted.toLocaleString('en-IN');
+  document.getElementById('statWastedSub').innerHTML=skipping+' meals skipped · <span class="badge badge-red">'+(100-effPct)+'%</span>';
+  document.getElementById('statAvg').textContent='₹'+mealCost;
+  document.getElementById('statAvgSub').textContent='Based on '+total+' total meals';
+
+  // Per-meal efficiency
+  const mealEff={};
+  ['breakfast','lunch','dinner','snacks'].forEach(m=>{const md=data.filter(i=>i.meal===m);mealEff[m]=md.length?Math.round((md.filter(i=>i.status==='eating').length/md.length)*100):0;});
+  const standingLabel=effPct>=90?'Excellent':effPct>=75?'Good Standing':'Needs Improvement';
+  const standingColor=effPct>=75?'var(--accent)':'var(--danger)';
+  const standingMsg=effPct>=90?"You're maximising your mess fee. Keep it up!":effPct>=75?`You're using ${effPct}% of your mess fee value. Target is 90%+. Skipping 1–2 fewer meals per week would get you there.`:`Only ${effPct}% efficiency. Try to eat more meals to get better value from your fee.`;
+  const arc=Math.round(effPct*88/100),arcRed=88-arc;
+  document.getElementById('effPanel').innerHTML=`
+    <div class="eff-wrap">
+      <svg class="eff-ring" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="14" fill="none" stroke="#1e2428" stroke-width="4"/>
+        <circle cx="18" cy="18" r="14" fill="none" stroke="#00e5a0" stroke-width="4" stroke-dasharray="${arc} ${arcRed}" stroke-dashoffset="25" stroke-linecap="round"/>
+        <circle cx="18" cy="18" r="14" fill="none" stroke="#ff4757" stroke-width="4" stroke-dasharray="${arcRed} ${arc}" stroke-dashoffset="${-(arc+25)}" stroke-linecap="round"/>
+        <text x="18" y="19" text-anchor="middle" font-size="6.5" fill="#e8edf2" font-family="Syne" font-weight="800">${effPct}%</text>
+        <text x="18" y="24" text-anchor="middle" font-size="3.5" fill="#7a8a96">Efficiency</text>
+      </svg>
+      <div class="eff-info"><div class="eff-title" style="color:${standingColor}">${standingLabel}</div><div class="eff-sub">${standingMsg}</div></div>
+    </div>
+    ${['breakfast','lunch','dinner','snacks'].map(m=>{
+      const pct=mealEff[m],col=pct>=85?'var(--accent)':pct>=65?'var(--gold)':'var(--orange,#ff9a3c)';
+      return `<div class="prog-row"><span class="prog-label">${m.charAt(0).toUpperCase()+m.slice(1)}</span><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div><span class="prog-val" style="color:${col}">${pct}%</span></div>`;
+    }).join('')}`;
+
+  // Week chart
+  const weeks={};
+  data.forEach(i=>{const d=new Date(i.date);const day1=new Date(d.getFullYear(),d.getMonth(),1).getDay();const wk='W'+Math.ceil((d.getDate()+day1)/7);if(!weeks[wk])weeks[wk]={eat:0};if(i.status==='eating')weeks[wk].eat++;});
+  const wKeys=Object.keys(weeks).sort();
+  if(!wKeys.length){document.getElementById('weekPanel').innerHTML='<div style="text-align:center;color:var(--muted);font-size:.8rem;padding:30px">No data for this period</div>';}
+  else{
+    const weeklyFee=Math.round(messFee/4);
+    const weekData=wKeys.map(k=>({label:k,eat:weeks[k].eat,pct:Math.round((weeks[k].eat/28)*100),value:weeks[k].eat*mealCost}));
+    const maxPct=Math.max(...weekData.map(w=>w.pct),1);
+    const bestWk=weekData.reduce((a,b)=>a.eat>b.eat?a:b);
+    const worstWk=weekData.reduce((a,b)=>a.eat<b.eat?a:b);
+    document.getElementById('weekPanel').innerHTML=`
+      <div class="bar-chart">${weekData.map(w=>`<div class="bar-col"><div class="bar-fill primary" style="height:${Math.round((w.pct/maxPct)*100)}%"></div><span class="bar-lbl">${w.label}</span></div>`).join('')}</div>
+      <div style="display:flex;gap:16px;margin-top:8px;">
+        <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border);"><div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Best Week</div><div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--accent)">${bestWk.label}</div><div style="font-size:0.72rem;color:var(--muted)">₹${bestWk.value.toLocaleString('en-IN')} of ₹${weeklyFee.toLocaleString('en-IN')}</div></div>
+        <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border);"><div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Worst Week</div><div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--danger)">${worstWk.label}</div><div style="font-size:0.72rem;color:var(--muted)">₹${worstWk.value.toLocaleString('en-IN')} of ₹${weeklyFee.toLocaleString('en-IN')}</div></div>
+      </div>`;
+  }
+
+  // Daily log
+  const byDate={};
+  data.forEach(i=>{if(!byDate[i.date])byDate[i.date]={};byDate[i.date][i.meal]=i.status;});
+  const dates=Object.keys(byDate).sort().reverse();
+  const tbody=document.getElementById('logTable');
+  if(!dates.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;font-size:.8rem">No data for this period</td></tr>';return;}
+  const cell=s=>!s?'<span class="td-muted">—</span>':s==='eating'?'<span class="pill pill-green">Ate</span>':'<span class="pill pill-red">Skip</span>';
+  tbody.innerHTML=dates.map(ds=>{
+    const row=byDate[ds];const meals=['breakfast','lunch','dinner','snacks'];
+    const eatC=meals.filter(m=>row[m]==='eating').length;
+    const effP=Math.round((eatC/4)*100);
+    const effCls=effP===100?'pill-green':effP>=75?'pill-gold':'pill-red';
+    const lbl=new Date(ds).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    return `<tr><td style="font-weight:500">${lbl}</td>${meals.map(m=>`<td>${cell(row[m])}</td>`).join('')}<td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent)">₹${eatC*mealCost}</td><td><span class="pill ${effCls}">${effP}%</span></td></tr>`;
+  }).join('');
+}
+
+function exportCSV(){
+  const data=filterByPeriod();const messFee=budget.semesterFeePerStudent||6000;const mealCost=budget.mealCostPerMeal||Math.round(messFee/90);
+  const byDate={};data.forEach(i=>{if(!byDate[i.date])byDate[i.date]={};byDate[i.date][i.meal]=i.status;});
+  const rows=['Date,Breakfast,Lunch,Dinner,Snacks,Day Value,Efficiency'];
+  Object.keys(byDate).sort().forEach(ds=>{const row=byDate[ds];const meals=['breakfast','lunch','dinner','snacks'];const eatC=meals.filter(m=>row[m]==='eating').length;const vals=meals.map(m=>row[m]==='eating'?'Ate':row[m]==='skipping'?'Skip':'—');rows.push(`${ds},${vals.join(',')},Rs${eatC*mealCost},${Math.round((eatC/4)*100)}%`);});
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meal-log.csv';a.click();
+}
+
+function toggleSidebar(){const s=document.getElementById('sidebar'),o=document.getElementById('overlay');const open=s.classList.toggle('open');o.style.display=open?'block':'none';}
+
+async function init(){
+  buildChips();
+  const user=window.mmGetUser?window.mmGetUser():null;
+  const uid=user?.uid||user?.id||user?.studentId;
+  if(!uid)return;
+  try{
+    const[iRes,bRes]=await Promise.all([fetch('/api/intentions/student/'+uid),fetch('/api/budget')]);
+    allIntentions=await iRes.json();budget=await bRes.json();
+  }catch(e){console.error('Load error',e);}
+  renderAll();
+}
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
