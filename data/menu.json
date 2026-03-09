@@ -33,5 +33,40 @@
     "meal": "lunch",
     "day": "Monday",
     "createdAt": "2026-03-07T12:03:03.486Z"
+  },
+  {
+    "id": "9021fb05-3cca-41bb-9417-9246310a26b1",
+    "name": "tea",
+    "meal": "breakfast",
+    "day": "Monday",
+    "createdAt": "2026-03-09T06:23:14.007Z"
+  },
+  {
+    "id": "09d62d9a-50ff-40e4-b683-aca2221ea08c",
+    "name": "poha",
+    "meal": "breakfast",
+    "day": "Monday",
+    "createdAt": "2026-03-09T06:23:16.703Z"
+  },
+  {
+    "id": "4cdb5444-73f2-47dc-9388-12e8f228d614",
+    "name": "bread butter",
+    "meal": "breakfast",
+    "day": "Monday",
+    "createdAt": "2026-03-09T06:23:19.713Z"
+  },
+  {
+    "id": "e69b4565-3cd2-44dc-8989-759406f0eb14",
+    "name": "manchurian",
+    "meal": "dinner",
+    "day": "Monday",
+    "createdAt": "2026-03-09T06:23:24.742Z"
+  },
+  {
+    "id": "8aa9e9dc-c363-42c4-96e7-ced0a2fdd719",
+    "name": "samosa and tea",
+    "meal": "snacks",
+    "day": "Monday",
+    "createdAt": "2026-03-09T06:23:27.516Z"
   }
 ]

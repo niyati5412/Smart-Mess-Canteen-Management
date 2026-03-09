@@ -32,5 +32,21 @@
     "password": "123456",
     "role": "student",
     "createdAt": "2026-03-07T11:57:35.643Z"
+  },
+  {
+    "id": "c0bc99fd-43d3-4526-912b-9262f1707914",
+    "name": "varinda aggarwal",
+    "email": "varinda5412@gmail.com",
+    "password": "varinda12345",
+    "role": "student",
+    "createdAt": "2026-03-08T15:04:02.488Z"
+  },
+  {
+    "id": "a124f884-1130-4cc7-a77f-cb990afc6295",
+    "name": "admin Gupta",
+    "email": "admin1234@gmail.com",
+    "password": "admin123456",
+    "role": "admin",
+    "createdAt": "2026-03-09T06:22:34.815Z"
   }
 ]

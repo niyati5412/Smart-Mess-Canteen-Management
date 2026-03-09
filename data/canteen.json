@@ -5,5 +5,12 @@
     "price": 20,
     "category": "Snacks",
     "available": true
+  },
+  {
+    "id": "5886ec60-0829-421a-95da-f50893827701",
+    "name": "wrap",
+    "price": 89,
+    "category": "Snacks",
+    "available": true
   }
 ]
