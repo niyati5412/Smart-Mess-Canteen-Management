@@ -68,5 +68,14 @@
     "meal": "breakfast",
     "day": "Monday",
     "createdAt": "2026-03-09T08:16:11.708Z"
+
+  },
+  {
+    "id": "c8e4845b-10a0-4b92-b2c1-4f142d1d1ede",
+    "name": "Burger",
+    "meal": "lunch",
+    "day": "tuesday",
+    "createdAt": "2026-03-10T11:53:25.795Z"
+
   }
 ]
