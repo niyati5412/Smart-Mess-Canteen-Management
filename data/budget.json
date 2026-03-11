@@ -1,5 +1,21 @@
+
 {
   "semesterFeePerStudent": 13456,
   "totalStudents": 678,
   "perMealCostTarget": 76
 }
+
+[
+   {
+    "semesterFeePerStudent": 10000,
+    "totalStudents": 342,
+    "perMealCostTarget": 69
+  },
+  {
+  "semesterFeePerStudent": 6400,
+  "totalStudents": 567,
+  "perMealCostTarget": 45
+  }
+
+]
+
