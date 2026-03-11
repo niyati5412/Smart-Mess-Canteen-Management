@@ -48,5 +48,21 @@
     "password": "admin123456",
     "role": "admin",
     "createdAt": "2026-03-09T06:22:34.815Z"
+  },
+  {
+    "id": "51d7c89c-ce84-4c7f-ab4c-63818e06cd13",
+    "name": "Niyati",
+    "email": "niyati@gmail.com",
+    "password": "123456",
+    "role": "student",
+    "createdAt": "2026-03-10T11:49:32.094Z"
+  },
+  {
+    "id": "3c3303bb-77ae-40dd-9c10-f9e3b8a72acd",
+    "name": "admin67",
+    "email": "admin67@gmail.com",
+    "password": "admin1234",
+    "role": "admin",
+    "createdAt": "2026-03-10T13:48:25.310Z"
   }
 ]

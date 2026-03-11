@@ -1,39 +1,42 @@
 const { readData, writeData } = require("../utils/file.util");
 
-// GET BUDGET
+// "0" key corruption fix
+function cleanBudget(raw) {
+  if (!raw) return {};
+  const { "0": _discard, ...clean } = raw;
+  return clean;
+}
+
+// GET /api/budget
 exports.getBudget = (req, res) => {
-  const budget = readData("budget.json");
+  try {
+    const budget   = cleanBudget(readData("budget.json"));
+    const mealCost = budget.mealCostPerMeal || budget.perMealCostTarget || 67;
+    const fee      = budget.semesterFeePerStudent || 0;
+    const students = budget.totalStudents || 0;
+    const totalFeeCollected = students * fee;
 
-  const totalFeeCollected =
-    budget.totalStudents * budget.semesterFeePerStudent;
-
-  const expenses =
-    budget.expenses.vegetables +
-    budget.expenses.grains +
-    budget.expenses.dairy +
-    budget.expenses.spices +
-    budget.expenses.utilities;
-
-  const surplus = totalFeeCollected - expenses;
-
-  res.json({
-    ...budget,
-    totalFeeCollected,
-    expensesTotal: expenses,
-    surplus
-  });
+    res.json({
+      ...budget,
+      mealCostPerMeal:    mealCost,
+      totalFeeCollected,
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
 };
 
-// UPDATE BUDGET
+// PUT /api/budget
 exports.updateBudget = (req, res) => {
-  const budget = readData("budget.json");
-
-  const updated = {
-    ...budget,
-    ...req.body
-  };
-
-  writeData("budget.json", updated);
-
-  res.json(updated);
+  try {
+    const budget  = cleanBudget(readData("budget.json"));
+    const updated = {
+      ...budget,
+      ...req.body,
+    };
+    writeData("budget.json", updated);
+    res.json(updated);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
 };
