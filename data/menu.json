@@ -35,13 +35,6 @@
     "createdAt": "2026-03-07T12:03:03.486Z"
   },
   {
-    "id": "9021fb05-3cca-41bb-9417-9246310a26b1",
-    "name": "tea",
-    "meal": "breakfast",
-    "day": "Monday",
-    "createdAt": "2026-03-09T06:23:14.007Z"
-  },
-  {
     "id": "09d62d9a-50ff-40e4-b683-aca2221ea08c",
     "name": "poha",
     "meal": "breakfast",
@@ -68,5 +61,19 @@
     "meal": "snacks",
     "day": "Monday",
     "createdAt": "2026-03-09T06:23:27.516Z"
+  },
+  {
+    "id": "f3d56d3a-63ae-437a-8f39-818e5695fba8",
+    "name": "coffe",
+    "meal": "breakfast",
+    "day": "Monday",
+    "createdAt": "2026-03-09T08:16:11.708Z"
+  },
+  {
+    "id": "c8e4845b-10a0-4b92-b2c1-4f142d1d1ede",
+    "name": "Burger",
+    "meal": "lunch",
+    "day": "tuesday",
+    "createdAt": "2026-03-10T11:53:25.795Z"
   }
 ]

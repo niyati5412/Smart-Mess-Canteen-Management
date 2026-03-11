@@ -12,5 +12,12 @@
     "price": 89,
     "category": "Snacks",
     "available": true
+  },
+  {
+    "id": "bf9fa11f-8dff-462e-a9d3-991c7f565d0c",
+    "name": "salad",
+    "price": 68,
+    "category": "Meals",
+    "available": true
   }
 ]
