@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
   {
   "semesterFeePerStudent": 10000,
@@ -18,3 +17,18 @@
   "totalStudents": 345,
   "perMealCostTarget": 78
 }
+
+[
+   {
+    "semesterFeePerStudent": 10000,
+    "totalStudents": 342,
+    "perMealCostTarget": 69
+  },
+  {
+  "semesterFeePerStudent": 6400,
+  "totalStudents": 567,
+  "perMealCostTarget": 45
+  }
+
+]
+
