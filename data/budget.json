@@ -1,3 +1,23 @@
+
+  {
+  "semesterFeePerStudent": 10000,
+  "totalStudents": 342,
+  "perMealCostTarget": 69,
+
+  "expenses": {
+    "vegetables": 132000,
+    "grains": 87000,
+    "dairy": 50000,
+    "spices": 31000,
+    "utilities": 12000
+  }
+}
+{
+  "semesterFeePerStudent": 20000,
+  "totalStudents": 345,
+  "perMealCostTarget": 78
+}
+
 [
    {
     "semesterFeePerStudent": 10000,
@@ -11,3 +31,4 @@
   }
 
 ]
+

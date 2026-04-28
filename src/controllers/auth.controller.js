@@ -1,119 +1,113 @@
-const { readData, writeData } = require("../utils/file.util");
-const crypto = require("crypto");
+const User   = require("../models/user.model");
+const bcrypt = require("bcryptjs");
+const jwt    = require("jsonwebtoken");
 
-// ─────────────────────────────────────────
 // POST /api/auth/register
-// Body: { name, email, password, role, wardStudentId? }
-// ─────────────────────────────────────────
-exports.register = (req, res) => {
-  const { name, email, password, role, wardStudentId } = req.body;
+exports.register = async (req, res) => {
+  try {
+    const { name, email, password, role, wardStudentId } = req.body;
 
-  // Validate all fields present
-  if (!name || !email || !password || !role) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
+    if (!name || !email || !password || !role)
+      return res.status(400).json({ message: "All fields are required" });
 
-  // Validate role
-  const allowedRoles = ["admin", "student", "guardian"];
-  if (!allowedRoles.includes(role)) {
-    return res.status(400).json({ message: "Role must be admin, student, or guardian" });
-  }
+    const allowedRoles = ["admin", "student", "guardian"];
+    if (!allowedRoles.includes(role))
+      return res.status(400).json({ message: "Invalid role" });
 
-  const users = readData("users.json");
+    const existing = await User.findOne({ email });
+    if (existing)
+      return res.status(409).json({ message: "Email already registered" });
 
-  // Check duplicate email
-  const existing = users.find((u) => u.email === email);
-  if (existing) {
-    return res.status(409).json({ message: "Email already registered" });
-  }
-
-  // If guardian — wardStudentId required
-  if (role === "guardian" && !wardStudentId) {
-    return res.status(400).json({ message: "wardStudentId is required for guardian registration" });
-  }
-
-  // If guardian — find ward's name from users
-  let wardName = null;
-  if (role === "guardian" && wardStudentId) {
-    const ward = users.find((u) => u.id === wardStudentId);
-    if (!ward) {
-      return res.status(404).json({ message: "Ward student not found with given wardStudentId" });
+    let wardName = null;
+    if (role === "guardian") {
+      if (!wardStudentId)
+        return res.status(400).json({ message: "wardStudentId required for guardian" });
+      const ward = await User.findById(wardStudentId);
+      if (!ward)
+        return res.status(404).json({ message: "Ward student not found" });
+      wardName = ward.name;
     }
-    wardName = ward.name;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const profilePic = req.file ? `/images/uploads/${req.file.filename}` : "";
+
+    const newUser = await User.create({
+      name, email,
+      password: hashedPassword,
+      role, profilePic,
+      ...(role === "guardian" && { wardStudentId, wardName }),
+    });
+
+    const { password: _, ...safeUser } = newUser.toObject();
+    res.status(201).json({ message: "Registered successfully", user: safeUser });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  const newUser = {
-    id: crypto.randomUUID(),
-    name,
-    email,
-    password,
-    role,
-    ...(role === "guardian" && { wardStudentId, wardName }),
-    createdAt: new Date().toISOString(),
-  };
-
-  users.push(newUser);
-  writeData("users.json", users);
-
-  const { password: _, ...safeUser } = newUser;
-  res.status(201).json({ message: "Registered successfully", user: safeUser });
 };
 
-// ─────────────────────────────────────────
 // POST /api/auth/login
-// Body: { email, password }
-// ─────────────────────────────────────────
-exports.login = (req, res) => {
-  const { email, password } = req.body;
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
+    if (!email || !password)
+      return res.status(400).json({ message: "Email and password required" });
+
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(401).json({ message: "Invalid email or password" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(401).json({ message: "Invalid email or password" });
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // ── FIX: token is now included in response ──
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id:         user._id,
+        name:       user.name,
+        email:      user.email,
+        role:       user.role,
+        profilePic: user.profilePic,
+        messName:   user.messName || null,
+        ...(user.role === "guardian" && {
+          wardStudentId: user.wardStudentId,
+          wardName:      user.wardName,
+        }),
+      },
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  const users = readData("users.json");
-  const user = users.find((u) => u.email === email && u.password === password);
-
-  if (!user) {
-    return res.status(401).json({ message: "Invalid email or password" });
-  }
-
-  // ✅ wardStudentId + wardName bhi bhejo agar guardian hai
-  res.json({
-    message: "Login successful",
-    user: {
-      id:           user.id,
-      name:         user.name,
-      email:        user.email,
-      role:         user.role,
-      ...(user.role === "guardian" && {
-        wardStudentId: user.wardStudentId || null,
-        wardName:      user.wardName      || null,
-      }),
-    },
-  });
 };
 
-// ─────────────────────────────────────────
-// GET /api/auth/users  (admin use)
-// ─────────────────────────────────────────
-exports.getAllUsers = (req, res) => {
-  const users = readData("users.json");
-  const safeUsers = users.map(({ password, ...rest }) => rest);
-  res.json(safeUsers);
+// GET /api/auth/users
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// ─────────────────────────────────────────
 // GET /api/auth/users/:id
-// ─────────────────────────────────────────
-exports.getUserById = (req, res) => {
-  const { id } = req.params;
-  const users = readData("users.json");
-  const user = users.find((u) => u.id === id);
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  const { password, ...safeUser } = user;
-  res.json(safeUser);
 };

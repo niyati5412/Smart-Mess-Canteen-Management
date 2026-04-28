@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>MessMate | Guardian Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
 /* ============================================================
    MessMate — Student Portal Shared Stylesheet
@@ -809,7 +809,12 @@ const session = requireGuardianSession();
 if (session) {
   const name = session.name || 'Guardian';
   const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('userAvatar').textContent = initials;
+ const av = document.getElementById('userAvatar');
+if (session.profilePic) {
+  av.innerHTML = `<img src="${session.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+} else {
+  av.textContent = initials;
+}
   document.getElementById('userName').textContent   = name;
   document.getElementById('userRole').textContent   = 'Parent / Guardian';
   document.getElementById('userEmail').textContent  = session.email || '';
@@ -881,14 +886,75 @@ async function loadTodayMeals(){
   catch(e){console.warn('Could not load meal intentions',e);}
 }
 
-async function loadStats(){
-  const wardStudentId=session&&session.wardStudentId;const url=wardStudentId?`/api/intentions/student/${wardStudentId}`:'/api/intentions';
-  try{const res=await fetch(url);const data=await res.json();let eat=0,skip=0;data.forEach(i=>{if(i.status==="eating")eat++;if(i.status==="skipping")skip++;});const total=eat+skip,efficiency=total===0?0:Math.round((eat/total)*100);document.getElementById("statMeals").textContent=eat;document.getElementById("statSkipped").textContent=skip;document.getElementById("statEff").textContent=efficiency+'%';}
-  catch(e){console.warn('Could not load stats',e);}
+async function loadStats() {
+  const wardStudentId = session && session.wardStudentId;
+  if (!wardStudentId) return;
+
+  const url = `/api/intentions/student/${wardStudentId}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    // Use willEat (boolean) not status (string)
+    let eat = 0, skip = 0;
+    data.forEach(i => {
+      if (i.willEat === true)  eat++;
+      if (i.willEat === false) skip++;
+    });
+
+    const total = eat + skip;
+    const efficiency = total === 0 ? 0 : Math.round((eat / total) * 100);
+
+    document.getElementById("statMeals").textContent   = eat;
+    document.getElementById("statSkipped").textContent = skip;
+    document.getElementById("statEff").textContent     = efficiency + '%';
+    document.getElementById("statEffSub").textContent  = 
+      '₹' + Math.round((efficiency/100)*6000).toLocaleString('en-IN') + ' of ₹6,000';
+  } catch (e) {
+    console.warn("Could not load stats", e);
+  }
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
-  renderCalendar();loadTodayMeals();loadStats();
+document.addEventListener("DOMContentLoaded", function() {
+  loadRealAttendance().then(function() {
+    loadTodayMeals();
+  });
+  const todayPanelDate = document.getElementById('todayPanelDate');
+  if (todayPanelDate) todayPanelDate.textContent = NOW.toLocaleDateString('en-IN', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+});
+  const url = `/api/intentions/student/${wardStudentId}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const today = new Date().toISOString().split("T")[0];
+    const map = {};
+    data
+      .filter(i => i.date && i.date.toString().startsWith(today))
+      .forEach(i => {
+        map[i.mealType] = i.willEat ? "eating" : "skipping";
+      });
+    meals.forEach(m => {
+      const stateEl = document.getElementById("meal_" + m + "_state");
+      const timeEl  = document.getElementById("meal_" + m + "_time");
+      const val = map[m];
+      if (val === "eating") {
+        stateEl.className = "mb-state eating";
+        stateEl.innerHTML = "✓ Eating";
+        timeEl.textContent = "Marked today";
+      } else if (val === "skipping") {
+        stateEl.className = "mb-state skipping";
+        stateEl.innerHTML = "✕ Skipping";
+        timeEl.textContent = "Marked today";
+      } else {
+        stateEl.className = "mb-state pending";
+        stateEl.innerHTML = "⏳ Not marked";
+        timeEl.textContent = "Awaiting student input";
+      }
+    });
+  } catch (e) {
+    console.warn("Could not load meal intentions", e);
+  }
+}
   const todayPanelDate=document.getElementById('todayPanelDate');
   if(todayPanelDate)todayPanelDate.textContent=NOW.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 });

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>MessMate | Student Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+ <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <style>
     .topbar-left h1 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; }
@@ -108,6 +108,8 @@
     @media (max-width: 560px) { .meals-grid { grid-template-columns: 1fr 1fr; } .stats-row { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
+<script src="/socket.io/socket.io.js"></script>
+<script src="../js/socket.js"></script>
 <body>
 
 <aside class="sidebar" id="sidebar">
@@ -239,7 +241,17 @@ if (!_session) {
   window.location.href = ({admin:'../admin/dashboard.html',guardian:'../guardian/dashboard.html'})[_session.role]||'../login.html';
 } else {
   const _name = _session.name||'Student';
+
+ if (_session.profilePic) {
+  document.getElementById('userAvatar').innerHTML = 
+    `<img src="${_session.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+} else {
+  document.getElementById('userAvatar').textContent = 
+    _name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+
   document.getElementById('userAvatar').textContent = _name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
   document.getElementById('userName').textContent   = _name;
   document.getElementById('userEmail').textContent  = _session.email||'';
   document.getElementById('userId').textContent     = _session.id||'';
@@ -261,6 +273,7 @@ let   allIntentions = [];   // cache from /api/intentions/student/:id
 document.getElementById('todayDate').textContent =
   TODAY.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
+
 /* ══════════════════════════════════════════
    MEAL CONFIG + CUTOFF
 ══════════════════════════════════════════ */
@@ -275,6 +288,23 @@ function isCutoffPassed(meal){ return new Date().getHours() >= meal.cutoffHour; 
 /* ══════════════════════════════════════════
    CUTOFF CHIP (topbar)
 ══════════════════════════════════════════ */
+
+
+/* ══════════════════════════════════════════
+   MEAL CONFIG + CUTOFF
+══════════════════════════════════════════ */
+const MEALS = [
+  {id:'breakfast',name:'Breakfast',emoji:'🌅',time:'7:30–9:00', cutoffHour:7,  cutoffLabel:'7:00 AM'},
+  {id:'lunch',    name:'Lunch',    emoji:'☀️',time:'12:30–2:00',cutoffHour:11, cutoffLabel:'11:00 AM'},
+  {id:'dinner',   name:'Dinner',   emoji:'🌙',time:'7:30–9:00', cutoffHour:15, cutoffLabel:'3:00 PM'},
+  {id:'snacks',   name:'Snacks',   emoji:'☕',time:'4:30–5:30', cutoffHour:15, cutoffLabel:'3:30 PM'},
+];
+function isCutoffPassed(meal){ return new Date().getHours() >= meal.cutoffHour; }
+
+/* ══════════════════════════════════════════
+   CUTOFF CHIP (topbar)
+══════════════════════════════════════════ */
+
 function updateCutoffWarn(){
   const next = MEALS.find(m=>!isCutoffPassed(m));
   const el   = document.getElementById('cutoffWarn');

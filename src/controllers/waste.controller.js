@@ -1,38 +1,23 @@
-const { readData, writeData } = require("../utils/file.util");
-const crypto = require("crypto");
+const Waste = require("../models/waste.model");
 
-exports.getWaste = (req, res) => {
-  const waste = readData("waste.json");
-  res.json(waste);
+exports.getWaste = async (req, res) => {
+  try {
+    const waste = await Waste.find();
+    res.json(waste);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-exports.addWaste = (req, res) => {
-  const { mealType, foodItem, quantity, reason } = req.body;
-
-  const waste = readData("waste.json");
-
-  const newWaste = {
-    id: crypto.randomUUID(),
-    date: new Date().toISOString().split("T")[0],
-    mealType,
-    foodItem,
-    quantity,
-    reason
-  };
-
-  waste.push(newWaste);
-
-  writeData("waste.json", waste);
-
-  res.status(201).json(newWaste);
+exports.addWaste = async (req, res) => {
+  try {
+    const { mealType, foodItem, quantity, reason } = req.body;
+    const newWaste = await Waste.create({ mealType, foodItem, quantity, reason });
+    res.status(201).json(newWaste);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-exports.deleteWaste = (req, res) => {
-  const waste = readData("waste.json");
-
-  const updated = waste.filter(w => w.id !== req.params.id);
-
-  writeData("waste.json", updated);
-
-  res.json({ message: "Deleted" });
+exports.deleteWaste = async (req, res) => {
+  try {
+    await Waste.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };

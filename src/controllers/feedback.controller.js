@@ -1,86 +1,50 @@
-const { readData, writeData } = require("../utils/file.util");
-const crypto = require("crypto");
+const Feedback = require("../models/feedback.model");
 
-// ─────────────────────────────────────────
-// GET /api/feedback
-// Returns all feedback
-// ─────────────────────────────────────────
-exports.getFeedback = (req, res) => {
-  const feedback = readData("feedback.json");
-  res.json(feedback);
-};
-
-// ─────────────────────────────────────────
-// GET /api/feedback/:id
-// Returns one feedback by ID
-// ─────────────────────────────────────────
-exports.getFeedbackById = (req, res) => {
-  const feedback = readData("feedback.json");
-  const item = feedback.find((f) => f.id === req.params.id);
-
-  if (!item) {
-    return res.status(404).json({ message: "Feedback not found" });
+exports.getFeedback = async (req, res) => {
+  try {
+    const feedback = await Feedback.find();
+    res.json(feedback);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  res.json(item);
 };
 
-// ─────────────────────────────────────────
-// POST /api/feedback
-// Body: { studentId, studentName, meal, rating, comment, date }
-// rating: 1 to 5
-// ─────────────────────────────────────────
-exports.createFeedback = (req, res) => {
+exports.getFeedbackById = async (req, res) => {
+  try {
+    const item = await Feedback.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: "Feedback not found" });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-  const {
-    studentId,
-    studentName,
-    meal,
-    rating,
-    comment,
-    date,
-    category,
-    priority
-  } = req.body;
+exports.createFeedback = async (req, res) => {
+  try {
+    const { studentId, studentName, meal, rating, comment, date, category, priority } = req.body;
 
-  if (!studentId || !comment) {
-    return res.status(400).json({
-      message: "studentId and comment are required"
+    if (!studentId || !comment) {
+      return res.status(400).json({ message: "studentId and comment are required" });
+    }
+
+    const newFeedback = await Feedback.create({
+      studentId, studentName, meal, rating, comment,
+      date: date || new Date().toISOString().split("T")[0],
+      category, priority
     });
+
+    res.status(201).json(newFeedback);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  const feedback = readData("feedback.json");
-
-  const newFeedback = {
-    id: crypto.randomUUID(),
-    studentId,
-    studentName: studentName || "Anonymous",
-    meal: meal || "general",
-    rating: rating ? Number(rating) : null,
-    category: category || "General",
-    priority: priority || "low",
-    comment,
-    date: date || new Date().toISOString().split("T")[0],
-    submittedAt: new Date().toISOString()
-  };
-
-  feedback.push(newFeedback);
-  writeData("feedback.json", feedback);
-
-  res.status(201).json(newFeedback);
 };
 
-// ─────────────────────────────────────────
-// DELETE /api/feedback/:id
-// ─────────────────────────────────────────
-exports.deleteFeedback = (req, res) => {
-  const feedback = readData("feedback.json");
-  const filtered = feedback.filter((f) => f.id !== req.params.id);
-
-  if (filtered.length === feedback.length) {
-    return res.status(404).json({ message: "Feedback not found" });
+exports.deleteFeedback = async (req, res) => {
+  try {
+    const result = await Feedback.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).json({ message: "Feedback not found" });
+    res.json({ message: "Feedback deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  writeData("feedback.json", filtered);
-  res.json({ message: "Feedback deleted successfully" });
 };

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>MessMate | Admin Budget</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- ✅ Shared stylesheet -->
   <link rel="stylesheet" href="../css/style.css">
   <style>
@@ -216,7 +216,17 @@
 <script src="../js/main.js"></script>
 <script>
 requireAdminSession();
-
+// Profile pic for admin sidebar
+const _s = JSON.parse(sessionStorage.getItem('mm_session') || '{}');
+const _av = document.getElementById('sidebarAvatar');
+if (_s.profilePic) {
+  _av.innerHTML = `<img src="${_s.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+} else {
+  const _n = _s.name || 'Admin';
+  _av.textContent = _n.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+document.getElementById('sidebarName').textContent = _s.name || 'Admin';
+document.getElementById('sidebarEmail').textContent = _s.email || 'admin';
 const MOCK_DATA = {
   semesterFeePerStudent:6000,totalStudents:342,expensesTotal:1780000,perMealCostAvg:67,perMealCostTarget:65,
   monthlyBreakdown:{jan:420000,feb:310000,marProj:430000,aprProj:390000},
