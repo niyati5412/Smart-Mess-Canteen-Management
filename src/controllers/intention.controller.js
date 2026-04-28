@@ -1,101 +1,67 @@
-const { readData, writeData } = require("../utils/file.util");
-const crypto = require("crypto");
+const Intention = require("../models/intention.model");
 
-// ─────────────────────────────────────────
-// GET /api/intentions
-// Returns all intentions
-// ─────────────────────────────────────────
-exports.getIntentions = (req, res) => {
-  const intentions = readData("intentions.json");
-  res.json(intentions);
+exports.getIntentions = async (req, res) => {
+  try {
+    const intentions = await Intention.find();
+    res.json(intentions);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// ─────────────────────────────────────────
-// GET /api/intentions/student/:studentId
-// Returns intentions for one student
-// ─────────────────────────────────────────
-exports.getIntentionsByStudent = (req, res) => {
-  const intentions = readData("intentions.json");
-  const studentIntentions = intentions.filter(
-    (i) => i.studentId === req.params.studentId
-  );
-  res.json(studentIntentions);
+exports.getIntentionsByStudent = async (req, res) => {
+  try {
+    const intentions = await Intention.find({ studentId: req.params.studentId });
+    
+    // Frontend ke liye format karo
+    const formatted = intentions.map(i => ({
+      ...i.toObject(),
+      meal:   i.mealType,
+      status: i.willEat ? "eating" : "skipping",
+      date:   i.date,
+    }));
+    
+    res.json(formatted);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// ─────────────────────────────────────────
-// POST /api/intentions
-// Body: { studentId, studentName, meal, date, status }
-// meal: "breakfast" | "lunch" | "dinner" | "snacks"
-// status: "eating" | "skipping"
-// ─────────────────────────────────────────
-exports.createIntention = (req, res) => {
-  const { studentId, studentName, meal, date, status } = req.body;
+exports.createIntention = async (req, res) => {
+  try {
+    const { studentId, studentName, meal, date, status, mealType, willEat } = req.body;
+    
+    if (!studentId || !date)
+      return res.status(400).json({ message: "studentId and date required" });
 
-  if (!studentId || !meal || !date || !status) {
-    return res.status(400).json({ message: "studentId, meal, date, and status are required" });
-  }
+    const mealField  = meal || mealType || "lunch";
+    const willEatVal = willEat ?? (status === "eating");
 
-  const intentions = readData("intentions.json");
+    const existing = await Intention.findOneAndUpdate(
+      { studentId, date, mealType: mealField },
+      { willEat: willEatVal },
+      { new: true, upsert: true } // ← upsert add kiya
+    );
 
-  const index = intentions.findIndex(
-    (i) => i.studentId === studentId && i.meal === meal && i.date === date
-  );
+    // Format karke bhejo
+    const response = {
+      ...existing.toObject(),
+      meal:   existing.mealType,
+      status: existing.willEat ? "eating" : "skipping",
+    };
 
-  if (index !== -1) {
-    // 🔥 UPDATE existing instead of blocking
-    intentions[index].status = status;
-    intentions[index].updatedAt = new Date().toISOString();
-
-    writeData("intentions.json", intentions);
-
-    return res.json(intentions[index]);
-  }
-
-  const newIntention = {
-    id: crypto.randomUUID(),
-    studentId,
-    studentName,
-    meal,
-    date,
-    status,
-    createdAt: new Date().toISOString(),
-  };
-
-  intentions.push(newIntention);
-  writeData("intentions.json", intentions);
-
-  res.status(201).json(newIntention);
+    res.json(response);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// ─────────────────────────────────────────
-// PUT /api/intentions/:id
-// Update status of an existing intention
-// ─────────────────────────────────────────
-exports.updateIntention = (req, res) => {
-  const intentions = readData("intentions.json");
-  const index = intentions.findIndex((i) => i.id === req.params.id);
-
-  if (index === -1) {
-    return res.status(404).json({ message: "Intention not found" });
-  }
-
-  intentions[index] = { ...intentions[index], ...req.body };
-  writeData("intentions.json", intentions);
-
-  res.json(intentions[index]);
+exports.updateIntention = async (req, res) => {
+  try {
+    const item = await Intention.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!item) return res.status(404).json({ message: "Intention not found" });
+    res.json(item);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// ─────────────────────────────────────────
-// DELETE /api/intentions/:id
-// ─────────────────────────────────────────
-exports.deleteIntention = (req, res) => {
-  const intentions = readData("intentions.json");
-  const filtered = intentions.filter((i) => i.id !== req.params.id);
-
-  if (filtered.length === intentions.length) {
-    return res.status(404).json({ message: "Intention not found" });
-  }
-
-  writeData("intentions.json", filtered);
-  res.json({ message: "Intention deleted successfully" });
+exports.deleteIntention = async (req, res) => {
+  try {
+    const result = await Intention.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).json({ message: "Intention not found" });
+    res.json({ message: "Intention deleted successfully" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };

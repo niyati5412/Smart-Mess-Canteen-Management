@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>MessMate |Student  Orders</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <style>
     .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
@@ -180,7 +180,13 @@
   function apply(){
     document.querySelectorAll('[data-user-name]').forEach(function(el){el.textContent=u.name||'—';});
     document.querySelectorAll('[data-user-id]').forEach(function(el){el.textContent=u.uid||'—';});
-    document.querySelectorAll('[data-user-initials]').forEach(function(el){el.textContent=u.initials||'??';});
+   document.querySelectorAll('[data-user-initials]').forEach(function(el){
+  if(u.profilePic){
+    el.innerHTML=`<img src="${u.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  } else {
+    el.textContent=u.initials||'??';
+  }
+});
   }
   apply();
   document.addEventListener('DOMContentLoaded',apply);
@@ -229,17 +235,57 @@ async function placeOrder() {
   const user = mmGetUser();
   const entries = Object.entries(cart).filter(([, q]) => q > 0);
   if (!entries.length) { showToast("Add items first", "var(--danger)"); return; }
-  const items = entries.map(([key, qty]) => ({ name: ITEMS[key].name, quantity: qty, price: ITEMS[key].price }));
+
+  const studentId = user._id || user.id || user.studentId || user.uid;
+  if (!studentId) {
+    showToast("Session error — please log in again", "var(--danger)");
+    return;
+  }
+
+  const items = entries.map(([key, qty]) => ({
+    name: ITEMS[key].name, quantity: qty, price: ITEMS[key].price
+  }));
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const res = await fetch("/api/orders", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ studentId: user.uid, studentName: user.name, items, totalAmount: total })
-  });
-  if (!res.ok) { showToast("Order failed", "var(--danger)"); return; }
-  showToast("Order placed successfully 🎉");
-  Object.keys(cart).forEach(k => { cart[k] = 0; document.getElementById("q-" + k).textContent = 0; });
-  renderCart();
+
+  const btn = document.getElementById("orderBtn");
+  btn.disabled = true;
+  btn.textContent = "Placing…";
+
+  try {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        studentId,
+        studentName: user.name || "",
+        roll:        user.roll || "",
+        dept:        user.dept || "",
+        items,
+        meal:        "Lunch",
+        totalAmount: total + 5,
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      showToast("Order failed: " + (err.message || res.status), "var(--danger)");
+      return;
+    }
+
+    showToast("Order placed successfully 🎉", "var(--accent2)");
+    Object.keys(cart).forEach(k => {
+      cart[k] = 0;
+      document.getElementById("q-" + k).textContent = 0;
+    });
+    renderCart();
+    loadOrders();
+
+  } catch (e) {
+    showToast("Network error: " + e.message, "var(--danger)");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Place Order →";
+  }
 }
 
 async function loadOrders(){

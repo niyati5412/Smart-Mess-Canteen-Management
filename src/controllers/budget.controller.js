@@ -1,42 +1,24 @@
-const { readData, writeData } = require("../utils/file.util");
+const Budget = require("../models/budget.model");
 
-// "0" key corruption fix
-function cleanBudget(raw) {
-  if (!raw) return {};
-  const { "0": _discard, ...clean } = raw;
-  return clean;
-}
-
-// GET /api/budget
-exports.getBudget = (req, res) => {
+exports.getBudget = async (req, res) => {
   try {
-    const budget   = cleanBudget(readData("budget.json"));
-    const mealCost = budget.mealCostPerMeal || budget.perMealCostTarget || 67;
-    const fee      = budget.semesterFeePerStudent || 0;
-    const students = budget.totalStudents || 0;
-    const totalFeeCollected = students * fee;
-
-    res.json({
-      ...budget,
-      mealCostPerMeal:    mealCost,
-      totalFeeCollected,
-    });
-  } catch (e) {
-    res.status(500).json({ message: e.message });
-  }
+    let budget = await Budget.findOne();
+    if (!budget) budget = await Budget.create({});
+    const totalFeeCollected = (budget.totalStudents || 0) * (budget.semesterFeePerStudent || 0);
+    res.json({ ...budget.toObject(), totalFeeCollected });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// PUT /api/budget
-exports.updateBudget = (req, res) => {
+exports.updateBudget = async (req, res) => {
   try {
-    const budget  = cleanBudget(readData("budget.json"));
-    const updated = {
-      ...budget,
-      ...req.body,
-    };
-    writeData("budget.json", updated);
-    res.json(updated);
-  } catch (e) {
-    res.status(500).json({ message: e.message });
-  }
+    let budget = await Budget.findOne();
+    if (!budget) {
+      budget = await Budget.create(req.body);
+    } else {
+      Object.assign(budget, req.body);
+      await budget.save();
+    }
+    const totalFeeCollected = (budget.totalStudents || 0) * (budget.semesterFeePerStudent || 0);
+    res.json({ ...budget.toObject(), totalFeeCollected });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
   {
   "semesterFeePerStudent": 10000,
@@ -11,4 +12,9 @@
     "spices": 31000,
     "utilities": 12000
   }
+}
+{
+  "semesterFeePerStudent": 20000,
+  "totalStudents": 345,
+  "perMealCostTarget": 78
 }

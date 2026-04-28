@@ -1,49 +1,52 @@
-const express = require("express");
-const path = require("path");
+require("dotenv").config();
+const express  = require("express");
+const path     = require("path");
+const morgan   = require("morgan");
+const helmet   = require("helmet");
+const session  = require("express-session");
+const passport = require("./config/passport");
 
-// ── Import all routes ──────────────────────────────
-const authRoutes       = require("./routes/auth.routes");
-const intentionRoutes  = require("./routes/intention.routes");
-const feedbackRoutes   = require("./routes/feedback.routes");
-const menuRoutes       = require("./routes/menu.routes");
-const canteenRoutes    = require("./routes/canteen.routes");
-const orderRoutes = require("./routes/orders.routes");
-const budgetRoutes = require("./routes/budget.routes");
-const wasteRoutes = require("./routes/waste.routes");
+// Routes
+const authRoutes      = require("./routes/auth.routes");
+const intentionRoutes = require("./routes/intention.routes");
+const feedbackRoutes  = require("./routes/feedback.routes");
+const menuRoutes      = require("./routes/menu.routes");
+const canteenRoutes   = require("./routes/canteen.routes");
+const orderRoutes     = require("./routes/orders.routes");
+const budgetRoutes    = require("./routes/budget.routes");
+const wasteRoutes     = require("./routes/waste.routes");
 
-
+// Error middleware
+const { notFound, errorHandler } = require("./middleware/error.middleware");
 
 const app = express();
 
-// ── Middleware ─────────────────────────────────────
-// Parse incoming JSON request bodies
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(morgan("dev"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Serve your entire public/ folder as static files
-// This means /admin/dashboard.html, /student/dashboard.html etc all work
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, "../public")));
 
-// ── API Routes ─────────────────────────────────────
-app.use("/api/auth",       authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/intentions", intentionRoutes);
-app.use("/api/feedback",   feedbackRoutes);
-app.use("/api/menu",       menuRoutes);
-app.use("/api/canteen",    canteenRoutes);
+app.use("/api/feedback", feedbackRoutes);
+app.use("/api/menu", menuRoutes);
+app.use("/api/canteen", canteenRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/budget", budgetRoutes);
 app.use("/api/waste", wasteRoutes);
 
-// ── 404 Handler ────────────────────────────────────
-// Catches any unknown routes
-app.use((req, res) => {
-  res.status(404).json({ message: `Route ${req.method} ${req.url} not found` });
-});
-
-// ── Global Error Handler ───────────────────────────
-// Catches any errors thrown in controllers
-app.use((err, req, res, next) => {
-  console.error("❌ Error:", err.message);
-  res.status(500).json({ error: err.message });
-});
+app.use(notFound);
+app.use(errorHandler);
 
 module.exports = app;

@@ -16,11 +16,11 @@
     "reason": "Low Attendance"
   },
   {
-    "id": "cb2e5f49-fba2-4426-83aa-3a1013bf79eb",
-    "date": "2026-03-09",
-    "mealType": "Breakfast",
-    "foodItem": "poha",
-    "quantity": 2,
-    "reason": "Quality Issue"
+    "id": "3c945d47-b487-4e03-af16-7163888a8fe4",
+    "date": "2026-04-10",
+    "mealType": "Lunch",
+    "foodItem": "rajmha",
+    "quantity": 7,
+    "reason": "Low Attendance"
   }
 ]

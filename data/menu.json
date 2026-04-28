@@ -75,5 +75,33 @@
     "meal": "lunch",
     "day": "tuesday",
     "createdAt": "2026-03-10T11:53:25.795Z"
+  },
+  {
+    "id": "cd26c24f-9c22-4212-b2e7-21f6cce4fc5b",
+    "name": "poha",
+    "meal": "breakfast",
+    "day": "Saturday",
+    "createdAt": "2026-04-10T18:45:38.630Z"
+  },
+  {
+    "id": "e31c3d55-613b-423b-ab37-a929adfba099",
+    "name": "rajmah chawal",
+    "meal": "lunch",
+    "day": "Saturday",
+    "createdAt": "2026-04-10T18:45:42.245Z"
+  },
+  {
+    "id": "8b1c9a99-2d17-44c3-a7f4-f4317eddab72",
+    "name": "manchurian",
+    "meal": "dinner",
+    "day": "Saturday",
+    "createdAt": "2026-04-10T18:45:45.461Z"
+  },
+  {
+    "id": "dcd6fcca-5dce-4002-831d-40be64df0152",
+    "name": "samosa and tea",
+    "meal": "snacks",
+    "day": "Saturday",
+    "createdAt": "2026-04-10T18:45:48.626Z"
   }
 ]

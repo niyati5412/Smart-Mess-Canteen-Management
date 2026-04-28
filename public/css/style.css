@@ -4,6 +4,11 @@
    ============================================================ */
 
 /* ── CSS VARIABLES ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+* {
+  font-family: 'Poppins', sans-serif;
+}
 :root {
   --bg:       #0a0d0f;
   --surface:  #111518;
@@ -24,7 +29,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Poppins', sans-serif;
   background: var(--bg);
   color: var(--text);
   display: flex;
@@ -54,7 +59,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .logo-text {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 800;
   font-size: 1.25rem;
   color: var(--accent);
@@ -85,7 +90,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 800;
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.9);
@@ -179,7 +184,7 @@ body {
   align-items: center;
   justify-content: space-between;
 }
-.topbar h1 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; }
+.topbar h1 { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; }
 .topbar p  { font-size: 0.78rem; color: var(--muted); margin-top: 1px; }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 
@@ -214,7 +219,7 @@ body {
   align-items: center;
   justify-content: space-between;
 }
-.panel-head h3 { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; }
+.panel-head h3 { font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700; }
 .panel-action {
   font-size: 0.72rem;
   color: var(--accent);
@@ -240,7 +245,7 @@ body {
 }
 .stat-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
 .stat-val {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.9rem;
   font-weight: 800;
   letter-spacing: -1px;
@@ -403,7 +408,7 @@ tbody td { padding: 10px; font-size: 0.78rem; }
 .campus-role { font-size: 0.65rem; color: var(--muted); }
 
 /* ── ADMIN TOPBAR VARIANTS ──────────────────────────────────── */
-.topbar-left h1 { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.3px; }
+.topbar-left h1 { font-family: 'Poppins', sans-serif; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.3px; }
 .topbar-left p  { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
 
 /* ── TB BUTTONS (topbar action buttons) ─────────────────────── */
@@ -421,7 +426,7 @@ tbody td { padding: 10px; font-size: 0.78rem; }
   gap: 6px;
   transition: all 0.18s;
   text-decoration: none;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 .tb-btn:hover  { border-color: var(--accent); color: var(--accent); }
 .tb-btn.primary {
@@ -435,7 +440,7 @@ tbody td { padding: 10px; font-size: 0.78rem; }
 /* ── ADMIN STAT CARDS (sc-* aliases) ────────────────────────── */
 .sc-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 8px; }
 .sc-val {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.7rem;
   font-weight: 800;
   letter-spacing: -1px;
@@ -485,7 +490,7 @@ tbody td { padding: 10px; font-size: 0.78rem; }
   transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .confirm-overlay.open .confirm-box { transform: translateY(0) scale(1); }
-.confirm-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; margin-bottom: 6px; }
+.confirm-title { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1rem; margin-bottom: 6px; }
 .confirm-sub   { font-size: 0.76rem; color: var(--muted); margin-bottom: 20px; }
 .confirm-actions { display: flex; gap: 10px; }
 .confirm-btn {
@@ -497,7 +502,7 @@ tbody td { padding: 10px; font-size: 0.78rem; }
   color: var(--muted);
   font-size: 0.8rem;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Poppins', sans-serif;
   transition: all 0.18s;
 }
 .confirm-btn:hover { color: var(--text); }

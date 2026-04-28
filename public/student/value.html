@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>MessMate | Student Budget Value</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <style>
     .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
@@ -127,7 +127,13 @@
   var u;try{u=JSON.parse(s);}catch(e){window.location.replace('/login.html');return;}
   if(!u.initials&&u.name){var p=u.name.trim().split(' ').filter(Boolean);u.initials=p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():u.name.substring(0,2).toUpperCase();}
   u.uid=u.uid||u.studentId||u.id||u.email||'—';
-  function apply(){document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u.name||'—');document.querySelectorAll('[data-user-id]').forEach(el=>el.textContent=u.uid||'—');document.querySelectorAll('[data-user-initials]').forEach(el=>el.textContent=u.initials||'??');}
+  function apply(){document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u.name||'—');document.querySelectorAll('[data-user-id]').forEach(el=>el.textContent=u.uid||'—');document.querySelectorAll('[data-user-initials]').forEach(el=>{
+  if(u.profilePic){
+    el.innerHTML=`<img src="${u.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  }else{
+    el.textContent=u.initials||'??';
+  }
+});}
   apply();document.addEventListener('DOMContentLoaded',apply);
   window.mmGetUser=function(){return u;};
 })();

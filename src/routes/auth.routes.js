@@ -1,14 +1,55 @@
-const express = require("express");
-const router = express.Router();
-const authController = require("../controllers/auth.controller");
-router.get("/users/:id", authController.getUserById);
-// POST /api/auth/register
-router.post("/register", authController.register);
+const express  = require("express");
+const router   = express.Router();
+const passport = require("passport");
+const jwt      = require("jsonwebtoken");
+const upload   = require("../utils/multer.util");
+const {
+  register, login, getAllUsers, getUserById
+} = require("../controllers/auth.controller");
 
-// POST /api/auth/login
-router.post("/login", authController.login);
+// Normal routes
+router.post("/register", upload.single("profilePic"), register);
+router.post("/login",    login);
+router.get("/users",     getAllUsers);
+router.get("/users/:id", getUserById);
 
-// GET /api/auth/users  (admin - see all users)
-router.get("/users", authController.getAllUsers);
+// Google OAuth routes
+router.get("/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.get("/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login.html" }),
+  async (req, res) => {
+    const token = jwt.sign(
+      { id: req.user._id, role: req.user.role, email: req.user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    const user = req.user;
+
+    // Session set karke redirect
+    res.send(`
+      <script>
+        sessionStorage.setItem('mm_session', JSON.stringify({
+          id:         "${user._id}",
+          name:       "${user.name}",
+          email:      "${user.email}",
+          role:       "${user.role}",
+          profilePic: "${user.profilePic || ''}",
+          token:      "${token}"
+        }));
+
+        // Role ke hisaab se redirect
+        const role = "${user.role}";
+        if(role === 'admin') window.location.href = "/admin/dashboard.html";
+        else if(role === 'guardian') window.location.href = "/guardian/dashboard.html";
+        else window.location.href = "/student/dashboard.html";
+      </script>
+    `);
+  }
+);
+
 
 module.exports = router;
