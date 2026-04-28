@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>MessMate |Student Canteen</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+ <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <style>
     /* STATUS BANNER */
@@ -184,7 +184,12 @@ let currentUser = {};
   currentUser.uid = s.uid||s.studentId||s.id||s.email||'student';
   var name = s.name||'Student';
   var initials = name.trim().split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('userAvatar').textContent=initials;
+  const av=document.getElementById('userAvatar');
+if(s.profilePic){
+  av.innerHTML=`<img src="${s.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+}else{
+  av.textContent=initials;
+}
   document.getElementById('userName').textContent=name;
   document.getElementById('userId').textContent=currentUser.uid;
 })();

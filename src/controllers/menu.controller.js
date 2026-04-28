@@ -1,78 +1,79 @@
-const { readData, writeData } = require("../utils/file.util");
-const crypto = require("crypto");
+const Menu = require("../models/menu.model");
+function formatItem(doc) {
+  const o = doc.toObject ? doc.toObject() : doc;
+  if (Array.isArray(o.items) && o.items.length) {
+    return o.items.map((name, i) => ({
+      id:        `${o._id}_${i}`,
+      _docId:    o._id,
+      name:      name || "",
+      meal:      o.mealType || "lunch",
+      day:       o.day || "Monday",
+      createdAt: o.createdAt,
+    }));
+  }
+  return [{
+    id:        o._id,
+    name:      o.name || (o.items && o.items[0]) || "",
+    meal:      o.mealType || o.meal || "lunch",
+    day:       o.day || "Monday",
+    createdAt: o.createdAt,
+  }];
+}
 
-// GET ALL MENU
-exports.getMenu = (req, res) => {
-  const menu = readData("menu.json");
-  res.json(menu);
+exports.getMenu = async (req, res) => {
+  try {
+    const docs = await Menu.find();
+    const flat = docs.flatMap(formatItem);
+    res.json(flat);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// GET MENU BY ID
-exports.getMenuItemById = (req, res) => {
-  const menu = readData("menu.json");
-  const item = menu.find(m => m.id === req.params.id);
-
-  if (!item) {
-    return res.status(404).json({ message: "Menu item not found" });
-  }
-
-  res.json(item);
+exports.getMenuItemById = async (req, res) => {
+  try {
+    const item = await Menu.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: "Menu item not found" });
+    res.json(formatItem(item)[0]);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// CREATE MENU ITEM
-exports.createMenuItem = (req, res) => {
-  const { name, meal, day } = req.body;
+exports.createMenuItem = async (req, res) => {
+  try {
+    const { name, meal, day, price } = req.body;
+    if (!name || !day) 
+      return res.status(400).json({ message: "name and day are required" });
 
-  if (!name || !meal || !day) {
-    return res.status(400).json({ message: "name, meal, and day are required" });
-  }
+    const mealType = (meal || "lunch").toLowerCase(); // ← add this
 
-  const allowedMeals = ["breakfast", "lunch", "dinner", "snacks"];
-  if (!allowedMeals.includes(meal)) {
-    return res.status(400).json({ message: "Invalid meal type" });
-  }
+    const newDoc = await Menu.create({
+      day,
+      mealType,                // ← use mealType instead of meal
+      items:    [name],
+      price:    price || 0,
+    });
 
-  const menu = readData("menu.json");
-
-  const newItem = {
-    id: crypto.randomUUID(),
-    name,
-    meal,
-    day,
-    createdAt: new Date().toISOString(),
-  };
-
-  menu.push(newItem);
-  writeData("menu.json", menu);
-
-  res.status(201).json(newItem);
+    res.status(201).json({
+      id:        newDoc._id,
+      name:      name,
+      meal:      mealType,     // ← use mealType here too
+      day:       day,
+      createdAt: newDoc.createdAt,
+    });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// UPDATE MENU ITEM
-exports.updateMenuItem = (req, res) => {
-  const menu = readData("menu.json");
-  const index = menu.findIndex(m => m.id === req.params.id);
 
-  if (index === -1) {
-    return res.status(404).json({ message: "Menu item not found" });
-  }
-
-  menu[index] = { ...menu[index], ...req.body };
-  writeData("menu.json", menu);
-
-  res.json(menu[index]);
+exports.updateMenuItem = async (req, res) => {
+  try {
+    const item = await Menu.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!item) return res.status(404).json({ message: "Menu item not found" });
+    res.json(formatItem(item)[0]);
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// DELETE MENU ITEM
-exports.deleteMenuItem = (req, res) => {
-  const menu = readData("menu.json");
-  const filtered = menu.filter(m => m.id !== req.params.id);
-
-  if (filtered.length === menu.length) {
-    return res.status(404).json({ message: "Menu item not found" });
-  }
-
-  writeData("menu.json", filtered);
-
-  res.json({ message: "Menu item deleted successfully" });
+exports.deleteMenuItem = async (req, res) => {
+  try {
+    const result = await Menu.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).json({ message: "Menu item not found" });
+    res.json({ message: "Menu item deleted successfully" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };

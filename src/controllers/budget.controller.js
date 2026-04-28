@@ -1,39 +1,24 @@
-const { readData, writeData } = require("../utils/file.util");
+const Budget = require("../models/budget.model");
 
-// GET BUDGET
-exports.getBudget = (req, res) => {
-  const budget = readData("budget.json");
-
-  const totalFeeCollected =
-    budget.totalStudents * budget.semesterFeePerStudent;
-
-  const expenses =
-    budget.expenses.vegetables +
-    budget.expenses.grains +
-    budget.expenses.dairy +
-    budget.expenses.spices +
-    budget.expenses.utilities;
-
-  const surplus = totalFeeCollected - expenses;
-
-  res.json({
-    ...budget,
-    totalFeeCollected,
-    expensesTotal: expenses,
-    surplus
-  });
+exports.getBudget = async (req, res) => {
+  try {
+    let budget = await Budget.findOne();
+    if (!budget) budget = await Budget.create({});
+    const totalFeeCollected = (budget.totalStudents || 0) * (budget.semesterFeePerStudent || 0);
+    res.json({ ...budget.toObject(), totalFeeCollected });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-// UPDATE BUDGET
-exports.updateBudget = (req, res) => {
-  const budget = readData("budget.json");
-
-  const updated = {
-    ...budget,
-    ...req.body
-  };
-
-  writeData("budget.json", updated);
-
-  res.json(updated);
+exports.updateBudget = async (req, res) => {
+  try {
+    let budget = await Budget.findOne();
+    if (!budget) {
+      budget = await Budget.create(req.body);
+    } else {
+      Object.assign(budget, req.body);
+      await budget.save();
+    }
+    const totalFeeCollected = (budget.totalStudents || 0) * (budget.semesterFeePerStudent || 0);
+    res.json({ ...budget.toObject(), totalFeeCollected });
+  } catch (err) { res.status(500).json({ message: err.message }); }
 };

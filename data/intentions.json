@@ -112,5 +112,43 @@
     "status": "skipping",
     "createdAt": "2026-03-09T06:27:59.572Z",
     "updatedAt": "2026-03-09T06:28:06.030Z"
+
+  },
+  {
+    "id": "a499a11d-8c68-4b76-875a-ac6c72d004f1",
+    "studentId": "69d8866b694b503ea51e5bba",
+    "studentName": "Niyati Gupta",
+    "meal": "breakfast",
+    "date": "2026-04-10",
+    "status": "eating",
+    "createdAt": "2026-04-10T18:40:52.453Z"
+  },
+  {
+    "id": "108f3b78-35c1-431c-aefb-47561bddeea2",
+    "studentId": "69d8866b694b503ea51e5bba",
+    "studentName": "Niyati Gupta",
+    "meal": "lunch",
+    "date": "2026-04-10",
+    "status": "eating",
+    "createdAt": "2026-04-10T18:40:54.073Z"
+  },
+  {
+    "id": "0eb87e19-1688-486a-8c47-b0d3f2bf3034",
+    "studentId": "69d8866b694b503ea51e5bba",
+    "studentName": "Niyati Gupta",
+    "meal": "dinner",
+    "date": "2026-04-10",
+    "status": "eating",
+    "createdAt": "2026-04-10T18:40:55.992Z"
+  },
+  {
+    "id": "94bc322e-76b5-4be8-828e-a19deef4108b",
+    "studentId": "69d8866b694b503ea51e5bba",
+    "studentName": "Niyati Gupta",
+    "meal": "snacks",
+    "date": "2026-04-10",
+    "status": "eating",
+    "createdAt": "2026-04-10T18:40:57.113Z"
+
   }
 ]
