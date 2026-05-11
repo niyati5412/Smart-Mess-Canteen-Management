@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <title>MessMate | Student Budget Value</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
-  <script>
-  (function() {
-    const t = localStorage.getItem('mm-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', t);
-  })();
-  </script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
   <style>
     .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
     .panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
@@ -63,7 +57,7 @@
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo"><a href="/student/dashboard" class="logo-text">Mess<span>Mate</span></a><div class="logo-sub">Student Portal</div></div>
+  <div class="sidebar-logo"><a href="./dashboard.html" class="logo-text">Mess<span>Mate</span></a><div class="logo-sub">Student Portal</div></div>
   <div class="sidebar-user">
     <div class="user-avatar" data-user-initials>--</div>
     <div>
@@ -73,18 +67,18 @@
   </div>
   <nav class="sidebar-nav">
     <div class="nav-label">Main</div>
-    <a class="nav-item" href="/student/dashboard"><span class="nav-icon">🏠</span> Dashboard</a>
-    <a class="nav-item" href="/student/intention"><span class="nav-icon">✅</span> Meal Intentions</a>
+    <a class="nav-item" href="./dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="./intention.html"><span class="nav-icon">✅</span> Meal Intentions</a>
     <a class="nav-item" href="#"><span class="nav-icon">📅</span> Attendance</a>
-    <a class="nav-item active" href="/student/value"><span class="nav-icon">💰</span> Budget Value</a>
+    <a class="nav-item active" href="#"><span class="nav-icon">💰</span> Budget Value</a>
     <div class="nav-label">Info</div>
-    <a class="nav-item" href="/student/menu"><span class="nav-icon">📋</span> Menu <span class="nav-badge blue">New</span></a>
-    <a class="nav-item" href="/student/orders"><span class="nav-icon">🛒</span> Orders</a>
-    <a class="nav-item" href="/student/canteen"><span class="nav-icon">🏪</span> Canteen</a>
-    <a class="nav-item" href="/student/feedback"><span class="nav-icon">💬</span> Feedback</a>
+    <a class="nav-item" href="./menu.html"><span class="nav-icon">📋</span> Menu <span class="nav-badge blue">New</span></a>
+    <a class="nav-item" href="./orders.html"><span class="nav-icon">🛒</span> Orders</a>
+    <a class="nav-item" href="./canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <a class="nav-item" href="./feedback.html"><span class="nav-icon">💬</span> Feedback</a>
     <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
   </nav>
-  <div class="sidebar-bottom"><a class="logout-btn" href="/login" onclick="sessionStorage.clear()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</a></div>
+  <div class="sidebar-bottom"><a class="logout-btn" href="/login.html" onclick="sessionStorage.clear()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</a></div>
 </aside>
 
 <div class="main">
@@ -125,22 +119,25 @@
 </div>
 <div id="overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;"></div>
 
-<script src="/js/main.js"></script>
+<script src="../js/main.js"></script>
 <script>
 (function(){
   var s=sessionStorage.getItem('mm_session');
-  if(!s){window.location.replace('/login');return;}
-  var u;try{u=JSON.parse(s);}catch(e){window.location.replace('/login');return;}
+  if(!s){window.location.replace('/login.html');return;}
+  var u;try{u=JSON.parse(s);}catch(e){window.location.replace('/login.html');return;}
   if(!u.initials&&u.name){var p=u.name.trim().split(' ').filter(Boolean);u.initials=p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():u.name.substring(0,2).toUpperCase();}
   u.uid=u.uid||u.studentId||u.id||u.email||'—';
-  function apply(){
-    document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u.name||'—');
-    document.querySelectorAll('[data-user-id]').forEach(el=>el.textContent=u.uid||'—');
-    document.querySelectorAll('[data-user-initials]').forEach(el=>{
-      if(u.profilePic){el.innerHTML=`<img src="${u.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;}
-      else{el.textContent=u.initials||'??';}
-    });
+
+  function apply(){document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u.name||'—');document.querySelectorAll('[data-user-id]').forEach(el=>el.textContent=u.uid||'—');document.querySelectorAll('[data-user-initials]').forEach(el=>{
+  if(u.profilePic){
+    el.innerHTML=`<img src="${u.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  }else{
+    el.textContent=u.initials||'??';
   }
+});}
+
+  function apply(){document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u.name||'—');document.querySelectorAll('[data-user-id]').forEach(el=>el.textContent=u.uid||'—');document.querySelectorAll('[data-user-initials]').forEach(el=>el.textContent=u.initials||'??');}
+
   apply();document.addEventListener('DOMContentLoaded',apply);
   window.mmGetUser=function(){return u;};
 })();
@@ -197,11 +194,12 @@ function renderAll(){
   document.getElementById('statAvg').textContent='₹'+mealCost;
   document.getElementById('statAvgSub').textContent='Based on '+total+' total meals';
 
+  // Per-meal efficiency
   const mealEff={};
   ['breakfast','lunch','dinner','snacks'].forEach(m=>{const md=data.filter(i=>i.meal===m);mealEff[m]=md.length?Math.round((md.filter(i=>i.status==='eating').length/md.length)*100):0;});
   const standingLabel=effPct>=90?'Excellent':effPct>=75?'Good Standing':'Needs Improvement';
   const standingColor=effPct>=75?'var(--accent)':'var(--danger)';
-  const standingMsg=effPct>=90?"You're maximising your mess fee. Keep it up!":effPct>=75?`You're using ${effPct}% of your mess fee value.`:`Only ${effPct}% efficiency. Try to eat more meals.`;
+  const standingMsg=effPct>=90?"You're maximising your mess fee. Keep it up!":effPct>=75?`You're using ${effPct}% of your mess fee value. Target is 90%+. Skipping 1–2 fewer meals per week would get you there.`:`Only ${effPct}% efficiency. Try to eat more meals to get better value from your fee.`;
   const arc=Math.round(effPct*88/100),arcRed=88-arc;
   document.getElementById('effPanel').innerHTML=`
     <div class="eff-wrap">
@@ -219,6 +217,7 @@ function renderAll(){
       return `<div class="prog-row"><span class="prog-label">${m.charAt(0).toUpperCase()+m.slice(1)}</span><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div><span class="prog-val" style="color:${col}">${pct}%</span></div>`;
     }).join('')}`;
 
+  // Week chart
   const weeks={};
   data.forEach(i=>{const d=new Date(i.date);const day1=new Date(d.getFullYear(),d.getMonth(),1).getDay();const wk='W'+Math.ceil((d.getDate()+day1)/7);if(!weeks[wk])weeks[wk]={eat:0};if(i.status==='eating')weeks[wk].eat++;});
   const wKeys=Object.keys(weeks).sort();
@@ -237,6 +236,7 @@ function renderAll(){
       </div>`;
   }
 
+  // Daily log
   const byDate={};
   data.forEach(i=>{if(!byDate[i.date])byDate[i.date]={};byDate[i.date][i.meal]=i.status;});
   const dates=Object.keys(byDate).sort().reverse();
@@ -275,21 +275,6 @@ async function init(){
   renderAll();
 }
 document.addEventListener('DOMContentLoaded',init);
-
-function initThemeToggles() {
-  const saved = localStorage.getItem('mm-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  document.querySelectorAll('.theme-toggle-input').forEach(input => {
-    input.checked = (saved === 'light');
-    input.addEventListener('change', () => {
-      const next = input.checked ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('mm-theme', next);
-      document.querySelectorAll('.theme-toggle-input').forEach(i => { i.checked = (next === 'light'); });
-    });
-  });
-}
-document.addEventListener('DOMContentLoaded', initThemeToggles);
 </script>
 </body>
 </html>

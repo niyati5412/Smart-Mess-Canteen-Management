@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <title>MessMate | Student Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
-  <script>
-  (function() {
-    const t = localStorage.getItem('mm-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', t);
-  })();
-  </script>
+ <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
   <style>
     .topbar-left h1 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; letter-spacing: -0.3px; }
     .topbar-left p { font-size: 0.78rem; color: var(--muted); margin-top: 1px; }
@@ -74,6 +68,7 @@
     .cal-day.skipped  { background: rgba(255,71,87,0.1);  color: var(--danger); font-weight: 700; }
     .cal-day.today    { border: 1.5px solid var(--accent); color: var(--text); font-weight: 700; }
     .cal-day.future   { opacity: 0.3; }
+    .cal-day[data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--surface3); border: 1px solid var(--border); color: var(--text); font-size: 0.6rem; white-space: nowrap; padding: 3px 7px; border-radius: 5px; pointer-events: none; z-index: 10; }
     .cal-legend { display: flex; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: var(--muted); }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
@@ -98,6 +93,7 @@
     .act-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
     .act-icon.green { background: rgba(0,229,160,0.1); }
     .act-icon.red   { background: rgba(255,71,87,0.1); }
+    .act-icon.gold  { background: rgba(244,197,66,0.1); }
     .act-body { flex: 1; }
     .act-text { font-size: 0.78rem; font-weight: 500; }
     .act-time { font-size: 0.68rem; color: var(--muted); margin-top: 1px; }
@@ -113,7 +109,7 @@
   </style>
 </head>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/js/socket.js"></script>
+<script src="../js/socket.js"></script>
 <body>
 
 <aside class="sidebar" id="sidebar">
@@ -131,21 +127,19 @@
   </div>
   <nav class="sidebar-nav">
     <div class="nav-label">Main</div>
-    <!-- ✅ FIXED: .html → EJS routes -->
-    <a class="nav-item active" href="/student/dashboard"><span class="nav-icon">🏠</span> Dashboard</a>
-    <a class="nav-item" href="/student/intention"><span class="nav-icon">✅</span> Meal Intentions</a>
+    <a class="nav-item active" href="/student/dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="/student/intention.html"><span class="nav-icon">✅</span> Meal Intentions</a>
     <a class="nav-item" href="#"><span class="nav-icon">📅</span> Attendance</a>
-    <a class="nav-item" href="/student/value"><span class="nav-icon">💰</span> Budget Value</a>
+    <a class="nav-item" href="/student/value.html"><span class="nav-icon">💰</span> Budget Value</a>
     <div class="nav-label">Info</div>
-    <a class="nav-item" href="/student/menu"><span class="nav-icon">📋</span> Menu</a>
-    <a class="nav-item" href="/student/orders"><span class="nav-icon">🛒</span> Orders</a>
-    <a class="nav-item" href="/student/canteen"><span class="nav-icon">🏪</span> Canteen</a>
-    <a class="nav-item" href="/student/feedback"><span class="nav-icon">💬</span> Feedback</a>
+    <a class="nav-item" href="/student/menu.html"><span class="nav-icon">📋</span> Menu</a>
+    <a class="nav-item" href="/student/orders.html"><span class="nav-icon">🛒</span> Orders</a>
+    <a class="nav-item" href="/student/canteen.html"><span class="nav-icon">🏪</span> Canteen</a>
+    <a class="nav-item" href="/student/feedback.html"><span class="nav-icon">💬</span> Feedback</a>
     <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
   </nav>
   <div class="sidebar-bottom">
-    <!-- ✅ FIXED: logout redirect -->
-    <a class="logout-btn" href="/login" onclick="sessionStorage.removeItem('mm_session')">
+    <a class="logout-btn" href="../login.html" onclick="sessionStorage.removeItem('mm_session')">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Sign Out
     </a>
@@ -171,6 +165,7 @@
       <div class="cutoff-warn" id="cutoffWarn">Loading…</div>
     </div>
 
+    <!-- Meal cards built by JS -->
     <div class="meals-grid" id="mealsGrid"></div>
 
     <div class="stats-row">
@@ -183,7 +178,7 @@
     <div class="lower-grid">
       <div class="panel">
         <div class="panel-head">
-          <h3 id="calPanelTitle">Attendance</h3>
+          <h3 id="calPanelTitle">Attendance — March 2026</h3>
           <a href="#" class="panel-action">Full history →</a>
         </div>
         <div class="panel-body">
@@ -211,8 +206,7 @@
 
       <div class="right-col">
         <div class="panel">
-          <!-- ✅ FIXED: value.html → /student/value -->
-          <div class="panel-head"><h3>Budget Overview</h3><a href="/student/value" class="panel-action">Details →</a></div>
+          <div class="panel-head"><h3>Budget Overview</h3><a href="/student/value.html" class="panel-action">Details →</a></div>
           <div class="panel-body" id="budgetPanel">
             <div style="text-align:center;color:var(--muted);font-size:.8rem;padding:20px">Loading…</div>
           </div>
@@ -233,42 +227,56 @@
 <div class="toast-wrap" id="toastWrap"></div>
 <div id="overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;"></div>
 
-<script src="/js/main.js"></script>
+<script src="../js/main.js"></script>
 <script>
+/* ══════════════════════════════════════════
+   SESSION
+══════════════════════════════════════════ */
 const _session = (function(){
   try { return JSON.parse(sessionStorage.getItem('mm_session')); } catch(e){ return null; }
 })();
-
-// ✅ FIXED: redirect paths
 if (!_session) {
-  window.location.href = '/login';
+  window.location.href = '../login.html';
 } else if (_session.role !== 'student') {
-  window.location.href = ({admin:'/admin/dashboard', guardian:'/guardian/dashboard'})[_session.role] || '/login';
+  window.location.href = ({admin:'../admin/dashboard.html',guardian:'../guardian/dashboard.html'})[_session.role]||'../login.html';
 } else {
   const _name = _session.name||'Student';
-  if (_session.profilePic) {
-    document.getElementById('userAvatar').innerHTML = `<img src="${_session.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-  } else {
-    document.getElementById('userAvatar').textContent = _name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  }
-  document.getElementById('userName').textContent  = _name;
-  document.getElementById('userEmail').textContent = _session.email||'';
-  document.getElementById('userId').textContent    = _session.id||'';
+
+ if (_session.profilePic) {
+  document.getElementById('userAvatar').innerHTML = 
+    `<img src="${_session.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+} else {
+  document.getElementById('userAvatar').textContent = 
+    _name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+
+  document.getElementById('userAvatar').textContent = _name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+  document.getElementById('userName').textContent   = _name;
+  document.getElementById('userEmail').textContent  = _session.email||'';
+  document.getElementById('userId').textContent     = _session.id||'';
   const _hr = new Date().getHours();
   document.getElementById('topGreeting').textContent = (_hr<12?'Good morning':_hr<17?'Good afternoon':'Good evening')+', '+_name.split(' ')[0]+' 👋';
 }
 
+/* ══════════════════════════════════════════
+   GLOBALS
+══════════════════════════════════════════ */
 const TODAY      = new Date();
 const TODAY_STR  = TODAY.toISOString().split('T')[0];
-const MONTH_STR  = TODAY_STR.slice(0,7);
+const MONTH_STR  = TODAY_STR.slice(0,7);   // "2026-03"
 const MONTH_NAMES= ['January','February','March','April','May','June','July','August','September','October','November','December'];
 let   calYear    = TODAY.getFullYear();
 let   calMonth   = TODAY.getMonth();
-let   allIntentions = [];
+let   allIntentions = [];   // cache from /api/intentions/student/:id
 
 document.getElementById('todayDate').textContent =
   TODAY.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
+
+/* ══════════════════════════════════════════
+   MEAL CONFIG + CUTOFF
+══════════════════════════════════════════ */
 const MEALS = [
   {id:'breakfast',name:'Breakfast',emoji:'🌅',time:'7:30–9:00', cutoffHour:7,  cutoffLabel:'7:00 AM'},
   {id:'lunch',    name:'Lunch',    emoji:'☀️',time:'12:30–2:00',cutoffHour:11, cutoffLabel:'11:00 AM'},
@@ -276,6 +284,26 @@ const MEALS = [
   {id:'snacks',   name:'Snacks',   emoji:'☕',time:'4:30–5:30', cutoffHour:15, cutoffLabel:'3:30 PM'},
 ];
 function isCutoffPassed(meal){ return new Date().getHours() >= meal.cutoffHour; }
+
+/* ══════════════════════════════════════════
+   CUTOFF CHIP (topbar)
+══════════════════════════════════════════ */
+
+
+/* ══════════════════════════════════════════
+   MEAL CONFIG + CUTOFF
+══════════════════════════════════════════ */
+const MEALS = [
+  {id:'breakfast',name:'Breakfast',emoji:'🌅',time:'7:30–9:00', cutoffHour:7,  cutoffLabel:'7:00 AM'},
+  {id:'lunch',    name:'Lunch',    emoji:'☀️',time:'12:30–2:00',cutoffHour:11, cutoffLabel:'11:00 AM'},
+  {id:'dinner',   name:'Dinner',   emoji:'🌙',time:'7:30–9:00', cutoffHour:15, cutoffLabel:'3:00 PM'},
+  {id:'snacks',   name:'Snacks',   emoji:'☕',time:'4:30–5:30', cutoffHour:15, cutoffLabel:'3:30 PM'},
+];
+function isCutoffPassed(meal){ return new Date().getHours() >= meal.cutoffHour; }
+
+/* ══════════════════════════════════════════
+   CUTOFF CHIP (topbar)
+══════════════════════════════════════════ */
 
 function updateCutoffWarn(){
   const next = MEALS.find(m=>!isCutoffPassed(m));
@@ -288,19 +316,24 @@ function updateCutoffWarn(){
 updateCutoffWarn();
 setInterval(updateCutoffWarn, 60000);
 
+/* ══════════════════════════════════════════
+   MEAL CARDS — real data from intentions API
+══════════════════════════════════════════ */
 async function loadMealCards(){
   try {
     const res   = await fetch(`/api/intentions/student/${_session.id}`);
     const data  = await res.json();
-    allIntentions = data;
+    allIntentions = data;   // cache for calendar/stats
     const today = data.filter(i=>i.date===TODAY_STR);
     const grid  = document.getElementById('mealsGrid');
     grid.innerHTML = '';
+
     MEALS.forEach(m => {
       const intent = today.find(i=>i.meal===m.id);
       const locked = isCutoffPassed(m);
       const card   = document.createElement('div');
       card.className = 'meal-card';
+
       let bottom = '';
       if (locked && intent) {
         const cls = intent.status==='eating'?'eating':'skipping';
@@ -324,6 +357,7 @@ async function loadMealCards(){
             <button class="btn-skip" onclick="quickMark('${m.id}','skip')">✕ Skip</button>
           </div>`;
       }
+
       card.innerHTML = `
         <div class="meal-top"><span class="meal-emoji">${m.emoji}</span><span class="meal-time-chip">${m.time}</span></div>
         <div class="meal-name">${m.name}</div>
@@ -338,6 +372,7 @@ async function loadMealCards(){
   }
 }
 
+/* quick mark from dashboard — saves immediately */
 async function quickMark(mealId, action){
   const meal = MEALS.find(m=>m.id===mealId);
   if (isCutoffPassed(meal)){ showToast('🔒 Cutoff passed','var(--danger)'); return; }
@@ -354,6 +389,9 @@ async function quickMark(mealId, action){
   } catch(e){ showToast('Save failed','var(--danger)'); }
 }
 
+/* ══════════════════════════════════════════
+   STATS — from intentions + budget APIs
+══════════════════════════════════════════ */
 async function loadStats(){
   try {
     const [iRes, bRes] = await Promise.all([
@@ -362,16 +400,19 @@ async function loadStats(){
     ]);
     const intentions = await iRes.json();
     const budget     = await bRes.json();
+
     const monthData    = intentions.filter(i=>i.date.startsWith(MONTH_STR));
     const eatingCount  = monthData.filter(i=>i.status==='eating').length;
     const skippingCount= monthData.filter(i=>i.status==='skipping').length;
     const totalMarked  = eatingCount + skippingCount;
+
     const messFee   = budget.semesterFeePerStudent || 6000;
-    const mealCost  = budget.mealCostPerMeal       || Math.round(messFee / 90);
+    const mealCost  = budget.mealCostPerMeal       || Math.round(messFee / 90);  // fallback ₹67
     const valueConsumed = eatingCount   * mealCost;
     const wasted        = skippingCount * mealCost;
     const effPct        = totalMarked ? Math.round((eatingCount/totalMarked)*100) : 0;
     const mLabel        = MONTH_NAMES[TODAY.getMonth()];
+
     document.getElementById('statMonthLabel').textContent    = `${mLabel} — Meals Eaten`;
     document.getElementById('statMealsEaten').textContent    = eatingCount;
     document.getElementById('statMealsEatenSub').innerHTML   = `out of ${totalMarked} marked &nbsp;<span class="stat-badge badge-up">↑ ${effPct}%</span>`;
@@ -379,6 +420,8 @@ async function loadStats(){
     document.getElementById('statEfficiencySub').innerHTML   = `₹${valueConsumed.toLocaleString('en-IN')} of ₹${messFee.toLocaleString('en-IN')} &nbsp;<span class="stat-badge badge-gold">${effPct>=80?'Good':'Review'}</span>`;
     document.getElementById('statSkipped').textContent       = skippingCount;
     document.getElementById('statSkippedSub').innerHTML      = `this month &nbsp;<span class="stat-badge badge-down">↓ ${100-effPct}%</span>`;
+
+    // streak: consecutive days where breakfast+lunch+dinner all eaten
     let streak = 0;
     for (let d = TODAY.getDate()-1; d >= 1; d--) {
       const ds = `${MONTH_STR}-${String(d).padStart(2,'0')}`;
@@ -388,6 +431,8 @@ async function loadStats(){
     }
     document.getElementById('statStreak').textContent  = streak;
     document.getElementById('statStreakSub').innerHTML = `consecutive days &nbsp;<span class="stat-badge badge-up">🔥</span>`;
+
+    // budget panel
     const arc      = Math.round(effPct * 88 / 100);
     const daysLeft = new Date(TODAY.getFullYear(),TODAY.getMonth()+1,0).getDate() - TODAY.getDate();
     document.getElementById('budgetPanel').innerHTML = `
@@ -406,18 +451,23 @@ async function loadStats(){
       <div class="budget-breakdown">
         <div class="bb-item"><span class="bb-label"><div class="bb-dot" style="background:var(--gold)"></div>Value consumed</span><span class="bb-val" style="color:var(--gold)">₹${valueConsumed.toLocaleString('en-IN')}</span></div>
         <div class="bb-item"><span class="bb-label"><div class="bb-dot" style="background:var(--danger)"></div>Skipped meals cost</span><span class="bb-val" style="color:var(--danger)">₹${wasted.toLocaleString('en-IN')}</span></div>
-        <div class="bb-item"><span class="bb-label"><div class="bb-dot" style="background:var(--surface3)"></div>Remaining this month</span><span class="bb-val" style="color:var(--muted)">${daysLeft} days</span></div>
+        <div class="bb-item"><span class="bb-label"><div class="bb-dot" style="background:var(--surface3)"></div>Remaining this month</span><span class="bb-val" style="color:var(--muted)" id="remainingDays">${daysLeft} days</span></div>
       </div>`;
   } catch(e) {
     document.getElementById('budgetPanel').innerHTML='<div style="color:var(--muted);font-size:.8rem;padding:12px">Failed to load budget</div>';
   }
 }
 
+/* ══════════════════════════════════════════
+   RECENT ACTIVITY — from intentions API (newest 6)
+══════════════════════════════════════════ */
 async function loadActivity(){
   try {
     const res  = await fetch(`/api/intentions/student/${_session.id}`);
     const data = await res.json();
-    const sorted = [...data].sort((a,b)=>new Date(b.updatedAt||b.createdAt)-new Date(a.updatedAt||a.createdAt)).slice(0,6);
+    const sorted = [...data]
+      .sort((a,b)=>new Date(b.updatedAt||b.createdAt)-new Date(a.updatedAt||a.createdAt))
+      .slice(0,6);
     const list = document.getElementById('activityList');
     if (!sorted.length){ list.innerHTML='<div style="text-align:center;color:var(--muted);font-size:.8rem;padding:16px">No activity yet</div>'; return; }
     const mealEmoji={breakfast:'🌅',lunch:'☀️',dinner:'🌙',snacks:'☕'};
@@ -440,17 +490,22 @@ async function loadActivity(){
   } catch(e){}
 }
 
+/* ══════════════════════════════════════════
+   CALENDAR — from intentions API
+══════════════════════════════════════════ */
 function renderCalendar(){
   const monthStr  = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
-  document.getElementById('calMonth').textContent      = `${MONTH_NAMES[calMonth]} ${calYear}`;
-  document.getElementById('calPanelTitle').textContent = `Attendance — ${MONTH_NAMES[calMonth]} ${calYear}`;
+  document.getElementById('calMonth').textContent       = `${MONTH_NAMES[calMonth]} ${calYear}`;
+  document.getElementById('calPanelTitle').textContent  = `Attendance — ${MONTH_NAMES[calMonth]} ${calYear}`;
   const grid        = document.getElementById('calGrid');
   grid.innerHTML    = '';
   const firstDay    = new Date(calYear,calMonth,1).getDay();
   const daysInMonth = new Date(calYear,calMonth+1,0).getDate();
   const daysInPrev  = new Date(calYear,calMonth,0).getDate();
   const isCurrentM  = calYear===TODAY.getFullYear()&&calMonth===TODAY.getMonth();
+
   for (let i=firstDay-1;i>=0;i--){ const el=document.createElement('div');el.className='cal-day other';el.textContent=daysInPrev-i;grid.appendChild(el); }
+
   let ate=0,partial=0,skipped=0;
   for (let d=1;d<=daysInMonth;d++){
     const ds      = `${monthStr}-${String(d).padStart(2,'0')}`;
@@ -472,8 +527,9 @@ function renderCalendar(){
   }
   const rem = (firstDay+daysInMonth)%7===0?0:7-(firstDay+daysInMonth)%7;
   for (let i=1;i<=rem;i++){ const el=document.createElement('div');el.className='cal-day other';el.textContent=i;grid.appendChild(el); }
+
   const totalR = ate+partial+skipped;
-  let effPct = totalR?Math.round(((ate*100)+(partial*60))/(totalR*100)*100):0;
+  const effPct = totalR?Math.round(((ate*100)+(partial*60))/(totalR*100)*100):0;
   document.getElementById('calSummary').innerHTML=`
     <div class="cs-item"><div class="cs-val" style="color:var(--accent)">${ate}</div><div class="cs-label">Full days</div></div>
     <div class="cs-item"><div class="cs-val" style="color:var(--gold)">${partial}</div><div class="cs-label">Partial</div></div>
@@ -487,9 +543,12 @@ function changeMonth(delta){
   renderCalendar();
 }
 
+/* ══════════════════════════════════════════
+   TOAST + SIDEBAR
+══════════════════════════════════════════ */
 function showToast(msg,color){
   const w=document.getElementById('toastWrap'),t=document.createElement('div');
-  t.className='toast';
+  t.className='toast';t.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 16px;display:flex;align-items:center;gap:10px;font-size:.8rem;min-width:220px;box-shadow:0 8px 28px rgba(0,0,0,.5);transform:translateY(8px);opacity:0;transition:all .3s cubic-bezier(.22,1,.36,1);';
   t.innerHTML=`<div style="width:7px;height:7px;border-radius:50%;background:${color||'var(--accent)'};flex-shrink:0"></div><span>${msg}</span>`;
   w.appendChild(t);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{t.style.transform='translateY(0)';t.style.opacity='1';}));
@@ -497,26 +556,14 @@ function showToast(msg,color){
 }
 function toggleSidebar(){const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),open=s.classList.toggle('open');o.style.display=open?'block':'none';}
 
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
 (async function init(){
-  await loadMealCards();
-  renderCalendar();
+  await loadMealCards();   // also sets allIntentions cache
+  renderCalendar();        // uses allIntentions
   await Promise.all([loadStats(), loadActivity()]);
 })();
-
-function initThemeToggles() {
-  const saved = localStorage.getItem('mm-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  document.querySelectorAll('.theme-toggle-input').forEach(input => {
-    input.checked = (saved === 'light');
-    input.addEventListener('change', () => {
-      const next = input.checked ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('mm-theme', next);
-      document.querySelectorAll('.theme-toggle-input').forEach(i => { i.checked = (next === 'light'); });
-    });
-  });
-}
-document.addEventListener('DOMContentLoaded', initThemeToggles);
 </script>
 </body>
 </html>
