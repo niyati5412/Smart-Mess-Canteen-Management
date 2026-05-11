@@ -1,6 +1,6 @@
 /* ============================================================
    MessMate — Student Portal Shared JavaScript
-   student-main.js  |  Used by: all student portal pages
+   main.js  |  Used by: all student portal pages
    ============================================================ */
 
 /* ── SIDEBAR TOGGLE ────────────────────────────────────────── */
@@ -34,16 +34,15 @@ function getSession() {
  * Require a valid student session.
  * Redirects to login if missing/wrong role.
  * Populates sidebar user avatar, name, id from session.
- * @param {string} [loginPath='../login.html'] - relative path to login page
  */
-function requireStudentSession(loginPath = '../login.html') {
+function requireStudentSession(loginPath = '/login') {
   const s = getSession();
   if (!s) { window.location.replace(loginPath); return null; }
 
   if (s.role && s.role !== 'student') {
     const map = {
-      admin: '../admin/dashboard.html',
-      guardian: '../guardian/dashboard.html'
+      admin:    '/admin/dashboard',
+      guardian: '/guardian/dashboard'
     };
     window.location.replace(map[s.role] || loginPath);
     return null;
@@ -58,21 +57,25 @@ function requireStudentSession(loginPath = '../login.html') {
   const idEl     = document.getElementById('userId');
   const emailEl  = document.getElementById('userEmail');
 
-  if (avatarEl) avatarEl.textContent = initials;
-  if (nameEl)   nameEl.textContent   = name;
-  if (idEl)     idEl.textContent     = s.id || s.studentId || '';
-  if (emailEl)  emailEl.textContent  = s.email || '';
+  if (avatarEl) {
+    if (s.profilePic) {
+      avatarEl.innerHTML = `<img src="${s.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`;
+    } else {
+      avatarEl.textContent = initials;
+    }
+  }
+  if (nameEl)  nameEl.textContent  = name;
+  if (idEl)    idEl.textContent    = s.id || s.studentId || '';
+  if (emailEl) emailEl.textContent = s.email || '';
 
   return s;
 }
 
 /* ── FORMATTING HELPERS ─────────────────────────────────────── */
-/** Format a number as Indian currency: ₹1,23,456 */
 function fmt(n) {
   return '₹' + Number(n).toLocaleString('en-IN');
 }
 
-/** Format a number as lakhs shorthand: ₹1.2L */
 function fmtL(n) {
   if (n >= 100000) return '₹' + (n / 100000).toFixed(1) + 'L';
   if (n >= 1000)   return '₹' + (n / 1000).toFixed(1) + 'k';
@@ -80,19 +83,11 @@ function fmtL(n) {
 }
 
 /* ── SEEDED ATTENDANCE GENERATOR ────────────────────────────── */
-/**
- * Stable pseudo-random for a given date seed.
- * Returns 0–1, same value every call for the same seed.
- */
 function seededRand(seed) {
   const x = Math.sin(seed + 1) * 10000;
   return x - Math.floor(x);
 }
 
-/**
- * Returns attendance status for a given Date.
- * 1 = all meals eaten, 2 = partial, 3 = skipped all
- */
 function getAttendanceStatus(date) {
   const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
   const r = seededRand(seed);
@@ -107,12 +102,6 @@ function getAttendanceStatus(date) {
   return 1;
 }
 
-/* ============================================================
-   MessMate — Admin Portal Shared JavaScript
-   Added to student-main.js for unified shared JS
-   Used by: all admin portal pages
-   ============================================================ */
-
 /* ── CONFIRM OVERLAY CLOSE ───────────────────────────────────── */
 function closeConfirm() {
   const el = document.getElementById('confirmOverlay');
@@ -120,18 +109,12 @@ function closeConfirm() {
 }
 
 /* ── ADMIN SESSION CHECK ─────────────────────────────────────── */
-/**
- * Require a valid admin session.
- * Redirects to login if missing/wrong role.
- * Populates sidebar avatar, name, email from session.
- * @param {string} [loginPath='../login.html']
- */
-function requireAdminSession(loginPath = '../login.html') {
+function requireAdminSession(loginPath = '/login') {
   let s = null;
   try { s = JSON.parse(sessionStorage.getItem('mm_session')); } catch (e) {}
   if (!s) { window.location.href = loginPath; return null; }
   if (s.role !== 'admin') {
-    const map = { student: '../student/dashboard.html', guardian: '../guardian/dashboard.html' };
+    const map = { student: '/student/dashboard', guardian: '/guardian/dashboard' };
     window.location.href = map[s.role] || loginPath;
     return null;
   }
@@ -140,25 +123,25 @@ function requireAdminSession(loginPath = '../login.html') {
   const av  = document.getElementById('sidebarAvatar') || document.getElementById('userAvatar');
   const nm  = document.getElementById('sidebarName')   || document.getElementById('userName');
   const em  = document.getElementById('sidebarEmail')  || document.getElementById('userEmail');
-  if (av) av.textContent = initials;
+  if (av) {
+    if (s.profilePic) {
+      av.innerHTML = `<img src="${s.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" alt="${name}">`;
+    } else {
+      av.textContent = initials;
+    }
+  }
   if (nm) nm.textContent = name;
   if (em) em.textContent = s.email || '';
   return s;
 }
 
 /* ── GUARDIAN SESSION CHECK ──────────────────────────────────── */
-/**
- * Require a valid guardian session.
- * Redirects to login if missing/wrong role.
- * Returns session object or null.
- * @param {string} [loginPath='../login.html']
- */
-function requireGuardianSession(loginPath = '../login.html') {
+function requireGuardianSession(loginPath = '/login') {
   let s = null;
   try { s = JSON.parse(sessionStorage.getItem('mm_session')); } catch (e) {}
   if (!s) { window.location.href = loginPath; return null; }
   if (s.role !== 'guardian') {
-    const map = { student: '../student/dashboard.html', admin: '../admin/dashboard.html' };
+    const map = { student: '/student/dashboard', admin: '/admin/dashboard' };
     window.location.href = map[s.role] || loginPath;
     return null;
   }
@@ -166,11 +149,6 @@ function requireGuardianSession(loginPath = '../login.html') {
 }
 
 /* ── CSV DOWNLOAD ────────────────────────────────────────────── */
-/**
- * Download a 2D array as a CSV file.
- * @param {Array[]} rows  - array of arrays (first row = headers)
- * @param {string}  filename
- */
 function downloadCSV(rows, filename) {
   const csv = rows.map(r =>
     r.map(c => {
