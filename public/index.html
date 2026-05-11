@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- ⚡ Flash-of-wrong-theme prevention — runs before render -->
   <script>
     (function() {
       const t = localStorage.getItem('mm-theme') || 'dark';
@@ -160,9 +161,9 @@
     [data-theme="light"] .btn-solid { color: #fff; }
     .btn-solid:hover { opacity: 0.88; transform: translateY(-1px); }
 
-   ═══════════════════════════════════════
+    /* ═══════════════════════════════════════
        HERO
-    ═══════════════════════════════════════ 
+    ═══════════════════════════════════════ */
     .hero {
       min-height: 100vh;
       display: flex; align-items: center;
@@ -276,9 +277,9 @@
       color: #0a3025;
     }
 
-     ═══════════════════════════════════════
+    /* ═══════════════════════════════════════
        HERO DASHBOARD
-    ═══════════════════════════════════════ 
+    ═══════════════════════════════════════ */
     .hero-dashboard {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -705,8 +706,8 @@
       <div class="tt-thumb"></div>
     </label>
 
-    <a href="login/"  class="btn-nav btn-ghost">Login</a>
-    <a href="signup/" class="btn-nav btn-solid">Get Started</a>
+    <a href="login.html"  class="btn-nav btn-ghost">Login</a>
+    <a href="signup.html" class="btn-nav btn-solid">Get Started</a>
   </div>
 </nav>
 
@@ -1092,7 +1093,7 @@
   <div class="footer-links">
     <a href="#">Privacy</a>
     <a href="#">Terms</a>
-    <a href="/about.html">About</a>
+    <a href="#">Support</a>
     <a href="#">Docs</a>
   </div>
   <div class="footer-copy">© 2025 MessMate. All rights reserved.</div>
@@ -1176,25 +1177,6 @@
       }, 100);
     }
   });
-  function initThemeToggles() {
-  const saved = localStorage.getItem('mm-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-
-  document.querySelectorAll('.theme-toggle-input').forEach(input => {
-    input.checked = (saved === 'light');
-
-    input.addEventListener('change', () => {
-      const next = input.checked ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('mm-theme', next);
-      document.querySelectorAll('.theme-toggle-input').forEach(i => {
-        i.checked = (next === 'light');
-      });
-    });
-  });
-}
-
-document.addEventListener('DOMContentLoaded', initThemeToggles);
 </script>
 </body>
 </html>
