@@ -2,7 +2,7 @@ const express  = require("express");
 const router   = express.Router();
 const passport = require("passport");
 const jwt      = require("jsonwebtoken");
-const upload   = require("../utils/multer.util");
+const { upload } = require("../utils/multer.util"); 
 const {
   register, login, getAllUsers, getUserById
 } = require("../controllers/auth.controller");
@@ -15,11 +15,11 @@ router.get("/users/:id", getUserById);
 
 // Google OAuth routes
 router.get("/google",
-  passport.authenticate("google", { scope: ["profile", "email"],  prompt: "select_account"  })
+  passport.authenticate("google", { scope: ["profile", "email"], prompt: "select_account" })
 );
 
 router.get("/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login.html" }),
+  passport.authenticate("google", { failureRedirect: "/login" }),  
   async (req, res) => {
     const token = jwt.sign(
       { id: req.user._id, role: req.user.role, email: req.user.email },
@@ -41,15 +41,13 @@ router.get("/google/callback",
           token:      "${token}"
         }));
 
-        // Role ke hisaab se redirect
         const role = "${user.role}";
-        if(role === 'admin') window.location.href = "/admin/dashboard.html";
-        else if(role === 'guardian') window.location.href = "/guardian/dashboard.html";
-        else window.location.href = "/student/dashboard.html";
+        if(role === 'admin')       window.location.href = "/admin/dashboard";
+        else if(role === 'guardian') window.location.href = "/guardian/dashboard";
+        else                         window.location.href = "/student/dashboard";
       </script>
     `);
   }
 );
-
 
 module.exports = router;
