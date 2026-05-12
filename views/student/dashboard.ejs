@@ -244,7 +244,7 @@ if (!_session) {
   const _name = _session.name || 'Student';
   const avatarEl = document.getElementById('userAvatar');
 
-  // ✅ FIX: Profile pic — no duplicate overwrite
+ 
   if (_session.profilePic) {
     avatarEl.innerHTML = `<img src="${_session.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${_name}">`;
   } else {
