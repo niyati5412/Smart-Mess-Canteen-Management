@@ -43,8 +43,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ── Static assets (CSS, client JS, images) ────────────────────────────────────
-app.use(express.static(path.join(__dirname, "../public")));
+
 
 // Serve React App in Production (Optional, will add later if needed)
 // app.use(express.static(path.join(__dirname, "../frontend/dist")));
