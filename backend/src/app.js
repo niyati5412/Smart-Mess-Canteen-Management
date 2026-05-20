@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express  = require("express");
-const cors     = require("cors");
 const path     = require("path");
 const morgan   = require("morgan");
 const helmet   = require("helmet");
@@ -19,14 +18,6 @@ const wasteRoutes     = require("./routes/waste.routes");
 const { notFound, errorHandler } = require("./middleware/error.middleware");
 
 const app = express();
-
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://smart-mess-canteenv3.vercel.app"
-  ],
-  credentials: true
-}));
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(morgan("dev"));
