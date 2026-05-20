@@ -1,0 +1,248 @@
+.student-menu-container {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.today-banner {
+  background: linear-gradient(135deg, rgba(0,229,160,0.06), rgba(0,184,255,0.04));
+  border: 1px solid rgba(0,229,160,0.18);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.tb-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.tb-date {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+.tb-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.tb-meals {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.tbm {
+  flex: 1;
+  min-width: 100px;
+}
+.tbm-label {
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+.tbm-items {
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+.tbm-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.week-tabs {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.week-tab {
+  flex: 1;
+  padding: 11px 6px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all 0.18s;
+  border-right: 1px solid var(--border);
+}
+.week-tab:last-child {
+  border-right: none;
+}
+.week-tab:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+.week-tab.active {
+  background: rgba(0,229,160,0.08);
+  color: var(--accent);
+}
+.week-tab-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 2px;
+}
+.week-tab.today .week-tab-num {
+  color: var(--accent);
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.leg-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.meal-col {
+  background: var(--surface);
+}
+.meal-col-head {
+  padding: 13px 15px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mch-emoji {
+  font-size: 1.1rem;
+}
+.mch-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+.mch-time {
+  font-size: 0.6rem;
+  color: var(--muted);
+  display: block;
+  margin-top: 1px;
+}
+.meal-col-body {
+  padding: 14px 15px;
+}
+.menu-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.menu-item-row:last-child {
+  border-bottom: none;
+}
+.mir-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+.mir-name {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.empty-col {
+  padding: 20px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.nutrition-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.nut-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 14px;
+  text-align: center;
+}
+.nut-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+.nut-label {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+.sec-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+  color: var(--muted);
+}
+
+.state-box {
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--surface3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 10px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media(max-width:900px) {
+  .menu-grid { grid-template-columns: 1fr 1fr; }
+  .nutrition-row { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width:560px) {
+  .menu-grid { grid-template-columns: 1fr; }
+}
