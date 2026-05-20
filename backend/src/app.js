@@ -33,6 +33,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Serve React App in Production
+app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 app.use("/api/auth",       authRoutes);
 app.use("/api/intentions", intentionRoutes);
 app.use("/api/feedback",   feedbackRoutes);
@@ -41,6 +43,13 @@ app.use("/api/canteen",    canteenRoutes);
 app.use("/api/orders",     orderRoutes);
 app.use("/api/budget",     budgetRoutes);
 app.use("/api/waste",      wasteRoutes);
+// Catch-all route to serve React's index.html for client-side routing
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api")) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
+});
 
 app.use(notFound);
 app.use(errorHandler);
