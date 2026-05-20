@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
 const Login = () => {
   const [currentRole, setCurrentRole] = useState('student');
   const [view, setView] = useState('login'); // 'login', 'forgot', 'otp'
@@ -28,8 +26,10 @@ const Login = () => {
         token:      token
       };
 
+      // Save user details to frontend origin sessionStorage
       sessionStorage.setItem('mm_session', JSON.stringify(user));
 
+      // Redirect based on role
       const REDIRECTS = {
         student: '/student/dashboard',
         admin: '/admin/dashboard',
@@ -57,7 +57,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -78,6 +78,7 @@ const Login = () => {
 
       sessionStorage.setItem('mm_session', JSON.stringify(data.user));
       
+      // Redirect based on role
       const REDIRECTS = {
         student: '/student/dashboard',
         admin: '/admin/dashboard',
@@ -180,7 +181,7 @@ const Login = () => {
                 type="button" 
                 className="google-btn" 
                 onClick={() => {
-                  window.location.href = `${API_URL}/api/auth/google?role=${currentRole}`;
+                  window.location.href = `http://localhost:3000/api/auth/google?role=${currentRole}`;
                 }}
                 style={{
                   display: 'flex',
@@ -247,6 +248,7 @@ const Login = () => {
             </div>
           )}
 
+          {/* OTP View left simplified for brevity */}
           {view === 'otp' && (
             <div className="view active">
               <div className="role-indicator"><span className="ri-dot"></span><span>Verify Your Identity</span></div>
