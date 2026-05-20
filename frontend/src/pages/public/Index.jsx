@@ -356,19 +356,6 @@ export default function Index() {
           <a href="#stats">Impact</a>
         </div>
         <div className="nav-cta">
-          <label className="theme-toggle" title="Toggle light/dark theme">
-            <input
-              type="checkbox"
-              className="theme-toggle-input"
-              onChange={handleThemeToggle}
-              defaultChecked={
-                typeof window !== "undefined" &&
-                localStorage.getItem("mm-theme") === "light"
-              }
-            />
-            <div className="tt-track"><span>🌙</span><span>☀️</span></div>
-            <div className="tt-thumb"></div>
-          </label>
           <Link to="/login" className="btn-nav btn-ghost">Login</Link>
           <Link to="/signup" className="btn-nav btn-solid">Get Started</Link>
         </div>
