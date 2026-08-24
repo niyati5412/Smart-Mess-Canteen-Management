@@ -1,28 +1,56 @@
 const Intention = require("../models/intention.model");
+const User      = require("../models/user.model");
 
+// GET /api/intentions (Admin View — all intentions with populated student names)
 exports.getIntentions = async (req, res) => {
   try {
-    const intentions = await Intention.find();
-    res.json(intentions);
-  } catch (err) { res.status(500).json({ message: err.message }); }
+    const intentions = await Intention.find().populate("studentId", "name email");
+    
+    const formatted = intentions.map(i => {
+      const student = i.studentId;
+      return {
+        _id:         i._id,
+        studentId:   student ? (student._id || student) : i.studentId,
+        studentName: student ? student.name : "Student",
+        studentEmail:student ? student.email : "",
+        date:        i.date,
+        meal:        i.mealType,
+        status:      i.willEat ? "eating" : "skipping",
+        createdAt:   i.createdAt,
+        updatedAt:   i.updatedAt,
+      };
+    });
+    
+    res.json(formatted);
+  } catch (err) {
+    console.error("[getIntentions error]", err);
+    res.status(500).json({ message: err.message });
+  }
 };
 
+// GET /api/intentions/student/:studentId (Student View)
 exports.getIntentionsByStudent = async (req, res) => {
   try {
     const intentions = await Intention.find({ studentId: req.params.studentId });
     
-    // Frontend ke liye format karo
     const formatted = intentions.map(i => ({
-      ...i.toObject(),
-      meal:   i.mealType,
-      status: i.willEat ? "eating" : "skipping",
-      date:   i.date,
+      _id:       i._id,
+      studentId: i.studentId,
+      date:      i.date,
+      meal:      i.mealType,
+      status:    i.willEat ? "eating" : "skipping",
+      createdAt: i.createdAt,
+      updatedAt: i.updatedAt,
     }));
     
     res.json(formatted);
-  } catch (err) { res.status(500).json({ message: err.message }); }
+  } catch (err) {
+    console.error("[getIntentionsByStudent error]", err);
+    res.status(500).json({ message: err.message });
+  }
 };
 
+// POST /api/intentions (Create/Update Intention)
 exports.createIntention = async (req, res) => {
   try {
     const { studentId, studentName, meal, date, status, mealType, willEat } = req.body;
@@ -36,18 +64,34 @@ exports.createIntention = async (req, res) => {
     const existing = await Intention.findOneAndUpdate(
       { studentId, date, mealType: mealField },
       { willEat: willEatVal },
-      { new: true, upsert: true } // ← upsert add kiya
+      { new: true, upsert: true }
     );
 
-    // Format karke bhejo
+    // Fetch student info for complete response
+    const student = await User.findById(studentId).select("name email");
+
     const response = {
-      ...existing.toObject(),
-      meal:   existing.mealType,
-      status: existing.willEat ? "eating" : "skipping",
+      _id:         existing._id,
+      studentId:   existing.studentId,
+      studentName: student ? student.name : (studentName || "Student"),
+      studentEmail:student ? student.email : "",
+      date:        existing.date,
+      meal:        existing.mealType,
+      status:      existing.willEat ? "eating" : "skipping",
+      createdAt:   existing.createdAt,
+      updatedAt:   existing.updatedAt,
     };
 
+    // Emit live socket event to admin room if socket is available
+    if (global.io) {
+      global.io.to("admin-room").emit("intention-updated", response);
+    }
+
     res.json(response);
-  } catch (err) { res.status(500).json({ message: err.message }); }
+  } catch (err) {
+    console.error("[createIntention error]", err);
+    res.status(500).json({ message: err.message });
+  }
 };
 
 exports.updateIntention = async (req, res) => {

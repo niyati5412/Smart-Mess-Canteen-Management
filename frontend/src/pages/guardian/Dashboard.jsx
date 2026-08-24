@@ -52,6 +52,8 @@ const GuardianDashboard = () => {
   const MEAL_COST = 67;
   const SEMESTER_FEE = 6000;
 
+  const [wardInfo, setWardInfo] = useState(null);
+
   useEffect(() => {
     const s = JSON.parse(sessionStorage.getItem('mm_session'));
     if (!s || s.role !== 'guardian') {
@@ -59,8 +61,25 @@ const GuardianDashboard = () => {
     } else {
       setSession(s);
       fetchData(s.wardStudentId || s.wardId);
+      fetchWardInfo(s.wardStudentId || s.wardId);
     }
   }, [navigate]);
+
+  const fetchWardInfo = async (wardId) => {
+    if (!wardId) return;
+    try {
+      const res = await fetch('/api/auth/users');
+      if (res.ok) {
+        const users = await res.json();
+        if (Array.isArray(users)) {
+          const found = users.find(u => u._id === wardId || u.id === wardId);
+          if (found) setWardInfo(found);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchData = async (wardId) => {
     if (!wardId) {
@@ -193,7 +212,17 @@ const GuardianDashboard = () => {
           <div className="ward-switcher">
             {/* Guardian Profile Card */}
             <div className="ward-card" style={{ borderColor: 'rgba(244, 197, 66, 0.35)', background: 'rgba(244, 197, 66, 0.03)', cursor: 'default' }}>
-              <div className="ward-av" style={{ background: 'linear-gradient(135deg, #2a1f04, #f4c542)', color: 'rgba(255, 255, 255, 0.9)' }}>{initials}</div>
+              <div className="ward-av" style={{ background: 'linear-gradient(135deg, #2a1f04, #f4c542)', color: 'rgba(255, 255, 255, 0.9)', overflow: 'hidden' }}>
+                {session?.profilePic && session.profilePic !== 'null' && session.profilePic !== 'undefined' ? (
+                  <img 
+                    src={session.profilePic.startsWith('http') ? session.profilePic : `http://localhost:3000/${session.profilePic.replace(/^\//, '')}`} 
+                    alt={session?.name} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  />
+                ) : (
+                  initials
+                )}
+              </div>
               <div>
                 <div className="ward-name" style={{ color: 'var(--gold)' }}>{session?.name} (You)</div>
                 <div className="ward-id">ID: {session?.id || session?._id}</div>
@@ -206,7 +235,17 @@ const GuardianDashboard = () => {
 
             {/* Ward Profile Card */}
             <div className="ward-card active">
-              <div className="ward-av">{wardInitials}</div>
+              <div className="ward-av" style={{ overflow: 'hidden' }}>
+                {wardInfo?.profilePic && wardInfo.profilePic !== 'null' && wardInfo.profilePic !== 'undefined' ? (
+                  <img 
+                    src={wardInfo.profilePic.startsWith('http') ? wardInfo.profilePic : `http://localhost:3000/${wardInfo.profilePic.replace(/^\//, '')}`} 
+                    alt={wardName} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  />
+                ) : (
+                  wardInitials
+                )}
+              </div>
               <div>
                 <div className="ward-name">{wardName}</div>
                 <div className="ward-id">{wardId ? `ID: ${wardId}` : 'Configure in Settings'}</div>

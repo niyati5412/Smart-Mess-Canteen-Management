@@ -126,7 +126,7 @@ const StudentDashboard = () => {
                 )}
               </div>
               <div>
-                <div className="ward-name">{session?.name || 'mikash bansal'}</div>
+                <div className="ward-name">{session?.name || 'Student'}</div>
                 <div className="ward-id">
                   {session?.id || session?._id ? `ID: ${session.id || session._id}` : 'Configure in Settings'}
                 </div>

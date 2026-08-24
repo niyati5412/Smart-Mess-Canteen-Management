@@ -10,8 +10,6 @@ const authRoutes      = require("./routes/auth.routes");
 const intentionRoutes = require("./routes/intention.routes");
 const feedbackRoutes  = require("./routes/feedback.routes");
 const menuRoutes      = require("./routes/menu.routes");
-const canteenRoutes   = require("./routes/canteen.routes");
-const orderRoutes     = require("./routes/orders.routes");
 const budgetRoutes    = require("./routes/budget.routes");
 const wasteRoutes     = require("./routes/waste.routes");
 
@@ -39,8 +37,6 @@ app.use("/api/auth",       authRoutes);
 app.use("/api/intentions", intentionRoutes);
 app.use("/api/feedback",   feedbackRoutes);
 app.use("/api/menu",       menuRoutes);
-app.use("/api/canteen",    canteenRoutes);
-app.use("/api/orders",     orderRoutes);
 app.use("/api/budget",     budgetRoutes);
 app.use("/api/waste",      wasteRoutes);
 // Catch-all route to serve React's index.html for client-side routing

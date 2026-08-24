@@ -11,6 +11,24 @@ const AdminSidebar = ({ session }) => {
   const [showSourceModal, setShowSourceModal] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
 
+  const [studentCount, setStudentCount] = useState(0);
+
+  React.useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch('/api/auth/users');
+        if (res.ok) {
+          const users = await res.json();
+          const count = users.filter(u => u.role === 'student').length;
+          setStudentCount(count);
+        }
+      } catch (err) {
+        console.error('Error fetching users for admin sidebar:', err);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const handleAvatarClick = () => {
     setShowSourceModal(true);
   };
@@ -156,14 +174,12 @@ const AdminSidebar = ({ session }) => {
         <div className="admin-nav-label">Overview</div>
         <Link to="/admin/dashboard" className={`admin-nav-item ${currentPath === '/admin/dashboard' ? 'active' : ''}`}><span className="admin-nav-icon">📊</span> Dashboard</Link>
         <Link to="/admin/menu" className={`admin-nav-item ${currentPath === '/admin/menu' ? 'active' : ''}`}><span className="admin-nav-icon">📋</span> Menu Manager</Link>
-        <Link to="/admin/orders" className={`admin-nav-item ${currentPath === '/admin/orders' ? 'active' : ''}`}><span className="admin-nav-icon">📦</span> Order Manager</Link>
         <Link to="/admin/intentions" className={`admin-nav-item ${currentPath === '/admin/intentions' ? 'active' : ''}`}><span className="admin-nav-icon">✅</span> Intentions</Link>
-        <Link to="#" className="admin-nav-item"><span className="admin-nav-icon">👥</span> Students <span className="admin-nav-badge blue">342</span></Link>
+        <Link to="#" className="admin-nav-item"><span className="admin-nav-icon">👥</span> Students <span className="admin-nav-badge blue">{studentCount}</span></Link>
         
         <div className="admin-nav-label">Finance</div>
         <Link to="/admin/budget" className={`admin-nav-item ${currentPath === '/admin/budget' ? 'active' : ''}`}><span className="admin-nav-icon">💰</span> Budget</Link>
         <Link to="/admin/waste" className={`admin-nav-item ${currentPath === '/admin/waste' ? 'active' : ''}`}><span className="admin-nav-icon">♻️</span> Waste</Link>
-        <Link to="/admin/canteen" className={`admin-nav-item ${currentPath === '/admin/canteen' ? 'active' : ''}`}><span className="admin-nav-icon">🏪</span> Canteen</Link>
         
         <div className="admin-nav-label">Reports</div>
         <Link to="/admin/reports" className={`admin-nav-item ${currentPath === '/admin/reports' ? 'active' : ''}`}><span className="admin-nav-icon">📄</span> Reports <span className="admin-nav-badge" style={{background:'var(--danger)'}}>2</span></Link>

@@ -63,8 +63,15 @@ const Signup = () => {
         return;
       }
     } else if (current === 2) {
+      setApiError('');
       if (!firstName.trim()) newErrors.firstName = true;
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) newErrors.email = true;
+      if (role === 'student' && !email.trim().toLowerCase().endsWith('@chitkara.edu.in')) {
+        newErrors.emailDomain = true;
+        setApiError('Student registration is restricted to @chitkara.edu.in email addresses.');
+        setErrors(newErrors);
+        return;
+      }
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
         return;
@@ -119,6 +126,10 @@ const Signup = () => {
 
   const submitForm = async () => {
     setApiError('');
+    if (role === 'student' && !email.trim().toLowerCase().endsWith('@chitkara.edu.in')) {
+      setApiError('Student registration is restricted to @chitkara.edu.in email addresses.');
+      return;
+    }
     setIsSubmitting(true);
 
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
@@ -306,9 +317,13 @@ const Signup = () => {
                 <label>Email Address <span className="req">*</span></label>
                 <div className="input-wrap">
                   <svg className="inp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                  <input type="email" className={errors.email ? 'error' : ''} value={email} onChange={e => setEmail(e.target.value)} placeholder="john@campus.edu" />
+                  <input type="email" className={errors.email || errors.emailDomain ? 'error' : ''} value={email} onChange={e => setEmail(e.target.value)} placeholder={role === 'student' ? "name@chitkara.edu.in" : "john@campus.edu"} />
                 </div>
                 {errors.email && <div className="field-err" style={{display:'block'}}>Please enter a valid email address.</div>}
+                {errors.emailDomain && <div className="field-err" style={{display:'block'}}>Student registration is restricted to @chitkara.edu.in email addresses.</div>}
+                {role === 'student' && !errors.email && !errors.emailDomain && (
+                  <div className="field-hint" style={{color:'var(--accent)'}}>Must be your official @chitkara.edu.in email address</div>
+                )}
               </div>
               
               <div className="field">

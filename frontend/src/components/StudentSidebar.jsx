@@ -167,7 +167,7 @@ const StudentSidebar = ({ session }) => {
             )}
           </div>
           <div>
-            <div className="ward-name">{session?.name || 'mikash bansal'}</div>
+            <div className="ward-name">{session?.name || 'Student'}</div>
             <div className="ward-id">
               {session?.id || session?._id ? `ID: ${session.id || session._id}` : 'Configure in Settings'}
             </div>
@@ -189,8 +189,6 @@ const StudentSidebar = ({ session }) => {
         
         <div className="student-nav-label" style={{marginTop: '16px'}}>INFO</div>
         <Link to="/student/menu" className={`student-nav-item ${isActive('/student/menu')}`}><span className="student-nav-icon">📋</span> Menu</Link>
-        <Link to="/student/orders" className={`student-nav-item ${isActive('/student/orders')}`}><span className="student-nav-icon">🛒</span> Orders</Link>
-        <Link to="/student/canteen" className={`student-nav-item ${isActive('/student/canteen')}`}><span className="student-nav-icon">🏪</span> Canteen</Link>
         <Link to="/student/feedback" className={`student-nav-item ${isActive('/student/feedback')}`}><span className="student-nav-icon">💬</span> Feedback</Link>
         <Link to="#" className="student-nav-item"><span className="student-nav-icon">⚙️</span> Settings</Link>
       </nav>

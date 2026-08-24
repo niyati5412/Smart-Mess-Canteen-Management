@@ -19,8 +19,15 @@ exports.register = async (req, res) => {
     if (!allowedRoles.includes(role))
       return res.status(400).json({ message: "Invalid role" });
 
-    // 3. Duplicate email check
-    const existing = await User.findOne({ email });
+    // 3. Chitkara student email domain check
+    if (role === "student" && !email.toLowerCase().endsWith("@chitkara.edu.in")) {
+      return res.status(400).json({
+        message: "Student registration is restricted to @chitkara.edu.in email addresses"
+      });
+    }
+
+    // 4. Duplicate email check
+    const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing)
       return res.status(409).json({ message: "Email already registered" });
 

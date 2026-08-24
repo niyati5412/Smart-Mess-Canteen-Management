@@ -224,12 +224,24 @@ const cssVariables = `
   @media(max-width:600px){.problems-grid{grid-template-columns:1fr;}.stats-container{grid-template-columns:1fr 1fr;}}
 `;
 
+import { useState } from "react";
+
 export default function Index() {
   const navRef = useRef(null);
   const heroLeftRef = useRef(null);
+  const [liveStudentsCount, setLiveStudentsCount] = useState(null);
 
   // Inject Google Font + CSS variables once
   useEffect(() => {
+    fetch('/api/auth/users')
+      .then(res => res.json())
+      .then(users => {
+        if (Array.isArray(users)) {
+          const count = users.filter(u => u.role === 'student').length;
+          if (count > 0) setLiveStudentsCount(count);
+        }
+      })
+      .catch(() => {});
     // Google Font
     if (!document.getElementById("mm-font")) {
       const link = document.createElement("link");
@@ -415,7 +427,7 @@ export default function Index() {
               <div className="dash-stats">
                 <div className="dash-stat">
                   <div className="dash-stat-label">Today&apos;s Meals</div>
-                  <div className="dash-stat-value" style={{ color: "var(--accent)" }}>342</div>
+                  <div className="dash-stat-value" style={{ color: "var(--accent)" }}>{liveStudentsCount ? `${liveStudentsCount}` : '100+'}</div>
                   <div className="dash-stat-change up">↑ 12% vs yesterday</div>
                 </div>
                 <div className="dash-stat">

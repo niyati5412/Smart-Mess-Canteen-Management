@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 console.log('===================================================');
-console.log('🚀 Starting Smart Mess Canteen Management System');
+console.log('🚀 Starting Smart Mess Management System');
 console.log('===================================================');
 
 // Start backend
